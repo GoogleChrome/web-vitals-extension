@@ -1,0 +1,51 @@
+{
+ "captchaResult": "CAPTCHA_NOT_NEEDED",
+ "kind": "pagespeedonline#result",
+ "loadingExperience": {
+  "id": "https://www.wiktionary.org/",
+  "metrics": {
+   "FIRST_CONTENTFUL_PAINT_MS": {
+    "percentile": 3074,
+    "distributions": [
+     {
+      "min": 0,
+      "max": 1000,
+      "proportion": 0.4791345989396272
+     },
+     {
+      "min": 1000,
+      "max": 2500,
+      "proportion": 0.37408072515820073
+     },
+     {
+      "min": 2500,
+      "proportion": 0.1467846759021721
+     }
+    ],
+    "category": "SLOW"
+   },
+   "FIRST_INPUT_DELAY_MS": {
+    "percentile": 101,
+    "distributions": [
+     {
+      "min": 0,
+      "max": 50,
+      "proportion": 0.9299037304452467
+     },
+     {
+      "min": 50,
+      "max": 250,
+      "proportion": 0.039786401925391096
+     },
+     {
+      "min": 250,
+      "proportion": 0.030309867629362205
+     }
+    ],
+    "category": "AVERAGE"
+   }
+  },
+  "overall_category": "SLOW",
+  "initial_url": "https://www.wiktionary.org/"
+ }
+}
