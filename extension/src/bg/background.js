@@ -2,13 +2,13 @@
 let currentTab = 0;
 
 function getWebVitals(tabId) {
-  currentTab = tabId;
+  // currentTab = tabId;
   chrome.tabs.executeScript(tabId, { file: "src/browser_action/core.js" }, result => {
     // Catch errors such as "This page cannot be scripted due to an ExtensionsSettings policy."
     const lastErr = chrome.runtime.lastError;
     if (lastErr) {
       console.log("Error: " + lastErr.message);
-      chrome.browserAction.setIcon({ path: "../../icons/default128w.png", tabId: currentTab });
+      chrome.browserAction.setIcon({ path: "../../icons/default128w.png", tabId: tabId });
       // chrome.browserAction.setBadgeText({ text: "" });
     }
  });
@@ -20,7 +20,7 @@ chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
       tab.url.startsWith("http") &&
       tab.active
     ) {
-      console.log('chrome.tabs.onUpdated');
+      console.log(`chrome.tabs.onUpdated ${tabId}`);
       currentTab = tabId;
       getWebVitals(tabId);
     }
@@ -71,7 +71,22 @@ function updateBadgeIcon(overall_category) {
     }
 }
 
+function passVitalsToPSI(badgeMetrics) {
+  chrome.tabs.query({active: true, currentWindow: true}, function(tabs) {
+    chrome.runtime.sendMessage({metrics: badgeMetrics}, function(response) {
+      console.log(`background.js: passed Web Vitals to the PSI content script ${tabs[0].id}`);
+    });
+  });
+}
+
 // message from content script
 chrome.runtime.onMessage.addListener((request, sender, response) => {
-  updateBadgeIcon(request.result);
+  console.log(`background.js: update badge and pass metrics`);
+  if (request.webVitalsScoreBucket !== undefined) {
+    // e.g webVitalsScoreBucket === 'GOOD' => green badge
+    updateBadgeIcon(request.webVitalsScoreBucket);
+    // also pass the WebVitals metrics on to PSI for when 
+    // the badge icon is clicked and the pop-up opens.
+    passVitalsToPSI(request.metrics);
+  }
 });

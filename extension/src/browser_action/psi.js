@@ -1,4 +1,5 @@
 const API_URL = 'https://www.googleapis.com/pagespeedonline/v5/runPagespeed?';
+const FE_URL = 'https://developers.google.com/speed/pagespeed/insights/';
 let encodedUrl = '';
 let psiURL = '';
 let resultsFetched = false;
@@ -10,12 +11,10 @@ async function fetchAPIResults(url) {
         // 'key=' + API_KEY,
     ].join('&');
     const queryURL = API_URL + query;
-
-    // console.log(`Fetching PSI results from ${queryURL}`);
     try {
         const response = await fetch(queryURL);
         const json = await response.json();
-        console.log(`Response from PSI was ${json}`);
+        // console.log(`psi.js: PSI API responded with ${JSON.stringify(json)}`);
         processResults(json);
     } catch (err) {
         const el = document.getElementById('report');
@@ -63,7 +62,7 @@ function buildDistributionTemplate(metric, label) {
 }
 
 function buildPSILink() {
-    return `<br><a href='https://developers.google.com/speed/pagespeed/insights/?url=${encodedUrl}' target='_blank'>View Report on PageSpeed Insights</a>`;
+    return `<br><a href='${FE_URL}?url=${encodedUrl}' target='_blank'>View Report on PageSpeed Insights</a>`;
 }
 
 function formatDisplayValue(metricName, metricValueMs) {
@@ -79,6 +78,10 @@ function formatDisplayValue(metricName, metricValueMs) {
 
 chrome.tabs.query({active: true, currentWindow: true}, function(tabs) {
     let thisTab = tabs[0];
-    console.log(`PSI API will be queries for URL ${thisTab.url}`);
+    console.log(`psi.js: PSI API will be queried for URL ${thisTab.url}`);
     fetchAPIResults(thisTab.url);
+});
+
+chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
+    console.log(`psi.js: Metrics shared with PSI are...`, JSON.stringify(request.metrics));
 });
