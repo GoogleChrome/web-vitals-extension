@@ -60,21 +60,21 @@ function buildLocalMetricsTemplate(metrics) {
     <div class="lh-audit-group__header"><span class="lh-audit-group__title">Metrics</span></div>
     <div class="lh-columns">
       <div class="lh-column">
-        <div class="lh-metric lh-metric--${metrics.lcp.pass? 'pass':'fail'}">
+        <div class="lh-metric lh-metric--${metrics.lcp.pass ? 'pass':'fail'}">
           <div class="lh-metric__innerwrap">
-            <span class="lh-metric__title">Largest Contentful Paint</span>
+            <span class="lh-metric__title">Largest Contentful Paint <span class="lh-metric-state">${metrics.lcp.final ? '(final)' : '(not final)'}</span></span>
             <div class="lh-metric__value">${(metrics.lcp.value/1000).toFixed(2)}&nbsp;s</div>
           </div>
         </div>
-        <div class="lh-metric lh-metric--${metrics.fid.pass? 'pass':'fail'}">
+        <div class="lh-metric lh-metric--${metrics.fid.pass ? 'pass':'fail'}">
           <div class="lh-metric__innerwrap">
-            <span class="lh-metric__title">First Input Delay</span>
+            <span class="lh-metric__title">First Input Delay <span class="lh-metric-state">${metrics.fid.final ? '(final)' : '(not final)'}</span></span>
             <div class="lh-metric__value">${metrics.fid.value.toFixed(2)}&nbsp;ms</div>
           </div>
         </div>
-        <div class="lh-metric lh-metric--${metrics.cls.pass? 'pass':'fail'}">
+        <div class="lh-metric lh-metric--${metrics.cls.pass ? 'pass':'fail'}">
           <div class="lh-metric__innerwrap">
-            <span class="lh-metric__title">Cumulative Layout Shift</span>
+            <span class="lh-metric__title">Cumulative Layout Shift <span class="lh-metric-state">${metrics.cls.final ? '(final)' : '(not final)'}</span></span>
             <div class="lh-metric__value">${metrics.cls.value.toFixed(3)}&nbsp;</div>
           </div>
         </div>
@@ -84,8 +84,8 @@ function buildLocalMetricsTemplate(metrics) {
 }
 
 function createLocalMetricsTemplate(metrics) {
+    if (metrics === undefined || metrics.lcp === undefined) { return; }
     const el = document.getElementById('local-metrics');
-    console.log(buildLocalMetricsTemplate(metrics));
     el.innerHTML = buildLocalMetricsTemplate(metrics);
 }
 
@@ -117,7 +117,7 @@ function buildPSILink() {
 
 function formatDisplayValue(metricName, metricValueMs) {
     if (metricValueMs === undefined) {
-        return null;
+        return '';
     }
     if (metricName === 'First Input Delay (FID)') {
         return Number(metricValueMs.toFixed(0)) + ' ms';
@@ -137,11 +137,4 @@ chrome.tabs.query({active: true, currentWindow: true}, function(tabs) {
             createLocalMetricsTemplate(result[key]);
         });
     }
-    //
 });
-
-// chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
-//     console.log(`psi.js: Metrics shared with PSI are...`, JSON.stringify(request.metrics));
-//     localMetrics = request.metrics;
-//     createLocalMetricsTemplate(request.metrics);
-// });

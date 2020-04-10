@@ -35,7 +35,7 @@ function scoreBadgeMetrics(metrics) {
         bucket = 'POOR';
         metrics.lcp.pass = false;
     }
-    if (metrics.fid.value > 0.1) {
+    if (metrics.fid.value > 100) {
         bucket = 'POOR';
         metrics.fid.pass = false;
     }

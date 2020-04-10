@@ -151,10 +151,6 @@ chrome.runtime.onMessage.addListener((request, sender, response) => {
     if (sender.tab.url) {
       let key = hashCode(sender.tab.url);
       chrome.storage.local.set({ [key]: request.metrics });
-      // test
-      // chrome.storage.local.get(key, result => {
-      //   console.log('br metrics local...', result);
-      // });
     }
     //
   }
