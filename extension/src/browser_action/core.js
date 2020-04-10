@@ -9,15 +9,18 @@
 badgeMetrics = {
     lcp: {
         value: 0,
-        final: false
+        final: false,
+        pass: true
     },
     cls: {
         value: 0,
-        final: false
+        final: false,
+        pass: true
     },
     fid: {
         value: 0,
-        final: false
+        final: false,
+        pass: true
     }
 };
 
@@ -30,12 +33,15 @@ function scoreBadgeMetrics(metrics) {
     let bucket = 'GOOD';
     if (metrics.lcp.value > 2500) {
         bucket = 'POOR';
+        metrics.lcp.pass = false;
     }
     if (metrics.fid.value > 0.1) {
         bucket = 'POOR';
+        metrics.fid.pass = false;
     }
     if (metrics.cls.value > 0.1) {
         bucket = 'POOR';
+        metrics.cls.pass = false;
     }
     return bucket;
 }

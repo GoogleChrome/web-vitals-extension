@@ -60,22 +60,22 @@ function buildLocalMetricsTemplate(metrics) {
     <div class="lh-audit-group__header"><span class="lh-audit-group__title">Metrics</span></div>
     <div class="lh-columns">
       <div class="lh-column">
-        <div class="lh-metric lh-metric--fail">
+        <div class="lh-metric lh-metric--${metrics.lcp.pass? 'pass':'fail'}">
           <div class="lh-metric__innerwrap">
             <span class="lh-metric__title">Largest Contentful Paint</span>
-            <div class="lh-metric__value">${metrics.lcp.value}&nbsp;s</div>
+            <div class="lh-metric__value">${(metrics.lcp.value/1000).toFixed(2)}&nbsp;s</div>
           </div>
         </div>
-        <div class="lh-metric lh-metric--fail">
+        <div class="lh-metric lh-metric--${metrics.fid.pass? 'pass':'fail'}">
           <div class="lh-metric__innerwrap">
             <span class="lh-metric__title">First Input Delay</span>
-            <div class="lh-metric__value">${metrics.fid.value}&nbsp;s</div>
+            <div class="lh-metric__value">${metrics.fid.value.toFixed(2)}&nbsp;ms</div>
           </div>
         </div>
-        <div class="lh-metric lh-metric--fail">
+        <div class="lh-metric lh-metric--${metrics.cls.pass? 'pass':'fail'}">
           <div class="lh-metric__innerwrap">
             <span class="lh-metric__title">Cumulative Layout Shift</span>
-            <div class="lh-metric__value">${metrics.cls.value}&nbsp;</div>
+            <div class="lh-metric__value">${metrics.cls.value.toFixed(3)}&nbsp;</div>
           </div>
         </div>
       </div>
