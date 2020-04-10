@@ -1,5 +1,5 @@
 
-// Inlined WebVitals
+// Inlined WebVitals library
 // TODO: Switch to use WebVitals ESM or at least external UMD build
 // Nuance: Initially experienced issues using imports in Chrome extensions
 // where Vitals was silently failing. Requires further investigation.

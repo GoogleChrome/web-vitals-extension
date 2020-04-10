@@ -125,9 +125,17 @@ function buildDistributionTemplate(metric, label) {
 }
 
 function buildPSILink() {
-    return `<br><a href='${FE_URL}?url=${encodedUrl}' target='_blank'>View Report on PageSpeed Insights</a>`;
+    return `<br><a href='${FE_URL}?url=${encodedUrl}' target='_blank'>
+       View Report on PageSpeed Insights</a>`;
 }
 
+/**
+ *
+ * Format PSI API metric values
+ * @param {String} metricName
+ * @param {Number} metricValueMs
+ * @returns
+ */
 function formatDisplayValue(metricName, metricValueMs) {
     if (metricValueMs === undefined) {
         return '';

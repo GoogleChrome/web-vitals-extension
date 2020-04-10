@@ -1,10 +1,12 @@
-// When a tab is updated check to see if it is loaded and reset the icon UI
-// let currentTab = 0;
-
-// Hash the URL and return a numeric hash as a String to be used as the key
+/**
+ *
+ * Hash the URL and return a numeric hash as a String to be used as the key
+ * @param {String} str
+ * @returns
+ */
 function hashCode(str) {
   let hash = 0;
-  if (str.length == 0) {
+  if (str.length === 0) {
     return "";
   }
   for (var i = 0; i < str.length; i++) {
@@ -15,6 +17,11 @@ function hashCode(str) {
   return hash.toString();
 }
 
+/**
+ *
+ * Call vitals.js to begin collecting local WebVitals metrics
+ * @param {Number} tabId
+ */
 function getWebVitals(tabId) {
   console.log(`background.js: getWebVitals() for tabId ${tabId}`);
   chrome.tabs.executeScript({
@@ -33,6 +40,7 @@ function getWebVitals(tabId) {
   });
 }
 
+// User has navigated to a new URL in a tab
 chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
   if (
     changeInfo.status == "complete" &&
@@ -43,13 +51,58 @@ chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
   }
 });
 
-function updateBadgeColor(overall_category) {
+
+/**
+ *
+ * Update the badge icon based on the overall WebVitals 
+ * pass rate (i.e good = green icon, poor = red icon)
+ * @param {String} badgeCategory - GOOD or POOR
+ * @param {Number} tabid
+ */
+function updateBadgeIcon(badgeCategory, tabid) {
+  console.log(`Updating badge icon to ${badgeCategory}`);
+  chrome.tabs.query({
+    active: true,
+    currentWindow: true
+  }, function (tabs) {
+    let currentTab = tabid || tabs[0].id;
+
+    switch (badgeCategory) {
+      case 'POOR':
+        chrome.browserAction.setIcon({
+          path: '../../icons/slow128w.png',
+          tabId: currentTab
+        });
+        break;
+      case 'GOOD':
+        chrome.browserAction.setIcon({
+          path: '../../icons/fast128w.png',
+          tabId: currentTab
+        });
+        break;
+      default:
+        chrome.browserAction.setIcon({
+          path: '../../icons/default128w.png',
+          tabId: currentTab
+        });
+        break;
+    }
+  });
+}
+
+/**
+ *
+ * Update the badge color based on the overall WebVitals
+ * pass rate for metrics.
+ * @param {String} badgeCategory
+ */
+function updateBadgeColor(badgeCategory) {
   chrome.tabs.query({
     active: true,
     currentWindow: true
   }, function (tabs) {
     let currentTab = tabs[0].id;
-    switch (overall_category) {
+    switch (badgeCategory) {
       case 'POOR':
         chrome.browserAction.setBadgeBackgroundColor({
           color: "red",
@@ -82,56 +135,28 @@ function updateBadgeColor(overall_category) {
   });
 }
 
-function updateBadgeIcon(overall_category, tabid) {
-  console.log(`Updating badge icon to ${overall_category}`);
-  chrome.tabs.query({
-    active: true,
-    currentWindow: true
-  }, function (tabs) {
-    let currentTab = tabid || tabs[0].id;
-
-    switch (overall_category) {
-      case 'POOR':
-        chrome.browserAction.setIcon({
-          path: '../../icons/slow128w.png',
-          tabId: currentTab
+/**
+ *
+ * Broadcast collected WebVitals metrics for usage in the PSI popup
+ * @param {Object} badgeMetrics
+ */
+function passVitalsToPSI(badgeMetrics) {
+  chrome.tabs.onUpdated.addListener(function (tabId, changeInfo, tab) {          
+    if (changeInfo.status == 'complete') {   
+      chrome.tabs.query({active: true}, function(tabs) {
+        chrome.runtime.sendMessage({
+          metrics: badgeMetrics
+        }, function (response) {
+          console.log(`background.js: passed Web Vitals to the PSI content script`);
         });
-        break;
-      case 'GOOD':
-        chrome.browserAction.setIcon({
-          path: '../../icons/fast128w.png',
-          tabId: currentTab
-        });
-        break;
-      default:
-        chrome.browserAction.setIcon({
-          path: '../../icons/default128w.png',
-          tabId: currentTab
-        });
-        break;
+      });
     }
   });
-}
-
-function passVitalsToPSI(badgeMetrics) {
-chrome.tabs.onUpdated.addListener(function (tabId, changeInfo, tab) {          
-  if (changeInfo.status == 'complete') {   
-     chrome.tabs.query({active: true}, function(tabs) {
-      chrome.runtime.sendMessage({
-        metrics: badgeMetrics
-      }, function (response) {
-        console.log(`background.js: passed Web Vitals to the PSI content script`);
-      });
-     });
-  }
-});
-//
   chrome.runtime.sendMessage({
     metrics: badgeMetrics
   }, function (response) {
     console.log(`background.js: passed Web Vitals to the PSI content script`);
   });
-
 }
 
 // message from content script
