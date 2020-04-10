@@ -3,6 +3,21 @@ const FE_URL = 'https://developers.google.com/speed/pagespeed/insights/';
 let encodedUrl = '';
 let psiURL = '';
 let resultsFetched = false;
+let localMetrics = {};
+
+// Hash the URL and return a numeric hash as a String to be used as the key
+function hashCode(str) {
+    let hash = 0;
+    if (str.length == 0) {
+      return "";
+    }
+    for (var i = 0; i < str.length; i++) {
+      var char = str.charCodeAt(i);
+      hash = (hash << 5) - hash + char;
+      hash = hash & hash; // Convert to 32bit integer
+    }
+    return hash.toString();
+  }
 
 async function fetchAPIResults(url) {
     if (resultsFetched) { return; }
@@ -15,14 +30,14 @@ async function fetchAPIResults(url) {
         const response = await fetch(queryURL);
         const json = await response.json();
         // console.log(`psi.js: PSI API responded with ${JSON.stringify(json)}`);
-        processResults(json);
+        createPSITemplate(json);
     } catch (err) {
         const el = document.getElementById('report');
         el.innerHTML = `We were unable to process your request.`;
     }
 }
 
-function processResults(result) {
+function createPSITemplate(result) {
     const experience = result.loadingExperience;
     const metrics = experience.metrics;
     const overall_category = experience.overall_category;
@@ -37,6 +52,41 @@ function processResults(result) {
     el.innerHTML = tmpl;
     // TODO: Implement per-tab/URL report caching scheme
     resultsFetched = true;
+}
+
+function buildLocalMetricsTemplate(metrics) {
+    return `
+    <div class="lh-audit-group lh-audit-group--metrics">
+    <div class="lh-audit-group__header"><span class="lh-audit-group__title">Metrics</span></div>
+    <div class="lh-columns">
+      <div class="lh-column">
+        <div class="lh-metric lh-metric--fail">
+          <div class="lh-metric__innerwrap">
+            <span class="lh-metric__title">Largest Contentful Paint</span>
+            <div class="lh-metric__value">${metrics.lcp.value}&nbsp;s</div>
+          </div>
+        </div>
+        <div class="lh-metric lh-metric--fail">
+          <div class="lh-metric__innerwrap">
+            <span class="lh-metric__title">First Input Delay</span>
+            <div class="lh-metric__value">${metrics.fid.value}&nbsp;s</div>
+          </div>
+        </div>
+        <div class="lh-metric lh-metric--fail">
+          <div class="lh-metric__innerwrap">
+            <span class="lh-metric__title">Cumulative Layout Shift</span>
+            <div class="lh-metric__value">${metrics.cls.value}&nbsp;</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>`;
+}
+
+function createLocalMetricsTemplate(metrics) {
+    const el = document.getElementById('local-metrics');
+    console.log(buildLocalMetricsTemplate(metrics));
+    el.innerHTML = buildLocalMetricsTemplate(metrics);
 }
 
 function buildDistributionTemplate(metric, label) {
@@ -80,8 +130,18 @@ chrome.tabs.query({active: true, currentWindow: true}, function(tabs) {
     let thisTab = tabs[0];
     console.log(`psi.js: PSI API will be queried for URL ${thisTab.url}`);
     fetchAPIResults(thisTab.url);
+    // Retrieve the stored latest metrics
+    if (thisTab.url) {
+        let key = hashCode(thisTab.url);
+        chrome.storage.local.get(key, result => {
+            createLocalMetricsTemplate(result[key]);
+        });
+    }
+    //
 });
 
-chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
-    console.log(`psi.js: Metrics shared with PSI are...`, JSON.stringify(request.metrics));
-});
+// chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
+//     console.log(`psi.js: Metrics shared with PSI are...`, JSON.stringify(request.metrics));
+//     localMetrics = request.metrics;
+//     createLocalMetricsTemplate(request.metrics);
+// });

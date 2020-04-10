@@ -46,6 +46,8 @@ function updateBadgeValue(metric, value, isFinal) {
     badgeMetrics[metric].final = isFinal;
 
     let scoreBucket = scoreBadgeMetrics(badgeMetrics);
+
+    // Broadcast metrics updates for badging
     chrome.runtime.sendMessage({ 
         webVitalsScoreBucket: scoreBucket,
         metrics: badgeMetrics 
