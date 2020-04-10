@@ -14,25 +14,20 @@
   "browser_action": {
     "default_icon": "icons/default256w.png",
     "default_title": "Web Vitals",
-    "default_popup": "src/browser_action/browser_action.html"
+    "default_popup": "src/browser_action/popup.html"
   },
   "permissions": [
     "tabs",
+    "storage",
+    "activeTab",
     "http://localhost/",
     "http://*/*",
     "https://*/*",
     "https://www.googleapis.com/pagespeedonline/v5/runPagespeed?*"
   ],
-  "content_scripts": [
-    {
-      "matches": [
-        "http://*/*",
-        "https://*/*"
-      ],
-      "js": [
-        "src/browser_action/core.js"
-      ]
-    }
-  ],
+"background": {
+    "scripts": ["src/bg/background.js"],
+    "persistent": false
+  },
   "content_security_policy": "script-src 'self' https://www.googleapis.com; object-src 'self'"
 }
