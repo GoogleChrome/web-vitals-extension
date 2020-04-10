@@ -1,5 +1,5 @@
 // When a tab is updated check to see if it is loaded and reset the icon UI
-let currentTab = null;
+let currentTab = 0;
 
 function getWebVitals(tabId) {
   currentTab = tabId;
@@ -24,34 +24,6 @@ chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
       currentTab = tabId;
       getWebVitals(tabId);
     }
-});
-
-chrome.tabs.onActivated.addListener((tabId, changeInfo, tab) => {
-  if (
-    changeInfo.status == "complete" &&
-    tab.url.startsWith("http") &&
-    tab.active
-  ) {
-    console.log('chrome.tabs.onUpdated');
-    currentTab = tabId;
-    getWebVitals(tabId);
-  }
-});
-
-
-document.addEventListener('load', () => {
-  if (currentTab !== null) {
-    getWebVitals(currentTab);
-  } else {
-    chrome.tabs.query({
-      active: true,
-      currentWindow: true
-    }, tabs => {
-      currentTab = tabs[0].id;
-      console.log('window.load');
-      getWebVitals(currentTab);
-    });
-  }
 });
 
   function updateBadgeColor(overall_category) {
@@ -102,22 +74,4 @@ function updateBadgeIcon(overall_category) {
 // message from content script
 chrome.runtime.onMessage.addListener((request, sender, response) => {
   updateBadgeIcon(request.result);
-});
-
-chrome.browserAction.onClicked.addListener(tab => {
-  const url = tab.url;
-  console.log(`Active tab URL is ${url}`);
-  encodedUrl = encodeURIComponent(url);
-
-  chrome.tabs.executeScript(tab.id, {
-    code: `var psiURL = '${url}';`
-}, function () {
-  chrome.tabs.executeScript({ file: "src/browser_action/psi.js" }, result => {
-    // Catch errors such as "This page cannot be scripted due to an ExtensionsSettings policy."
-    const lastErr = chrome.runtime.lastError;
-    if (lastErr) {
-      console.log("Error: " + lastErr.message);
-    }
-  });
-});
 });

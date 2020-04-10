@@ -1,21 +1,17 @@
-
-console.log('psi.js running....');
-
-console.log(psiURL);
-
 const API_URL = 'https://www.googleapis.com/pagespeedonline/v5/runPagespeed?';
 let encodedUrl = '';
-// let currentTab = 0;
+let psiURL = '';
+let resultsFetched = false;
 
 async function fetchAPIResults(url) {
+    if (resultsFetched) { return; }
     const query = [
         'url=url%3A' + url
         // 'key=' + API_KEY,
     ].join('&');
     const queryURL = API_URL + query;
 
-    console.log(`Fetching PSI results from ${queryURL}`);
-    // const response = await fetch('test.json');
+    // console.log(`Fetching PSI results from ${queryURL}`);
     try {
         const response = await fetch(queryURL);
         const json = await response.json();
@@ -40,6 +36,8 @@ function processResults(result) {
     const tmpl = `<h1>Origin Performance (${overall_category})</h1> ${fcp_template} ${fid_template} ${link_template}`;
     const el = document.getElementById('report');
     el.innerHTML = tmpl;
+    // TODO: Implement per-tab/URL report caching scheme
+    resultsFetched = true;
 }
 
 function buildDistributionTemplate(metric, label) {
@@ -79,4 +77,8 @@ function formatDisplayValue(metricName, metricValueMs) {
     }
 };
 
-fetchAPIResults(psiURL);
+chrome.tabs.query({active: true, currentWindow: true}, function(tabs) {
+    let thisTab = tabs[0];
+    console.log(`PSI API will be queries for URL ${thisTab.url}`);
+    fetchAPIResults(thisTab.url);
+});
