@@ -8,3 +8,22 @@ To assist developers in their iteration workflows towards hitting the Core Web V
 
 * I'm a developer browsing the web. I would like to quickly check how well a URL performs on the Core Web Vitals. 
 * I'm a developer actively building a page. I would like to see how metrics improve as I make local changes. 
+
+## Installation
+
+Download the extension and manually load it as an 'Unpacked extension' via the extensions page.
+
+## Usage
+
+Once installed, the extension will display a disabled state badge icon until you navigate to a URL. At this point it will update the badge to green or red depending on whether the URL passes the Core Web Vitals metrics thresholds. Clicking the badge icon will allow you to drill in to the individual metric values.
+
+## How does it work?
+
+* `src/browser_action/vitals.js`: Content Script that leverages WebVitals.js to collect metrics. Provides an overall score of the metrics that can be used for badging.
+* `src/bg/background.js`: Performs badge icon updates using data provided by vitals.js. Passes along
+data to `popup.js` in order to display the more detailed local metrics summary.
+* `src/browser_action/popup.js`: Content Script that handles rendering detailed metrics reports in the pop-up window displayed when clicking the badge icon.
+
+## License
+
+[Apache 2.0](/LICENSE)
