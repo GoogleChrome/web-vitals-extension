@@ -7,17 +7,17 @@ let localMetrics = {};
 
 // Hash the URL and return a numeric hash as a String to be used as the key
 function hashCode(str) {
-    let hash = 0;
-    if (str.length == 0) {
-      return "";
-    }
-    for (var i = 0; i < str.length; i++) {
-      var char = str.charCodeAt(i);
-      hash = (hash << 5) - hash + char;
-      hash = hash & hash; // Convert to 32bit integer
-    }
-    return hash.toString();
+  let hash = 0;
+  if (str.length == 0) {
+    return "";
   }
+  for (var i = 0; i < str.length; i++) {
+    var char = str.charCodeAt(i);
+    hash = (hash << 5) - hash + char;
+    hash = hash & hash; // Convert to 32bit integer
+  }
+  return hash.toString();
+}
 
 async function fetchAPIResults(url) {
     if (resultsFetched) { return; }
@@ -29,7 +29,6 @@ async function fetchAPIResults(url) {
     try {
         const response = await fetch(queryURL);
         const json = await response.json();
-        // console.log(`psi.js: PSI API responded with ${JSON.stringify(json)}`);
         createPSITemplate(json);
     } catch (err) {
         const el = document.getElementById('report');
@@ -54,6 +53,14 @@ function createPSITemplate(result) {
     resultsFetched = true;
 }
 
+/**
+ *
+ * Construct a WebVitals.js metrics template for display at the
+ * top of the pop-up. Consumes a custom metrics object provided
+ * by vitals.js.
+ * @param {Object} metrics
+ * @returns
+ */
 function buildLocalMetricsTemplate(metrics) {
     return `
     <div class="lh-audit-group lh-audit-group--metrics">
@@ -83,8 +90,14 @@ function buildLocalMetricsTemplate(metrics) {
   </div>`;
 }
 
-function createLocalMetricsTemplate(metrics) {
-    if (metrics === undefined || metrics.lcp === undefined) { return; }
+/**
+ *
+ * Render a WebVitals.js metrics table in the pop-up window
+ * @param {Object} metrics
+ * @returns
+ */
+function renderLocalMetricsTemplate(metrics) {
+    // if (metrics === undefined || metrics.lcp === undefined) { return; }
     const el = document.getElementById('local-metrics');
     el.innerHTML = buildLocalMetricsTemplate(metrics);
 }
@@ -128,13 +141,13 @@ function formatDisplayValue(metricName, metricValueMs) {
 
 chrome.tabs.query({active: true, currentWindow: true}, function(tabs) {
     let thisTab = tabs[0];
-    console.log(`psi.js: PSI API will be queried for URL ${thisTab.url}`);
+    console.log(`popup: PSI API will be queried for URL ${thisTab.url}`);
     fetchAPIResults(thisTab.url);
     // Retrieve the stored latest metrics
     if (thisTab.url) {
         let key = hashCode(thisTab.url);
         chrome.storage.local.get(key, result => {
-            createLocalMetricsTemplate(result[key]);
+            renderLocalMetricsTemplate(result[key]);
         });
     }
 });
