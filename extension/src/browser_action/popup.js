@@ -162,8 +162,10 @@ function formatDisplayValue(metricName, metricValueMs) {
 
 chrome.tabs.query({active: true, currentWindow: true}, function(tabs) {
     let thisTab = tabs[0];
-    console.log(`popup: PSI API will be queried for URL ${thisTab.url}`);
-    fetchAPIResults(thisTab.url);
+    // TODO: Re-enable PSI support once LCP, CLS land
+    // console.log(`popup: PSI API will be queried for URL ${thisTab.url}`);
+    // fetchAPIResults(thisTab.url);
+
     // Retrieve the stored latest metrics
     if (thisTab.url) {
         let key = hashCode(thisTab.url);
