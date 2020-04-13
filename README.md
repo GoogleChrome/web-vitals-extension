@@ -11,7 +11,11 @@ To assist developers in their iteration workflows towards hitting the Core Web V
 
 ## Installation
 
-Download the extension and manually load it as an 'Unpacked extension' via the extensions page.
+Download the extension and manually load it as an 'Unpacked extension' via the extensions page:
+
+1. Clone this repository locally
+2. Navigate to [chrome://extensions/](chrome://extensions/)
+3. Click "Load unpacked" and select the `extension` directory
 
 ## Usage
 
