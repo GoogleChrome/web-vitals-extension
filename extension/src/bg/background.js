@@ -159,12 +159,12 @@ function updateBadgeColor(badgeCategory) {
  * @param {Object} badgeMetrics
  */
 function passVitalsToPSI(badgeMetrics) {
-  chrome.tabs.onUpdated.addListener(function (tabId, changeInfo, tab) {
-    if (changeInfo.status == 'complete') {
-      chrome.tabs.query({active: true}, function(tabs) {
+  chrome.tabs.onUpdated.addListener((tabId, {status}, tab) => {
+    if (status == 'complete') {
+      chrome.tabs.query({active: true}, tabs => {
         chrome.runtime.sendMessage({
           metrics: badgeMetrics
-        }, function (response) {
+        }, response => {
           console.log(`background.js: passed Web Vitals to the PSI content script`);
         });
       });
@@ -172,7 +172,7 @@ function passVitalsToPSI(badgeMetrics) {
   });
   chrome.runtime.sendMessage({
     metrics: badgeMetrics
-  }, function (response) {
+  }, response => {
     console.log(`background.js: passed Web Vitals to the PSI content script`);
   });
 }
