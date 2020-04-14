@@ -34,9 +34,8 @@ badgeMetrics = {
 };
 
 /**
- * @param  {Object} metrics - Collection of metric values
- * If any metric fails the thresholds at all, we display
- * a red badge.
+ * Very simple classifier for metrics values
+ * @param  {Object} metrics
  */
 function scoreBadgeMetrics(metrics) {
     let bucket = 'GOOD';
@@ -55,8 +54,41 @@ function scoreBadgeMetrics(metrics) {
     return bucket;
 }
 
-function updateBadgeValue(metric, value, isFinal) {
-    console.log(metric, value, isFinal ? '(final)' : '(not final)');
+/**
+ *
+ * Draw or update the HUD overlay to the page
+ * @param {Object} metrics
+ */
+function drawOverlay(metrics) {
+    // Check for preferences set in options
+    chrome.storage.sync.get({
+        enableOverlay: true
+    }, ({enableOverlay}) => {
+        if (enableOverlay === true) {
+            let overlayElement = document.getElementById('lh-overlay-container');
+            if (overlayElement === null) {
+                let overlay = document.createElement('div');
+                overlay.innerHTML = buildOverlayTemplate(metrics);
+                document.body.appendChild(overlay);
+            } else {
+                overlayElement.outerHTML = buildOverlayTemplate(metrics);
+            }
+        }
+    });
+}
+
+
+/**
+ *
+ * Broadcasts metrics updates using chrome.runtime(), triggering
+ * updates to the badge. Will also update the overlay if this option
+ * is enabled.
+ * @param {Object} metric
+ * @param {Number} value
+ * @param {Boolean} isFinal
+ */
+function broadcastMetricsUpdates(metric, value, isFinal) {
+    // console.log(metric, value, isFinal ? '(final)' : '(not final)');
     badgeMetrics[metric].value = value;
     badgeMetrics[metric].final = isFinal;
 
@@ -68,6 +100,7 @@ function updateBadgeValue(metric, value, isFinal) {
         metrics: badgeMetrics 
     });
     // TODO: Once the metrics are final, cache locally.
+    drawOverlay(badgeMetrics);
 }
 
 /**
@@ -75,9 +108,92 @@ function updateBadgeValue(metric, value, isFinal) {
  * We will update the metrics using onChange.
  */
 function fetchWebPerfMetrics() {
-    webVitals.getCLS((result) => updateBadgeValue('cls', result.value, result.isFinal));
-    webVitals.getFID((result) => updateBadgeValue('fid', result.value, result.isFinal));
-    webVitals.getLCP((result) => updateBadgeValue('lcp', result.value, result.isFinal));
+    webVitals.getCLS((result) => broadcastMetricsUpdates('cls', result.value, result.isFinal));
+    webVitals.getFID((result) => broadcastMetricsUpdates('fid', result.value, result.isFinal));
+    webVitals.getLCP((result) => broadcastMetricsUpdates('lcp', result.value, result.isFinal));
 }
 
 fetchWebPerfMetrics();
+
+/**
+ *
+ * Build the overlay template
+ * @param {Object} metrics
+ * @returns
+ */
+function buildOverlayTemplate(metrics) {
+    return `
+    <div id="lh-overlay-container" class="lh-root lh-vars dark">
+    <style>
+    .lh-overlay {
+        position: fixed;
+        z-index: 10000; /* lol */
+        top: 20px;
+        right: 20px;
+        width: 400px;
+        height: 200px;
+        border: green;
+        display: inline-block;
+      }
+      
+      .lh-overlay::before {
+        content: "";
+        display: block;
+        position: absolute;
+        z-index: -1;
+        width: 100%;
+        height: 100%;
+        background: black;
+        opacity: 0.8;
+      }
+      
+      .lh-overlay .metric-name {
+        color: white;
+      }
+      
+      .lh-overlay .lh-column {
+        color: white;
+      }
+      .lh-overlay .lh-audit-group__title {
+          color: white;
+          margin-left: 10px;
+      }
+      .lh-overlay .lh-column {
+          margin-right: 2px;
+      }
+      .lh-overlay .lh-metric__value {
+          margin-right: 6px;
+      }
+      .lh-overlay .lh-metric__innerwrap {
+          margin-left: 2px;
+      }
+    </style>
+    <div class="lh-overlay">
+    <div class="lh-audit-group lh-audit-group--metrics">
+    <div class="lh-audit-group__header"><span class="lh-audit-group__title">Metrics</span></div>
+    <div class="lh-columns">
+      <div class="lh-column">
+        <div class="lh-metric lh-metric--${metrics.lcp.pass ? 'pass':'fail'}">
+          <div class="lh-metric__innerwrap">
+            <span class="lh-metric__title">Largest Contentful Paint <span class="lh-metric-state">${metrics.lcp.final ? '(final)' : '(not final)'}</span></span>
+            <div class="lh-metric__value">${(metrics.lcp.value/1000).toFixed(2)}&nbsp;s</div>
+          </div>
+        </div>
+        <div class="lh-metric lh-metric--${metrics.fid.pass ? 'pass':'fail'}">
+          <div class="lh-metric__innerwrap">
+            <span class="lh-metric__title">First Input Delay <span class="lh-metric-state">${metrics.fid.final ? '(final)' : '(not final)'}</span></span>
+            <div class="lh-metric__value">${metrics.fid.value.toFixed(2)}&nbsp;ms</div>
+          </div>
+        </div>
+        <div class="lh-metric lh-metric--${metrics.cls.pass ? 'pass':'fail'}">
+          <div class="lh-metric__innerwrap">
+            <span class="lh-metric__title">Cumulative Layout Shift <span class="lh-metric-state">${metrics.cls.final ? '(final)' : '(not final)'}</span></span>
+            <div class="lh-metric__value">${metrics.cls.value.toFixed(3)}&nbsp;</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  </div>
+  </div>`;
+}
