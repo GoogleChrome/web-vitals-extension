@@ -64,10 +64,15 @@ chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
   }
 });
 
+// User has made a new or existing tab visible
+chrome.tabs.onActivated.addListener(({tabId, windowId}) => {
+  getWebVitals(tabId);
+});
+
 
 /**
  *
- * Update the badge icon based on the overall WebVitals 
+ * Update the badge icon based on the overall WebVitals
  * pass rate (i.e good = green icon, poor = red icon)
  * @param {String} badgeCategory - GOOD or POOR
  * @param {Number} tabid
@@ -154,12 +159,12 @@ function updateBadgeColor(badgeCategory) {
  * @param {Object} badgeMetrics
  */
 function passVitalsToPSI(badgeMetrics) {
-  chrome.tabs.onUpdated.addListener(function (tabId, changeInfo, tab) {          
-    if (changeInfo.status == 'complete') {   
-      chrome.tabs.query({active: true}, function(tabs) {
+  chrome.tabs.onUpdated.addListener((tabId, {status}, tab) => {
+    if (status == 'complete') {
+      chrome.tabs.query({active: true}, tabs => {
         chrome.runtime.sendMessage({
           metrics: badgeMetrics
-        }, function (response) {
+        }, response => {
           console.log(`background.js: passed Web Vitals to the PSI content script`);
         });
       });
@@ -167,7 +172,7 @@ function passVitalsToPSI(badgeMetrics) {
   });
   chrome.runtime.sendMessage({
     metrics: badgeMetrics
-  }, function (response) {
+  }, response => {
     console.log(`background.js: passed Web Vitals to the PSI content script`);
   });
 }
@@ -178,7 +183,7 @@ chrome.runtime.onMessage.addListener((request, sender, response) => {
   if (request.webVitalsScoreBucket !== undefined) {
     // e.g webVitalsScoreBucket === 'GOOD' => green badge
     updateBadgeIcon(request.webVitalsScoreBucket, sender.tab.id);
-    // also pass the WebVitals metrics on to PSI for when 
+    // also pass the WebVitals metrics on to PSI for when
     // the badge icon is clicked and the pop-up opens.
     passVitalsToPSI(request.metrics);
     // Store latest metrics locally only
