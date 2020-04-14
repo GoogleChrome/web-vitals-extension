@@ -23,10 +23,11 @@ Once installed, the extension will display a disabled state badge icon until you
 
 ## How does it work?
 
-* `src/browser_action/vitals.js`: Content Script that leverages WebVitals.js to collect metrics. Provides an overall score of the metrics that can be used for badging.
+* `src/browser_action/vitals.js`: Script that leverages WebVitals.js to collect metrics and broadcast metric changes for badging and the HUD. Provides an overall score of the metrics that can be used for badging.
 * `src/bg/background.js`: Performs badge icon updates using data provided by vitals.js. Passes along
 data to `popup.js` in order to display the more detailed local metrics summary.
 * `src/browser_action/popup.js`: Content Script that handles rendering detailed metrics reports in the pop-up window displayed when clicking the badge icon.
+* `src/options/options.js`: Options UI (saved configuration) for advanced features like the HUD Overlay
 
 ## License
 
