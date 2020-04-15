@@ -1,13 +1,16 @@
+let optionsOverlayNode = document.getElementById('overlay');
+let optionsSaveBtn = document.getElementById('save'); 
+let optionsStatus = document.getElementById('status');
+
 // Saves options to chrome.storage
 function save_options() {
     chrome.storage.sync.set({
-        enableOverlay: document.getElementById('overlay').checked
+        enableOverlay: optionsOverlayNode.checked
     }, () => {
         // Update status to let user know options were saved.
-        const status = document.getElementById('status');
-        status.textContent = 'Options saved.';
+        optionsStatus.textContent = 'Options saved.';
         setTimeout(() => {
-            status.textContent = '';
+            optionsStatus.textContent = '';
         }, 750);
     });
 }
@@ -18,9 +21,8 @@ function restore_options() {
     chrome.storage.sync.get({
         enableOverlay: false
     }, ({enableOverlay}) => {
-        document.getElementById('overlay').checked = enableOverlay;
+        optionsOverlayNode.checked = enableOverlay;
     });
 }
 document.addEventListener('DOMContentLoaded', restore_options);
-document.getElementById('save').addEventListener('click',
-    save_options);
+optionsSaveBtn.addEventListener('click', save_options);
