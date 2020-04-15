@@ -127,7 +127,7 @@ function buildOverlayTemplate(metrics) {
     <style>
     .lh-overlay {
         position: fixed;
-        z-index: 10000; /* lol */
+        z-index: 100000000;
         top: 20px;
         right: 20px;
         width: 400px;
