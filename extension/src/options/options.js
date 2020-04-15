@@ -1,8 +1,7 @@
 // Saves options to chrome.storage
 function save_options() {
-    const enableOverlay = document.getElementById('overlay').checked;
     chrome.storage.sync.set({
-        enableOverlay
+        enableOverlay: document.getElementById('overlay').checked
     }, () => {
         // Update status to let user know options were saved.
         const status = document.getElementById('status');
@@ -17,7 +16,7 @@ function save_options() {
 // stored in chrome.storage.
 function restore_options() {
     chrome.storage.sync.get({
-        enableOverlay: true
+        enableOverlay: false
     }, ({enableOverlay}) => {
         document.getElementById('overlay').checked = enableOverlay;
     });
