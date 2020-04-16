@@ -65,13 +65,14 @@ function drawOverlay(metrics) {
         enableOverlay: false
     }, ({enableOverlay}) => {
         if (enableOverlay === true) {
-            let overlayElement = document.getElementById('lh-overlay-container');
+            let overlayElement = document.getElementById('web-vitals-extension');
             if (overlayElement === null) {
                 let overlay = document.createElement('div');
+                overlay.id = 'web-vitals-extension';
                 overlay.innerHTML = buildOverlayTemplate(metrics);
                 document.body.appendChild(overlay);
             } else {
-                overlayElement.outerHTML = buildOverlayTemplate(metrics);
+                overlayElement.innerHTML = buildOverlayTemplate(metrics);
             }
         }
     });
