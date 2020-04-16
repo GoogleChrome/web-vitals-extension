@@ -16,6 +16,7 @@
     "default_title": "Web Vitals",
     "default_popup": "src/browser_action/popup.html"
   },
+  "options_page": "src/options/options.html",
   "permissions": [
     "tabs",
     "storage",
@@ -25,7 +26,16 @@
     "https://*/*",
     "https://www.googleapis.com/pagespeedonline/v5/runPagespeed?*"
   ],
-"background": {
+  "web_accessible_resources": [
+    "src/browser_action/viewer.css"
+  ],
+  "content_scripts": [
+    {
+      "matches": ["https://*/*", "http://*/*"],
+      "css": ["src/browser_action/viewer.css"]
+    }
+  ],
+  "background": {
     "scripts": ["src/bg/background.js"],
     "persistent": false
   },

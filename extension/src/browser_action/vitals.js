@@ -11,10 +11,7 @@
  limitations under the License.
 */
 
-// Inlined WebVitals library
-// TODO: Switch to use WebVitals ESM or at least external UMD build
-// Nuance: Initially experienced issues using imports in Chrome extensions
-// where Vitals was silently failing. Requires further investigation.
+// TODO: https://github.com/GoogleChrome/web-vitals-extension/issues/9
 !function(e,n){"object"==typeof exports&&"undefined"!=typeof module?n(exports):"function"==typeof define&&define.amd?define(["exports"],n):n((e=e||self).webVitals={})}(this,(function(e){"use strict";var n=function(e,n,t,i,r){return function(){t&&(t.takeRecords().map(i),t.disconnect()),"number"==typeof n.value&&(n.isFinal||(n.isFinal=!0,r&&r(n)),e(n))}},t=function(e,n){try{if(PerformanceObserver.supportedEntryTypes.includes(e)){var t=new PerformanceObserver((function(e){return e.getEntries().map(n)}));return t.observe({type:e,buffered:!0}),t}}catch(e){}},i=function(e){return function(n){var t={value:null,entries:[],isFinal:!1};return new Promise((function(i){return e(t,i,n)}))}},r=new Promise((function(e){return["visibilitychange","unload"].map((function(n){return function(e,n){addEventListener(e,(function t(i){"hidden"===document.visibilityState&&(removeEventListener(e,t,!0),n(i))}),!0)}(n,e)}))})),u=i((function(e,i,u){e.value=0;var o=function(n){n.hadRecentInput||(e.value+=n.value,e.entries.push(n),u&&u(e))},s=t("layout-shift",o),a=n(i,e,s,o,u);r.then(a)})),o="hidden"===document.visibilityState?0:1/0;r.then((function(e){return o=e.timeStamp}));var s=function(){return o},a=i((function(e,i,r){var u=function(n){"first-contentful-paint"===n.name&&n.startTime<s()&&(e.value=n.startTime,e.entries.push(n),a())},o=t("paint",u),a=n(i,e,o,u,r)})),c=i((function(e,i,u){var o=function(n){e.value=n.processingStart-n.startTime,e.entries.push(n),a()},s=t("first-input",o),a=n(i,e,s,o,u);r.then(a),s||window.perfMetrics&&window.perfMetrics.onFirstInputDelay&&window.perfMetrics.onFirstInputDelay((function(n,t){e.value=n,e.event=t,a()}))})),f=new Promise((function(e){return["scroll","keydown","pointerdown"].map((function(n){addEventListener(n,e,{once:!0,passive:!0,capture:!0})}))})),p=i((function(e,i,u){var o=!0,a=function(n){o&&s()<n.startTime?p():(e.value=n.startTime,e.entries.push(n),u&&u(e),o=!1)},c=t("largest-contentful-paint",a),p=n(i,e,c,a,u);r.then(p),f.then(p)}));e.getCLS=u,e.getFCP=a,e.getFID=c,e.getLCP=p,Object.defineProperty(e,"__esModule",{value:!0})}));
 
 // Registry for badge metrics
@@ -37,9 +34,8 @@ badgeMetrics = {
 };
 
 /**
- * @param  {Object} metrics - Collection of metric values
- * If any metric fails the thresholds at all, we display
- * a red badge.
+ * Very simple classifier for metrics values
+ * @param  {Object} metrics
  */
 function scoreBadgeMetrics(metrics) {
     let bucket = 'GOOD';
@@ -58,8 +54,42 @@ function scoreBadgeMetrics(metrics) {
     return bucket;
 }
 
-function updateBadgeValue(metric, value, isFinal) {
-    console.log(metric, value, isFinal ? '(final)' : '(not final)');
+/**
+ *
+ * Draw or update the HUD overlay to the page
+ * @param {Object} metrics
+ */
+function drawOverlay(metrics) {
+    // Check for preferences set in options
+    chrome.storage.sync.get({
+        enableOverlay: false
+    }, ({enableOverlay}) => {
+        if (enableOverlay === true) {
+            let overlayElement = document.getElementById('web-vitals-extension');
+            if (overlayElement === null) {
+                let overlay = document.createElement('div');
+                overlay.id = 'web-vitals-extension';
+                overlay.innerHTML = buildOverlayTemplate(metrics);
+                document.body.appendChild(overlay);
+            } else {
+                overlayElement.innerHTML = buildOverlayTemplate(metrics);
+            }
+        }
+    });
+}
+
+
+/**
+ *
+ * Broadcasts metrics updates using chrome.runtime(), triggering
+ * updates to the badge. Will also update the overlay if this option
+ * is enabled.
+ * @param {Object} metric
+ * @param {Number} value
+ * @param {Boolean} isFinal
+ */
+function broadcastMetricsUpdates(metric, value, isFinal) {
+    // console.log(metric, value, isFinal ? '(final)' : '(not final)');
     badgeMetrics[metric].value = value;
     badgeMetrics[metric].final = isFinal;
 
@@ -71,6 +101,7 @@ function updateBadgeValue(metric, value, isFinal) {
         metrics: badgeMetrics 
     });
     // TODO: Once the metrics are final, cache locally.
+    drawOverlay(badgeMetrics);
 }
 
 /**
@@ -78,9 +109,48 @@ function updateBadgeValue(metric, value, isFinal) {
  * We will update the metrics using onChange.
  */
 function fetchWebPerfMetrics() {
-    webVitals.getCLS((result) => updateBadgeValue('cls', result.value, result.isFinal));
-    webVitals.getFID((result) => updateBadgeValue('fid', result.value, result.isFinal));
-    webVitals.getLCP((result) => updateBadgeValue('lcp', result.value, result.isFinal));
+    webVitals.getCLS((result) => broadcastMetricsUpdates('cls', result.value, result.isFinal));
+    webVitals.getFID((result) => broadcastMetricsUpdates('fid', result.value, result.isFinal));
+    webVitals.getLCP((result) => broadcastMetricsUpdates('lcp', result.value, result.isFinal));
 }
 
 fetchWebPerfMetrics();
+
+/**
+ *
+ * Build the overlay template
+ * @param {Object} metrics
+ * @returns
+ */
+function buildOverlayTemplate(metrics) {
+    return `
+    <div id="lh-overlay-container" class="lh-unset lh-root lh-vars dark">
+    <div class="lh-overlay">
+    <div class="lh-audit-group lh-audit-group--metrics">
+    <div class="lh-audit-group__header"><span class="lh-audit-group__title">Metrics</span></div>
+    <div class="lh-columns">
+      <div class="lh-column">
+        <div class="lh-metric lh-metric--${metrics.lcp.pass ? 'pass':'fail'}">
+          <div class="lh-metric__innerwrap">
+            <span class="lh-metric__title">Largest Contentful Paint <span class="lh-metric-state">${metrics.lcp.final ? '(final)' : '(not final)'}</span></span>
+            <div class="lh-metric__value">${(metrics.lcp.value/1000).toFixed(2)}&nbsp;s</div>
+          </div>
+        </div>
+        <div class="lh-metric lh-metric--${metrics.fid.pass ? 'pass':'fail'}">
+          <div class="lh-metric__innerwrap">
+            <span class="lh-metric__title">First Input Delay <span class="lh-metric-state">${metrics.fid.final ? '(final)' : '(not final)'}</span></span>
+            <div class="lh-metric__value">${metrics.fid.value.toFixed(2)}&nbsp;ms</div>
+          </div>
+        </div>
+        <div class="lh-metric lh-metric--${metrics.cls.pass ? 'pass':'fail'}">
+          <div class="lh-metric__innerwrap">
+            <span class="lh-metric__title">Cumulative Layout Shift <span class="lh-metric-state">${metrics.cls.final ? '(final)' : '(not final)'}</span></span>
+            <div class="lh-metric__value">${metrics.cls.value.toFixed(3)}&nbsp;</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  </div>
+  </div>`;
+}

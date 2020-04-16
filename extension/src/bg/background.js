@@ -36,14 +36,14 @@ function hashCode(str) {
  * @param {Number} tabId
  */
 function getWebVitals(tabId) {
-  console.log(`background.js: getWebVitals() for tabId ${tabId}`);
+  // console.log(`background.js: getWebVitals() for tabId ${tabId}`);
   chrome.tabs.executeScript({
     file: "src/browser_action/vitals.js"
   }, result => {
     // Catch errors such as "This page cannot be scripted due to an ExtensionsSettings policy."
     const lastErr = chrome.runtime.lastError;
     if (lastErr) {
-      console.log("Error: " + lastErr.message);
+      // console.log("Error: " + lastErr.message);
       chrome.browserAction.setIcon({
         path: "../../icons/default128w.png",
         tabId: tabId
@@ -78,7 +78,7 @@ chrome.tabs.onActivated.addListener(({tabId, windowId}) => {
  * @param {Number} tabid
  */
 function updateBadgeIcon(badgeCategory, tabid) {
-  console.log(`Updating badge icon to ${badgeCategory}`);
+  // console.log(`Updating badge icon to ${badgeCategory}`);
   chrome.tabs.query({
     active: true,
     currentWindow: true
@@ -165,7 +165,7 @@ function passVitalsToPSI(badgeMetrics) {
         chrome.runtime.sendMessage({
           metrics: badgeMetrics
         }, response => {
-          console.log(`background.js: passed Web Vitals to the PSI content script`);
+          // console.log(`background.js: passed Web Vitals to the PSI content script`);
         });
       });
     }
@@ -173,13 +173,13 @@ function passVitalsToPSI(badgeMetrics) {
   chrome.runtime.sendMessage({
     metrics: badgeMetrics
   }, response => {
-    console.log(`background.js: passed Web Vitals to the PSI content script`);
+    // console.log(`background.js: passed Web Vitals to the PSI content script`);
   });
 }
 
 // message from content script
 chrome.runtime.onMessage.addListener((request, sender, response) => {
-  console.log(`background.js: update badge and pass metrics`);
+  // console.log(`background.js: update badge and pass metrics`);
   if (request.webVitalsScoreBucket !== undefined) {
     // e.g webVitalsScoreBucket === 'GOOD' => green badge
     updateBadgeIcon(request.webVitalsScoreBucket, sender.tab.id);

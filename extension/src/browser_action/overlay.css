@@ -1,0 +1,33 @@
+.lh-overlay {
+  position: fixed;
+  z-index: 1000;
+  top: 20px;
+  right: 20px;
+  width: 400px;
+  height: 200px;
+  border: green;
+  display: inline-block;
+}
+
+.lh-overlay::before {
+  content: "";
+  display: block;
+  position: absolute;
+  z-index: -1;
+  width: 100%;
+  height: 100%;
+  background: black;
+  opacity: 0.8;
+}
+
+.lh-overlay .metric-name {
+  color: white;
+}
+
+.lh-overlay .lh-column {
+  color: white;
+}
+.lh-audit-group__title {
+    color: white;
+    margin-left: 10px;
+}
