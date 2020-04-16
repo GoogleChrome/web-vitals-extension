@@ -123,51 +123,7 @@ fetchWebPerfMetrics();
  */
 function buildOverlayTemplate(metrics) {
     return `
-    <div id="lh-overlay-container" class="lh-root lh-vars dark">
-    <style>
-    .lh-overlay {
-        position: fixed;
-        z-index: 100000000;
-        top: 20px;
-        right: 20px;
-        width: 400px;
-        height: 200px;
-        border: green;
-        display: inline-block;
-      }
-      
-      .lh-overlay::before {
-        content: "";
-        display: block;
-        position: absolute;
-        z-index: -1;
-        width: 100%;
-        height: 100%;
-        background: black;
-        opacity: 0.8;
-      }
-      
-      .lh-overlay .metric-name {
-        color: white;
-      }
-      
-      .lh-overlay .lh-column {
-        color: white;
-      }
-      .lh-overlay .lh-audit-group__title {
-          color: white;
-          margin-left: 10px;
-      }
-      .lh-overlay .lh-column {
-          margin-right: 2px;
-      }
-      .lh-overlay .lh-metric__value {
-          margin-right: 6px;
-      }
-      .lh-overlay .lh-metric__innerwrap {
-          margin-left: 2px;
-      }
-    </style>
+    <div id="lh-overlay-container" class="lh-unset lh-root lh-vars dark">
     <div class="lh-overlay">
     <div class="lh-audit-group lh-audit-group--metrics">
     <div class="lh-audit-group__header"><span class="lh-audit-group__title">Metrics</span></div>
