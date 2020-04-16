@@ -62,7 +62,7 @@ function scoreBadgeMetrics(metrics) {
 function drawOverlay(metrics) {
     // Check for preferences set in options
     chrome.storage.sync.get({
-        enableOverlay: true
+        enableOverlay: false
     }, ({enableOverlay}) => {
         if (enableOverlay === true) {
             let overlayElement = document.getElementById('lh-overlay-container');
