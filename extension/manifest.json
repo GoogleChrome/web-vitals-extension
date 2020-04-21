@@ -27,7 +27,8 @@
     "https://www.googleapis.com/pagespeedonline/v5/runPagespeed?*"
   ],
   "web_accessible_resources": [
-    "src/browser_action/viewer.css"
+    "src/browser_action/viewer.css",
+    "src/browser_action/web-vitals.js"
   ],
   "content_scripts": [
     {
