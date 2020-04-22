@@ -11,10 +11,12 @@
  limitations under the License.
 */
 
+const PSI_ENABLED = false;
+const API_KEY = '...';
 const API_URL = 'https://www.googleapis.com/pagespeedonline/v5/runPagespeed?';
 const FE_URL = 'https://developers.google.com/speed/pagespeed/insights/';
 const encodedUrl = '';
-// const resultsFetched = false;
+const resultsFetched = false;
 
 /**
  *
@@ -37,48 +39,57 @@ function hashCode(str) {
   return hash.toString();
 }
 
-/*
+
+/**
+ *
+ * Fetches API results from PSI API endpoint
+ * @param {String} url
+ * @returns
+ */
 async function fetchAPIResults(url) {
-  if (resultsFetched) {
-    return;
+  if (PSI_ENABLED) {
+    if (resultsFetched) {
+      return;
+    }
+    const query = [
+      'url=url%3A' + url,
+      'key=' + API_KEY,
+    ].join('&');
+    const queryURL = API_URL + query;
+    try {
+      const response = await fetch(queryURL);
+      const json = await response.json();
+      createPSITemplate(json);
+    } catch (err) {
+      const el = document.getElementById('report');
+      el.innerHTML = `We were unable to process your request.`;
+    }
   }
-  const query = [
-    'url=url%3A' + url,
-    // 'key=' + API_KEY,
-  ].join('&');
-  const queryURL = API_URL + query;
-  try {
-    const response = await fetch(queryURL);
-    const json = await response.json();
-    createPSITemplate(json);
-  } catch (err) {
-    const el = document.getElementById('report');
-    el.innerHTML = `We were unable to process your request.`;
-  }
-}*/
+}
 
 /**
  *
  * Build the PSI template to render in the pop-up
  * @param {Object} result
  */
-/*
 function createPSITemplate(result) {
-  const experience = result.loadingExperience;
-  const metrics = experience.metrics;
-  const overall_category = experience.overall_category;
-  const fcp = metrics.FIRST_CONTENTFUL_PAINT_MS;
-  const fid = metrics.FIRST_INPUT_DELAY_MS;
-
-  const fcp_template = buildDistributionTemplate(fcp, 'First Contentful Paint (FCP)');
-  const fid_template = buildDistributionTemplate(fid, 'First Input Delay (FID)');
-  const link_template = buildPSILink();
-  const tmpl = `<h1>Origin Performance (${overall_category})</h1> ${fcp_template} ${fid_template} ${link_template}`;
-  const el = document.getElementById('report');
-  el.innerHTML = tmpl;
-  // TODO: Implement per-tab/URL report caching scheme
-  resultsFetched = true;
-}*/
+  if (PSI_ENABLED) {
+    const experience = result.loadingExperience;
+    const metrics = experience.metrics;
+    const overall_category = experience.overall_category;
+    const fcp = metrics.FIRST_CONTENTFUL_PAINT_MS;
+    const fid = metrics.FIRST_INPUT_DELAY_MS;
+  
+    const fcp_template = buildDistributionTemplate(fcp, 'First Contentful Paint (FCP)');
+    const fid_template = buildDistributionTemplate(fid, 'First Input Delay (FID)');
+    const link_template = buildPSILink();
+    const tmpl = `<h1>Origin Performance (${overall_category})</h1> ${fcp_template} ${fid_template} ${link_template}`;
+    const el = document.getElementById('report');
+    el.innerHTML = tmpl;
+    // TODO: Implement per-tab/URL report caching scheme
+    resultsFetched = true;
+  }
+}
 
 /**
  *
@@ -124,7 +135,6 @@ function buildLocalMetricsTemplate(metrics) {
  * @returns
  */
 function renderLocalMetricsTemplate(metrics) {
-  // if (metrics === undefined || metrics.lcp === undefined) { return; }
   const el = document.getElementById('local-metrics');
   el.innerHTML = buildLocalMetricsTemplate(metrics);
 }
@@ -177,7 +187,9 @@ function formatDisplayValue(metricName, metricValueMs) {
 chrome.tabs.query({active: true, currentWindow: true}, function(tabs) {
   const thisTab = tabs[0];
   // TODO: Re-enable PSI support once LCP, CLS land
-  // fetchAPIResults(thisTab.url);
+  if (PSI_ENABLED) {
+    fetchAPIResults(thisTab.url);
+  }
 
   // Retrieve the stored latest metrics
   if (thisTab.url) {
