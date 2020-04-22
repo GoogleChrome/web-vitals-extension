@@ -93,7 +93,6 @@
      * @param {Boolean} isFinal
      */
   function broadcastMetricsUpdates(metric, value, isFinal) {
-    // console.log(metric, value, isFinal ? '(final)' : '(not final)');
     badgeMetrics[metric].value = value;
     badgeMetrics[metric].final = isFinal;
 

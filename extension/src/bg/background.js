@@ -35,7 +35,6 @@ function hashCode(str) {
  * @param {Number} tabId
  */
 function getWebVitals(tabId) {
-  // console.log(`background.js: getWebVitals() for tabId ${tabId}`);
   chrome.tabs.executeScript({
     file: 'src/browser_action/vitals.js',
   }, (result) => {
@@ -43,12 +42,10 @@ function getWebVitals(tabId) {
     // to an ExtensionsSettings policy."
     const lastErr = chrome.runtime.lastError;
     if (lastErr) {
-      // console.log("Error: " + lastErr.message);
       chrome.browserAction.setIcon({
         path: '../../icons/default128w.png',
         tabId: tabId,
       });
-      // chrome.browserAction.setBadgeText({ text: "" });
     }
   });
 }
@@ -78,7 +75,6 @@ chrome.tabs.onActivated.addListener(({tabId, windowId}) => {
  * @param {Number} tabid
  */
 function badgeOverallPerf(badgeCategory, tabid) {
-  // console.log(`Updating badge icon to ${badgeCategory}`);
   chrome.tabs.query({
     active: true,
     currentWindow: true,
@@ -247,7 +243,6 @@ async function animateBadges(request, tabId) {
 
 // message from content script
 chrome.runtime.onMessage.addListener((request, sender, response) => {
-  // console.log(`background.js: update badge and pass metrics`);
   if (request.webVitalsScoreBucket !== undefined) {
     // e.g webVitalsScoreBucket === 'GOOD' => green badge
     animateBadges(request, sender.tab.id);
