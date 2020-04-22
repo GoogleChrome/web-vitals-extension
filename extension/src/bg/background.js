@@ -129,6 +129,7 @@ function badgeMetric(metric, value, tabid) {
     currentWindow: true,
   }, function(tabs) {
     const currentTab = tabid || tabs[0].id;
+    const bgColor = '#000';
 
     switch (metric) {
       case 'lcp':
@@ -137,7 +138,7 @@ function badgeMetric(metric, value, tabid) {
           tabId: currentTab,
         });
         chrome.browserAction.setBadgeBackgroundColor({
-          color: '#000',
+          color: bgColor,
           tabId: currentTab,
         });
         chrome.browserAction.setBadgeText({
@@ -151,7 +152,7 @@ function badgeMetric(metric, value, tabid) {
           tabId: currentTab,
         });
         chrome.browserAction.setBadgeBackgroundColor({
-          color: '#000',
+          color: bgColor,
           tabId: currentTab,
         });
         chrome.browserAction.setBadgeText({
@@ -165,7 +166,7 @@ function badgeMetric(metric, value, tabid) {
           tabId: currentTab,
         });
         chrome.browserAction.setBadgeBackgroundColor({
-          color: '#000',
+          color: bgColor,
           tabId: currentTab,
         });
         chrome.browserAction.setBadgeText({
