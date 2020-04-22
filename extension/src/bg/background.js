@@ -77,7 +77,7 @@ chrome.tabs.onActivated.addListener(({tabId, windowId}) => {
  * @param {String} badgeCategory - GOOD or POOR
  * @param {Number} tabid
  */
-function updateBadgeIcon(badgeCategory, tabid) {
+function badgeOverallPerf(badgeCategory, tabid) {
   // console.log(`Updating badge icon to ${badgeCategory}`);
   chrome.tabs.query({
     active: true,
@@ -89,6 +89,10 @@ function updateBadgeIcon(badgeCategory, tabid) {
       case 'POOR':
         chrome.browserAction.setIcon({
           path: '../../icons/slow128w.png',
+          tabId: currentTab
+        });
+        chrome.browserAction.setBadgeText({
+          text: '',
           tabId: currentTab
         });
         break;
@@ -103,47 +107,6 @@ function updateBadgeIcon(badgeCategory, tabid) {
           path: '../../icons/default128w.png',
           tabId: currentTab
         });
-        break;
-    }
-  });
-}
-
-/**
- *
- * Update the badge color based on the overall WebVitals
- * pass rate for metrics.
- * @param {String} badgeCategory
- */
-function updateBadgeColor(badgeCategory) {
-  chrome.tabs.query({
-    active: true,
-    currentWindow: true
-  }, function (tabs) {
-    let currentTab = tabs[0].id;
-    switch (badgeCategory) {
-      case 'POOR':
-        chrome.browserAction.setBadgeBackgroundColor({
-          color: "red",
-          tabId: currentTab
-        });
-        break;
-      case 'NI':
-        chrome.browserAction.setBadgeBackgroundColor({
-          color: "orange",
-          tabId: currentTab
-        });
-        break;
-      case 'GOOD':
-        chrome.browserAction.setBadgeBackgroundColor({
-          color: "green",
-          tabId: currentTab
-        });
-        break;
-      default:
-        chrome.browserAction.setBadgeBackgroundColor({
-          color: "white",
-          tabId: currentTab
-        });
         chrome.browserAction.setBadgeText({
           text: '',
           tabId: currentTab
@@ -151,6 +114,75 @@ function updateBadgeColor(badgeCategory) {
         break;
     }
   });
+}
+
+
+function badgeMetric(metric, value, tabid) {
+  chrome.tabs.query({
+    active: true,
+    currentWindow: true
+  }, function (tabs) {
+    let currentTab = tabid || tabs[0].id;
+
+    switch (metric) {
+      case 'lcp':
+        chrome.browserAction.setIcon({
+          path: '../../icons/slow128w-lcp.png',
+          tabId: currentTab
+        });
+        chrome.browserAction.setBadgeBackgroundColor({
+          color: '#000',
+          tabId: currentTab
+        });
+        chrome.browserAction.setBadgeText({
+          text: (value/1000).toFixed(2),
+          tabId: currentTab
+        });
+        break;
+      case 'cls':
+          chrome.browserAction.setIcon({
+            path: '../../icons/slow128w-cls.png',
+            tabId: currentTab
+          });
+          chrome.browserAction.setBadgeBackgroundColor({
+            color: '#000',
+            tabId: currentTab
+          });
+          chrome.browserAction.setBadgeText({
+            text: (value).toFixed(2).toString(),
+            tabId: currentTab
+          });
+        break;
+      case 'fid':
+          chrome.browserAction.setIcon({
+            path: '../../icons/slow128w-fid.png',
+            tabId: currentTab
+          });
+          chrome.browserAction.setBadgeBackgroundColor({
+            color: '#000',
+            tabId: currentTab
+          });
+          chrome.browserAction.setBadgeText({
+            text: value.toFixed(2).toString(),
+            tabId: currentTab
+          });
+      break;
+      default:
+        chrome.browserAction.setIcon({
+          path: '../../icons/default128w.png',
+          tabId: currentTab
+        });
+        chrome.browserAction.setBadgeBackgroundColor({
+          color: '',
+          tabId: currentTab
+        });
+        chrome.browserAction.setBadgeText({
+          text: '',
+          tabId: currentTab
+        });
+      break;
+      }
+    });
 }
 
 /**
@@ -177,12 +209,33 @@ function passVitalsToPSI(badgeMetrics) {
   });
 }
 
+// wait ms milliseconds
+function wait(ms) {
+  return new Promise(r => setTimeout(r, ms));
+}
+
+async function animateBadges(request, tabId) {
+  const delay = 2000;
+  // First badge overall perf
+  badgeOverallPerf(request.webVitalsScoreBucket, tabId);
+  // If perf is poor, animate the sequence
+  if (request.webVitalsScoreBucket === 'POOR') {
+    await wait(delay);
+    badgeMetric('lcp', request.metrics.lcp.value, tabId);
+    await wait(delay);
+    badgeMetric('fid', request.metrics.fid.value, tabId);
+    await wait(delay);
+    badgeMetric('cls', request.metrics.cls.value, tabId);
+    await wait(delay);
+  }
+}
+
 // message from content script
 chrome.runtime.onMessage.addListener((request, sender, response) => {
   // console.log(`background.js: update badge and pass metrics`);
   if (request.webVitalsScoreBucket !== undefined) {
     // e.g webVitalsScoreBucket === 'GOOD' => green badge
-    updateBadgeIcon(request.webVitalsScoreBucket, sender.tab.id);
+    animateBadges(request, sender.tab.id);
     // also pass the WebVitals metrics on to PSI for when
     // the badge icon is clicked and the pop-up opens.
     passVitalsToPSI(request.metrics);
