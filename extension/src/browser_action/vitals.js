@@ -12,77 +12,78 @@
 */
 
 (async () => {
-    const src = chrome.runtime.getURL('src/browser_action/web-vitals.js');
-    const webVitals = await import(src);
+  const src = chrome.runtime.getURL('src/browser_action/web-vitals.js');
+  const webVitals = await import(src);
 
-    // Registry for badge metrics
-    badgeMetrics = {
-        lcp: {
-            value: 0,
-            final: false,
-            pass: true
-        },
-        cls: {
-            value: 0,
-            final: false,
-            pass: true
-        },
-        fid: {
-            value: 0,
-            final: false,
-            pass: true
-        }
-    };
+  // Registry for badge metrics
+  badgeMetrics = {
+    lcp: {
+      value: 0,
+      final: false,
+      pass: true,
+    },
+    cls: {
+      value: 0,
+      final: false,
+      pass: true,
+    },
+    fid: {
+      value: 0,
+      final: false,
+      pass: true,
+    },
+  };
 
-    /**
-     * Very simple classifier for metrics values
-     * @param  {Object} metrics
-     */
-    function scoreBadgeMetrics(metrics) {
-        let bucket = 'GOOD';
-        if (metrics.lcp.value > 2500) {
-            bucket = 'POOR';
-            metrics.lcp.pass = false;
-        }
-        if (metrics.fid.value > 100) {
-            bucket = 'POOR';
-            metrics.fid.pass = false;
-        }
-        if (metrics.cls.value > 0.1) {
-            bucket = 'POOR';
-            metrics.cls.pass = false;
-        }
-        return bucket;
+  /**
+    * Very simple classifier for metrics values
+    * @param  {Object} metrics
+    * @return {String} overall metrics score
+  */
+  function scoreBadgeMetrics(metrics) {
+    let bucket = 'GOOD';
+    if (metrics.lcp.value > 2500) {
+      bucket = 'POOR';
+      metrics.lcp.pass = false;
     }
+    if (metrics.fid.value > 100) {
+      bucket = 'POOR';
+      metrics.fid.pass = false;
+    }
+    if (metrics.cls.value > 0.1) {
+      bucket = 'POOR';
+      metrics.cls.pass = false;
+    }
+    return bucket;
+  }
 
-    /**
+  /**
      *
      * Draw or update the HUD overlay to the page
      * @param {Object} metrics
      */
-    function drawOverlay(metrics) {
-        // Check for preferences set in options
-        chrome.storage.sync.get({
-            enableOverlay: false
-        }, ({
-            enableOverlay
-        }) => {
-            if (enableOverlay === true) {
-                let overlayElement = document.getElementById('web-vitals-extension');
-                if (overlayElement === null) {
-                    let overlay = document.createElement('div');
-                    overlay.id = 'web-vitals-extension';
-                    overlay.innerHTML = buildOverlayTemplate(metrics);
-                    document.body.appendChild(overlay);
-                } else {
-                    overlayElement.innerHTML = buildOverlayTemplate(metrics);
-                }
-            }
-        });
-    }
+  function drawOverlay(metrics) {
+    // Check for preferences set in options
+    chrome.storage.sync.get({
+      enableOverlay: false,
+    }, ({
+      enableOverlay,
+    }) => {
+      if (enableOverlay === true) {
+        const overlayElement = document.getElementById('web-vitals-extension');
+        if (overlayElement === null) {
+          const overlay = document.createElement('div');
+          overlay.id = 'web-vitals-extension';
+          overlay.innerHTML = buildOverlayTemplate(metrics);
+          document.body.appendChild(overlay);
+        } else {
+          overlayElement.innerHTML = buildOverlayTemplate(metrics);
+        }
+      }
+    });
+  }
 
 
-    /**
+  /**
      *
      * Broadcasts metrics updates using chrome.runtime(), triggering
      * updates to the badge. Will also update the overlay if this option
@@ -91,61 +92,70 @@
      * @param {Number} value
      * @param {Boolean} isFinal
      */
-    function broadcastMetricsUpdates(metric, value, isFinal) {
-        // console.log(metric, value, isFinal ? '(final)' : '(not final)');
-        badgeMetrics[metric].value = value;
-        badgeMetrics[metric].final = isFinal;
+  function broadcastMetricsUpdates(metric, value, isFinal) {
+    // console.log(metric, value, isFinal ? '(final)' : '(not final)');
+    badgeMetrics[metric].value = value;
+    badgeMetrics[metric].final = isFinal;
 
-        let scoreBucket = scoreBadgeMetrics(badgeMetrics);
+    const scoreBucket = scoreBadgeMetrics(badgeMetrics);
 
-        // Broadcast metrics updates for badging
-        chrome.runtime.sendMessage({
-            webVitalsScoreBucket: scoreBucket,
-            metrics: badgeMetrics
-        });
-        // TODO: Once the metrics are final, cache locally.
-        drawOverlay(badgeMetrics);
-    }
+    // Broadcast metrics updates for badging
+    chrome.runtime.sendMessage({
+      webVitalsScoreBucket: scoreBucket,
+      metrics: badgeMetrics,
+    });
+    // TODO: Once the metrics are final, cache locally.
+    drawOverlay(badgeMetrics);
+  }
 
-    /**
-     * Fetches Web Vitals metrics via WebVitals.js
-     * We will update the metrics using onChange.
-     */
-    function fetchWebPerfMetrics() {
-        webVitals.getCLS((result) => broadcastMetricsUpdates('cls', result.value, result.isFinal));
-        webVitals.getFID((result) => broadcastMetricsUpdates('fid', result.value, result.isFinal));
-        webVitals.getLCP((result) => broadcastMetricsUpdates('lcp', result.value, result.isFinal));
-    }
+  /**
+ *
+ * Fetches Web Vitals metrics via WebVitals.js
+ */
+  function fetchWebPerfMetrics() {
+    webVitals.getCLS((result) =>
+      broadcastMetricsUpdates('cls', result.value, result.isFinal));
+    webVitals.getFID((result) =>
+      broadcastMetricsUpdates('fid', result.value, result.isFinal));
+    webVitals.getLCP((result) =>
+      broadcastMetricsUpdates('lcp', result.value, result.isFinal));
+  }
 
-    /**
-     *
-     * Build the overlay template
-     * @param {Object} metrics
-     * @returns
-     */
-    function buildOverlayTemplate(metrics) {
-        return `
+  /**
+ * Build a template of metrics
+ * @param {Object} metrics The metrics
+ * @return {String} a populated template of metrics
+ */
+  function buildOverlayTemplate(metrics) {
+    return `
     <div id="lh-overlay-container" class="lh-unset lh-root lh-vars dark">
     <div class="lh-overlay">
     <div class="lh-audit-group lh-audit-group--metrics">
-    <div class="lh-audit-group__header"><span class="lh-audit-group__title">Metrics</span></div>
+    <div class="lh-audit-group__header">
+    <span class="lh-audit-group__title">Metrics</span></div>
     <div class="lh-columns">
       <div class="lh-column">
         <div class="lh-metric lh-metric--${metrics.lcp.pass ? 'pass':'fail'}">
           <div class="lh-metric__innerwrap">
-            <span class="lh-metric__title">Largest Contentful Paint <span class="lh-metric-state">${metrics.lcp.final ? '(final)' : '(not final)'}</span></span>
+            <span class="lh-metric__title">
+              Largest Contentful Paint 
+                <span class="lh-metric-state">${metrics.lcp.final ? '(final)' : '(not final)'}</span></span>
             <div class="lh-metric__value">${(metrics.lcp.value/1000).toFixed(2)}&nbsp;s</div>
           </div>
         </div>
         <div class="lh-metric lh-metric--${metrics.fid.pass ? 'pass':'fail'}">
           <div class="lh-metric__innerwrap">
-            <span class="lh-metric__title">First Input Delay <span class="lh-metric-state">${metrics.fid.final ? '(final)' : '(not final)'}</span></span>
+            <span class="lh-metric__title">
+              First Input Delay 
+                <span class="lh-metric-state">${metrics.fid.final ? '(final)' : '(not final)'}</span></span>
             <div class="lh-metric__value">${metrics.fid.value.toFixed(2)}&nbsp;ms</div>
           </div>
         </div>
         <div class="lh-metric lh-metric--${metrics.cls.pass ? 'pass':'fail'}">
           <div class="lh-metric__innerwrap">
-            <span class="lh-metric__title">Cumulative Layout Shift <span class="lh-metric-state">${metrics.cls.final ? '(final)' : '(not final)'}</span></span>
+            <span class="lh-metric__title">
+              Cumulative Layout Shift 
+                <span class="lh-metric-state">${metrics.cls.final ? '(final)' : '(not final)'}</span></span>
             <div class="lh-metric__value">${metrics.cls.value.toFixed(3)}&nbsp;</div>
           </div>
         </div>
@@ -154,7 +164,7 @@
   </div>
   </div>
   </div>`;
-    }
-    
-    fetchWebPerfMetrics();
+  }
+
+  fetchWebPerfMetrics();
 })();

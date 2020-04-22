@@ -13,58 +13,72 @@
 
 const API_URL = 'https://www.googleapis.com/pagespeedonline/v5/runPagespeed?';
 const FE_URL = 'https://developers.google.com/speed/pagespeed/insights/';
-let encodedUrl = '';
-let psiURL = '';
-let resultsFetched = false;
-let localMetrics = {};
+const encodedUrl = '';
+// const resultsFetched = false;
 
-// Hash the URL and return a numeric hash as a String to be used as the key
+/**
+ *
+ * Hash the URL and return a numeric hash as a String
+ * to be used as the key
+ * @param {String} str
+ * @returns
+ */
 function hashCode(str) {
   let hash = 0;
   if (str.length == 0) {
-    return "";
+    return '';
   }
-  for (var i = 0; i < str.length; i++) {
-    var char = str.charCodeAt(i);
+  for (let i = 0; i < str.length; i++) {
+    const char = str.charCodeAt(i);
     hash = (hash << 5) - hash + char;
-    hash = hash & hash; // Convert to 32bit integer
+    // Convert to 32bit integer
+    hash = hash & hash;
   }
   return hash.toString();
 }
 
+/*
 async function fetchAPIResults(url) {
-    if (resultsFetched) { return; }
-    const query = [
-        'url=url%3A' + url
-        // 'key=' + API_KEY,
-    ].join('&');
-    const queryURL = API_URL + query;
-    try {
-        const response = await fetch(queryURL);
-        const json = await response.json();
-        createPSITemplate(json);
-    } catch (err) {
-        const el = document.getElementById('report');
-        el.innerHTML = `We were unable to process your request.`;
-    }
-}
-
-function createPSITemplate(result) {
-    const experience = result.loadingExperience;
-    const metrics = experience.metrics;
-    const overall_category = experience.overall_category;
-    const fcp = metrics.FIRST_CONTENTFUL_PAINT_MS;
-    const fid = metrics.FIRST_INPUT_DELAY_MS;
-
-    const fcp_template = buildDistributionTemplate(fcp, 'First Contentful Paint (FCP)');
-    const fid_template = buildDistributionTemplate(fid, 'First Input Delay (FID)');
-    const link_template = buildPSILink();
-    const tmpl = `<h1>Origin Performance (${overall_category})</h1> ${fcp_template} ${fid_template} ${link_template}`;
+  if (resultsFetched) {
+    return;
+  }
+  const query = [
+    'url=url%3A' + url,
+    // 'key=' + API_KEY,
+  ].join('&');
+  const queryURL = API_URL + query;
+  try {
+    const response = await fetch(queryURL);
+    const json = await response.json();
+    createPSITemplate(json);
+  } catch (err) {
     const el = document.getElementById('report');
-    el.innerHTML = tmpl;
-    // TODO: Implement per-tab/URL report caching scheme
-    resultsFetched = true;
-}
+    el.innerHTML = `We were unable to process your request.`;
+  }
+}*/
+
+/**
+ *
+ * Build the PSI template to render in the pop-up
+ * @param {Object} result
+ */
+/*
+function createPSITemplate(result) {
+  const experience = result.loadingExperience;
+  const metrics = experience.metrics;
+  const overall_category = experience.overall_category;
+  const fcp = metrics.FIRST_CONTENTFUL_PAINT_MS;
+  const fid = metrics.FIRST_INPUT_DELAY_MS;
+
+  const fcp_template = buildDistributionTemplate(fcp, 'First Contentful Paint (FCP)');
+  const fid_template = buildDistributionTemplate(fid, 'First Input Delay (FID)');
+  const link_template = buildPSILink();
+  const tmpl = `<h1>Origin Performance (${overall_category})</h1> ${fcp_template} ${fid_template} ${link_template}`;
+  const el = document.getElementById('report');
+  el.innerHTML = tmpl;
+  // TODO: Implement per-tab/URL report caching scheme
+  resultsFetched = true;
+}*/
 
 /**
  *
@@ -75,7 +89,7 @@ function createPSITemplate(result) {
  * @returns
  */
 function buildLocalMetricsTemplate(metrics) {
-    return `
+  return `
     <div class="lh-audit-group lh-audit-group--metrics">
     <div class="lh-audit-group__header"><span class="lh-audit-group__title">Metrics</span></div>
     <div class="lh-columns">
@@ -110,13 +124,13 @@ function buildLocalMetricsTemplate(metrics) {
  * @returns
  */
 function renderLocalMetricsTemplate(metrics) {
-    // if (metrics === undefined || metrics.lcp === undefined) { return; }
-    const el = document.getElementById('local-metrics');
-    el.innerHTML = buildLocalMetricsTemplate(metrics);
+  // if (metrics === undefined || metrics.lcp === undefined) { return; }
+  const el = document.getElementById('local-metrics');
+  el.innerHTML = buildLocalMetricsTemplate(metrics);
 }
 
 function buildDistributionTemplate(metric, label) {
-    return `<div class="field-data">
+  return `<div class="field-data">
     <div class="metric-wrapper lh-column">
       <div class="lh-metric">
         <div class="field-metric ${metric.category.toLowerCase()} lh-metric__innerwrap">
@@ -138,7 +152,7 @@ function buildDistributionTemplate(metric, label) {
 }
 
 function buildPSILink() {
-    return `<br><a href='${FE_URL}?url=${encodedUrl}' target='_blank'>
+  return `<br><a href='${FE_URL}?url=${encodedUrl}' target='_blank'>
        View Report on PageSpeed Insights</a>`;
 }
 
@@ -150,27 +164,27 @@ function buildPSILink() {
  * @returns
  */
 function formatDisplayValue(metricName, metricValueMs) {
-    if (metricValueMs === undefined) {
-        return '';
-    }
-    if (metricName === 'First Input Delay (FID)') {
-        return Number(metricValueMs.toFixed(0)) + ' ms';
-    } else {
-        return Number((metricValueMs / 1000).toFixed(1)) + ' s';
-    }
+  if (metricValueMs === undefined) {
+    return '';
+  }
+  if (metricName === 'First Input Delay (FID)') {
+    return Number(metricValueMs.toFixed(0)) + ' ms';
+  } else {
+    return Number((metricValueMs / 1000).toFixed(1)) + ' s';
+  }
 };
 
 chrome.tabs.query({active: true, currentWindow: true}, function(tabs) {
-    let thisTab = tabs[0];
-    // TODO: Re-enable PSI support once LCP, CLS land
-    // console.log(`popup: PSI API will be queried for URL ${thisTab.url}`);
-    // fetchAPIResults(thisTab.url);
+  const thisTab = tabs[0];
+  // TODO: Re-enable PSI support once LCP, CLS land
+  // console.log(`popup: PSI API will be queried for URL ${thisTab.url}`);
+  // fetchAPIResults(thisTab.url);
 
-    // Retrieve the stored latest metrics
-    if (thisTab.url) {
-        let key = hashCode(thisTab.url);
-        chrome.storage.local.get(key, result => {
-            renderLocalMetricsTemplate(result[key]);
-        });
-    }
+  // Retrieve the stored latest metrics
+  if (thisTab.url) {
+    const key = hashCode(thisTab.url);
+    chrome.storage.local.get(key, (result) => {
+      renderLocalMetricsTemplate(result[key]);
+    });
+  }
 });
