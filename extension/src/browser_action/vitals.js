@@ -88,14 +88,21 @@
      * Broadcasts metrics updates using chrome.runtime(), triggering
      * updates to the badge. Will also update the overlay if this option
      * is enabled.
-     * @param {Object} metric
-     * @param {Number} value
-     * @param {Boolean} isFinal
+     * @param {Object} body
      */
-  function broadcastMetricsUpdates(metric, value, isFinal) {
-    badgeMetrics[metric].value = value;
-    badgeMetrics[metric].final = isFinal;
-
+  function broadcastMetricsUpdates(body) {
+    let metric = '';
+    if (body.entries[0].entryType === 'largest-contentful-paint') {
+      metric = 'lcp';
+    }
+    if (body.entries[0].entryType === 'first-input') {
+      metric = 'fid';
+    }
+    if (body.entries[0].entryType === 'layout-shift') {
+      metric = 'cls';
+    }
+    badgeMetrics[metric].value = body.value;
+    badgeMetrics[metric].final = body.isFinal;
     const scoreBucket = scoreBadgeMetrics(badgeMetrics);
 
     // Broadcast metrics updates for badging
@@ -112,12 +119,9 @@
  * Fetches Web Vitals metrics via WebVitals.js
  */
   function fetchWebPerfMetrics() {
-    webVitals.getCLS((result) =>
-      broadcastMetricsUpdates('cls', result.value, result.isFinal));
-    webVitals.getFID((result) =>
-      broadcastMetricsUpdates('fid', result.value, result.isFinal));
-    webVitals.getLCP((result) =>
-      broadcastMetricsUpdates('lcp', result.value, result.isFinal));
+    webVitals.getCLS(broadcastMetricsUpdates, true);
+    webVitals.getLCP(broadcastMetricsUpdates, true);
+    webVitals.getFID(broadcastMetricsUpdates, true);
   }
 
   /**
