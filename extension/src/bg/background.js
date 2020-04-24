@@ -228,9 +228,9 @@ function wait(ms) {
 async function animateBadges(request, tabId) {
   const delay = 2000;
   // First badge overall perf
-  badgeOverallPerf(request.webVitalsScoreBucket, tabId);
+  badgeOverallPerf(request.passesAllThresholds, tabId);
   // If perf is poor, animate the sequence
-  if (request.webVitalsScoreBucket === 'POOR') {
+  if (request.passesAllThresholds === 'POOR') {
     await wait(delay);
     badgeMetric('lcp', request.metrics.lcp.value, tabId);
     await wait(delay);
@@ -243,8 +243,8 @@ async function animateBadges(request, tabId) {
 
 // message from content script
 chrome.runtime.onMessage.addListener((request, sender, response) => {
-  if (request.webVitalsScoreBucket !== undefined) {
-    // e.g webVitalsScoreBucket === 'GOOD' => green badge
+  if (request.passesAllThresholds !== undefined) {
+    // e.g passesAllThresholds === 'GOOD' => green badge
     animateBadges(request, sender.tab.id);
     // also pass the WebVitals metrics on to PSI for when
     // the badge icon is clicked and the pop-up opens.

@@ -15,6 +15,11 @@
   const src = chrome.runtime.getURL('src/browser_action/web-vitals.js');
   const webVitals = await import(src);
 
+  // Core Web Vitals thresholds
+  const LCP_THRESHOLD = 2500;
+  const FID_THRESHOLD = 100;
+  const CLS_THRESHOLD = 0.1;
+
   // Registry for badge metrics
   badgeMetrics = {
     lcp: {
@@ -40,20 +45,23 @@
     * @return {String} overall metrics score
   */
   function scoreBadgeMetrics(metrics) {
-    let bucket = 'GOOD';
-    if (metrics.lcp.value > 2500) {
+    // Note: overallScore is treated as a string rather than
+    // a boolean to give us the flexibility of introducing a
+    // 'NEEDS IMPROVEMENT' option here in the future.
+    const overallScore = 'GOOD';
+    if (metrics.lcp.value > LCP_THRESHOLD) {
       bucket = 'POOR';
       metrics.lcp.pass = false;
     }
-    if (metrics.fid.value > 100) {
+    if (metrics.fid.value > FID_THRESHOLD) {
       bucket = 'POOR';
       metrics.fid.pass = false;
     }
-    if (metrics.cls.value > 0.1) {
+    if (metrics.cls.value > CLS_THRESHOLD) {
       bucket = 'POOR';
       metrics.cls.pass = false;
     }
-    return bucket;
+    return overallScore;
   }
 
   /**
@@ -88,26 +96,20 @@
      * Broadcasts metrics updates using chrome.runtime(), triggering
      * updates to the badge. Will also update the overlay if this option
      * is enabled.
+     * @param {String} metricName
      * @param {Object} body
      */
-  function broadcastMetricsUpdates(body) {
-    let metric = '';
-    if (body.entries[0].entryType === 'largest-contentful-paint') {
-      metric = 'lcp';
+  function broadcastMetricsUpdates(metricName, body) {
+    if (metricName === undefined) {
+      return;
     }
-    if (body.entries[0].entryType === 'first-input') {
-      metric = 'fid';
-    }
-    if (body.entries[0].entryType === 'layout-shift') {
-      metric = 'cls';
-    }
-    badgeMetrics[metric].value = body.value;
-    badgeMetrics[metric].final = body.isFinal;
-    const scoreBucket = scoreBadgeMetrics(badgeMetrics);
+    badgeMetrics[metricName].value = body.value;
+    badgeMetrics[metricName].final = body.isFinal;
+    const passes = scoreBadgeMetrics(badgeMetrics);
 
     // Broadcast metrics updates for badging
     chrome.runtime.sendMessage({
-      webVitalsScoreBucket: scoreBucket,
+      passesAllThresholds: passes,
       metrics: badgeMetrics,
     });
     // TODO: Once the metrics are final, cache locally.
@@ -119,9 +121,15 @@
  * Fetches Web Vitals metrics via WebVitals.js
  */
   function fetchWebPerfMetrics() {
-    webVitals.getCLS(broadcastMetricsUpdates, true);
-    webVitals.getLCP(broadcastMetricsUpdates, true);
-    webVitals.getFID(broadcastMetricsUpdates, true);
+    webVitals.getCLS((metric) => {
+      broadcastMetricsUpdates('cls', metric);
+    }, true);
+    webVitals.getLCP((metric) => {
+      broadcastMetricsUpdates('lcp', metric);
+    }, true);
+    webVitals.getFID((metric) => {
+      broadcastMetricsUpdates('fid', metric);
+    }, true);
   }
 
   /**
