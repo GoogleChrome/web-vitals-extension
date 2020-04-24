@@ -113,7 +113,7 @@ function buildLocalMetricsTemplate(metrics) {
         </div>
         <div class="lh-metric lh-metric--${metrics.fid.pass ? 'pass':'fail'}">
           <div class="lh-metric__innerwrap">
-            <span class="lh-metric__title">First Input Delay <span class="lh-metric-state">${metrics.fid.final ? '(final)' : '(not final)'}</span></span>
+            <span class="lh-metric__title">First Input Delay <span class="lh-metric-state">${metrics.fid.final ? '(final)' : '(not final - waiting for input)'}</span></span>
             <div class="lh-metric__value">${metrics.fid.value.toFixed(2)}&nbsp;ms</div>
           </div>
         </div>
@@ -125,6 +125,7 @@ function buildLocalMetricsTemplate(metrics) {
         </div>
       </div>
     </div>
+    <div class="lh-footer"><a href="https://github.com/GoogleChrome/web-vitals#api" target="_blank">Learn more</a> about when these values are final</div>
   </div>`;
 }
 

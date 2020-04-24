@@ -351,6 +351,12 @@
   color: var(--color-informative);
 }
 
+.lh-footer {
+  margin-top: 20px;
+  font-size: 12px;
+  color: var(--color-gray-500);
+}
+
 .lh-audit__description, .lh-audit__stackpack {
   --inner-audit-padding-right: var(--stackpack-padding-horizontal);
   padding-left: var(--audit-description-padding-left);
