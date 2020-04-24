@@ -1,4 +1,1 @@
-# exclude node_modules
-node_modules/**/*
-# don't exclude the web-vitals dist directory
-!node_modules/web-vitals/dist/
+node_modules
