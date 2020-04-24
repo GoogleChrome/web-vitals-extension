@@ -12,7 +12,7 @@
 */
 
 (async () => {
-  const src = chrome.runtime.getURL('src/browser_action/web-vitals.js');
+  const src = chrome.runtime.getURL('node_modules/web-vitals/dist/web-vitals.min.js');
   const webVitals = await import(src);
 
   // Core Web Vitals thresholds
@@ -48,17 +48,17 @@
     // Note: overallScore is treated as a string rather than
     // a boolean to give us the flexibility of introducing a
     // 'NEEDS IMPROVEMENT' option here in the future.
-    const overallScore = 'GOOD';
+    let overallScore = 'GOOD';
     if (metrics.lcp.value > LCP_THRESHOLD) {
-      bucket = 'POOR';
+      overallScore = 'POOR';
       metrics.lcp.pass = false;
     }
     if (metrics.fid.value > FID_THRESHOLD) {
-      bucket = 'POOR';
+      overallScore = 'POOR';
       metrics.fid.pass = false;
     }
     if (metrics.cls.value > CLS_THRESHOLD) {
-      bucket = 'POOR';
+      overallScore = 'POOR';
       metrics.cls.pass = false;
     }
     return overallScore;

@@ -28,7 +28,7 @@
   ],
   "web_accessible_resources": [
     "src/browser_action/viewer.css",
-    "src/browser_action/web-vitals.js"
+    "/node_modules/web-vitals/dist/web-vitals.min.js"
   ],
   "content_scripts": [
     {
