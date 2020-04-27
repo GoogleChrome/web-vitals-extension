@@ -11,6 +11,11 @@
  limitations under the License.
 */
 
+// Core Web Vitals thresholds
+const LCP_THRESHOLD = 2500;
+const FID_THRESHOLD = 100;
+const CLS_THRESHOLD = 0.1;
+
 /**
  * Hash the URL and return a numeric hash as a String to be used as the key
  * @param {String} str
@@ -126,6 +131,18 @@ function badgeMetric(metric, value, tabid) {
   }, function(tabs) {
     const currentTab = tabid || tabs[0].id;
     const bgColor = '#000';
+
+    // If URL is overall failing the thresholds, only show
+    // a red badge for metrics actually failing (issues/22)
+    if (metric === 'cls' && value <= CLS_THRESHOLD) {
+      return;
+    }
+    if (metric === 'lcp' && value <= LCP_THRESHOLD) {
+      return;
+    }
+    if (metric === 'fid' && value <= FID_THRESHOLD) {
+      return;
+    }
 
     switch (metric) {
       case 'lcp':
