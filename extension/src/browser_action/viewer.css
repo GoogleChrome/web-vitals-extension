@@ -1695,3 +1695,21 @@
 .lh-overlay .lh-metric__innerwrap {
     margin-left: 2px;
 }
+
+#web-vitals-close, .lh-overlay-close {
+  all: unset;
+  font-family: Roboto, Helvetica, Arial, sans-serif;
+  font-weight: bold; 
+  font-size: 16px;
+  position: fixed;
+  z-index: 100000000;
+  top: 20px;
+  right: 20px;
+  color: white;
+  display: inline-block;
+  border-width: initial;
+  border-style: initial;
+  border-image: initial;
+  display: block; 
+  margin: 7px 9px 0px 0px;
+}
