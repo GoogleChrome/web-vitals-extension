@@ -14,6 +14,7 @@
 (async () => {
   const src = chrome.runtime.getURL('node_modules/web-vitals/dist/web-vitals.min.js');
   const webVitals = await import(src);
+  let overlayClosedForSession = false;
 
   // Core Web Vitals thresholds
   const LCP_THRESHOLD = 2500;
@@ -76,7 +77,7 @@
     }, ({
       enableOverlay,
     }) => {
-      if (enableOverlay === true) {
+      if (enableOverlay === true && overlayClosedForSession == false) {
         // Overlay
         const overlayElement = document.getElementById('web-vitals-extension');
         if (overlayElement === null) {
@@ -98,12 +99,14 @@
           overlayClose.addEventListener('click', () => {
             overlayElement.remove();
             overlayClose.remove();
+            overlayClosedForSession = true;
           });
           document.body.appendChild(overlayClose);
         } else {
           overlayClose.addEventListener('click', () => {
             overlayElement.remove();
             overlayClose.remove();
+            overlayClosedForSession = true;
           });
         }
       }
