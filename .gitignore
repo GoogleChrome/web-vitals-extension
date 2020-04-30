@@ -1,1 +1,13 @@
 .DS_Store
+# ignore node_modules contents
+**/node_modules/*
+# don't ignore web-vitals
+!**/node_modules/web-vitals/
+# do ignore web-vitals contents
+**/node_modules/web-vitals/*
+# don't ignore web-vitals/dist
+!**/node_modules/web-vitals/dist/
+# do ignore web-vitals/dist contents
+**/node_modules/web-vitals/dist/*
+# don't ignore web-vitals.min.js
+!**/node_modules/web-vitals/dist/web-vitals.min.js
