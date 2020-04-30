@@ -14,6 +14,7 @@
 (async () => {
   const src = chrome.runtime.getURL('node_modules/web-vitals/dist/web-vitals.min.js');
   const webVitals = await import(src);
+  let overlayClosedForSession = false;
 
   // Core Web Vitals thresholds
   const LCP_THRESHOLD = 2500;
@@ -76,15 +77,37 @@
     }, ({
       enableOverlay,
     }) => {
-      if (enableOverlay === true) {
+      if (enableOverlay === true && overlayClosedForSession == false) {
+        // Overlay
         const overlayElement = document.getElementById('web-vitals-extension');
         if (overlayElement === null) {
-          const overlay = document.createElement('div');
-          overlay.id = 'web-vitals-extension';
-          overlay.innerHTML = buildOverlayTemplate(metrics);
-          document.body.appendChild(overlay);
+          const overlayElement = document.createElement('div');
+          overlayElement.id = 'web-vitals-extension';
+          overlayElement.innerHTML = buildOverlayTemplate(metrics);
+          document.body.appendChild(overlayElement);
         } else {
           overlayElement.innerHTML = buildOverlayTemplate(metrics);
+        }
+
+        // Overlay close button
+        const overlayClose = document.getElementById('web-vitals-close');
+        if (overlayClose === null) {
+          const overlayClose = document.createElement('button');
+          overlayClose.innerText = 'Close';
+          overlayClose.id = 'web-vitals-close';
+          overlayClose.className = 'lh-overlay-close';
+          overlayClose.addEventListener('click', () => {
+            overlayElement.remove();
+            overlayClose.remove();
+            overlayClosedForSession = true;
+          });
+          document.body.appendChild(overlayClose);
+        } else {
+          overlayClose.addEventListener('click', () => {
+            overlayElement.remove();
+            overlayClose.remove();
+            overlayClosedForSession = true;
+          });
         }
       }
     });
@@ -139,11 +162,12 @@
  */
   function buildOverlayTemplate(metrics) {
     return `
-    <div id="lh-overlay-container" class="lh-unset lh-root lh-vars dark">
+    <div id="lh-overlay-container" class="lh-unset lh-root lh-vars dark" style="display: block;">
     <div class="lh-overlay">
     <div class="lh-audit-group lh-audit-group--metrics">
     <div class="lh-audit-group__header">
-    <span class="lh-audit-group__title">Metrics</span></div>
+      <span class="lh-audit-group__title">Metrics</span>
+    </div>
     <div class="lh-columns">
       <div class="lh-column">
         <div class="lh-metric lh-metric--${metrics.lcp.pass ? 'pass':'fail'}">
