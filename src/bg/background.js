@@ -57,6 +57,14 @@ function getWebVitals(tabId) {
 
 // User has navigated to a new URL in a tab
 chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
+  const tabIdKey = tabId.toString();
+
+  if (tab.active) {
+    chrome.storage.local.set({[tabIdKey]: false});
+  } else {
+    chrome.storage.local.set({[tabIdKey]: true}); // tab was loaded in background
+  }
+
   if (
     changeInfo.status == 'complete' &&
     tab.url.startsWith('http') &&

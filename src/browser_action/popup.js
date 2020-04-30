@@ -99,7 +99,7 @@ function createPSITemplate(result) {
  * @param {Object} metrics
  * @returns
  */
-function buildLocalMetricsTemplate(metrics) {
+function buildLocalMetricsTemplate(metrics, tabLoadedInBackground) {
   return `
     <div class="lh-audit-group lh-audit-group--metrics">
     <div class="lh-audit-group__header"><span class="lh-audit-group__title">Metrics</span></div>
@@ -107,7 +107,10 @@ function buildLocalMetricsTemplate(metrics) {
       <div class="lh-column">
         <div class="lh-metric lh-metric--${metrics.lcp.pass ? 'pass':'fail'}">
           <div class="lh-metric__innerwrap">
-            <span class="lh-metric__title">Largest Contentful Paint <span class="lh-metric-state">${metrics.lcp.final ? '(final)' : '(not final)'}</span></span>
+            <div>
+              <span class="lh-metric__title">Largest Contentful Paint <span class="lh-metric-state">${metrics.lcp.final ? '(final)' : '(not final)'}</span></span>
+              ${tabLoadedInBackground ? '<span class="lh-metric__subtitle">Value inflated as tab was loaded in background</span>' : ''}
+            </div>
             <div class="lh-metric__value">${(metrics.lcp.value/1000).toFixed(2)}&nbsp;s</div>
           </div>
         </div>
@@ -135,9 +138,9 @@ function buildLocalMetricsTemplate(metrics) {
  * @param {Object} metrics
  * @returns
  */
-function renderLocalMetricsTemplate(metrics) {
+function renderLocalMetricsTemplate(metrics, tabLoadedInBackground) {
   const el = document.getElementById('local-metrics');
-  el.innerHTML = buildLocalMetricsTemplate(metrics);
+  el.innerHTML = buildLocalMetricsTemplate(metrics, tabLoadedInBackground);
 }
 
 function buildDistributionTemplate(metric, label) {
@@ -195,8 +198,16 @@ chrome.tabs.query({active: true, currentWindow: true}, function(tabs) {
   // Retrieve the stored latest metrics
   if (thisTab.url) {
     const key = hashCode(thisTab.url);
+    const loadedInBackgroundKey = thisTab.id.toString()
+    
+    let tabLoadedInBackground = false;
+
+    chrome.storage.local.get(loadedInBackgroundKey, (result) => {
+      tabLoadedInBackground = result[loadedInBackgroundKey];
+    });
+
     chrome.storage.local.get(key, (result) => {
-      renderLocalMetricsTemplate(result[key]);
+      renderLocalMetricsTemplate(result[key], tabLoadedInBackground);
     });
   }
 });
