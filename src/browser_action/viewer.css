@@ -607,6 +607,12 @@
   font-weight: 500;
 }
 
+.lh-metric__subtitle {
+  display: block;
+  font-weight: 500;
+  color: var(--color-gray-500);
+}
+
 .lh-metrics__disclaimer {
   color: var(--color-gray-600);
   margin: var(--section-padding-vertical) 0;
