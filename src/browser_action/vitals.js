@@ -69,8 +69,17 @@
      *
      * Draw or update the HUD overlay to the page
      * @param {Object} metrics
+     * @param {Number} tabId
      */
-  function drawOverlay(metrics) {
+  function drawOverlay(metrics, tabId) {
+    let tabLoadedInBackground = false;
+    const key = tabId.toString()
+
+    // Check if tab was loaded in background
+    chrome.storage.local.get(key, (result) => {
+      tabLoadedInBackground = result[key];
+    });
+
     // Check for preferences set in options
     chrome.storage.sync.get({
       enableOverlay: false,
@@ -83,10 +92,10 @@
         if (overlayElement === null) {
           const overlayElement = document.createElement('div');
           overlayElement.id = 'web-vitals-extension';
-          overlayElement.innerHTML = buildOverlayTemplate(metrics);
+          overlayElement.innerHTML = buildOverlayTemplate(metrics, tabLoadedInBackground);
           document.body.appendChild(overlayElement);
         } else {
-          overlayElement.innerHTML = buildOverlayTemplate(metrics);
+          overlayElement.innerHTML = buildOverlayTemplate(metrics, tabLoadedInBackground);
         }
 
         // Overlay close button
@@ -129,14 +138,14 @@
     badgeMetrics[metricName].value = body.value;
     badgeMetrics[metricName].final = body.isFinal;
     const passes = scoreBadgeMetrics(badgeMetrics);
-
     // Broadcast metrics updates for badging
-    chrome.runtime.sendMessage({
-      passesAllThresholds: passes,
-      metrics: badgeMetrics,
-    });
-    // TODO: Once the metrics are final, cache locally.
-    drawOverlay(badgeMetrics);
+    chrome.runtime.sendMessage(
+      {
+        passesAllThresholds: passes,
+        metrics: badgeMetrics,
+      },
+      (response) => drawOverlay(badgeMetrics, response.tabId) // TODO: Once the metrics are final, cache locally.
+    );
   }
 
   /**
@@ -158,9 +167,10 @@
   /**
  * Build a template of metrics
  * @param {Object} metrics The metrics
+ * @param {Boolean} tabLoadedInBackground
  * @return {String} a populated template of metrics
  */
-  function buildOverlayTemplate(metrics) {
+  function buildOverlayTemplate(metrics, tabLoadedInBackground) {
     return `
     <div id="lh-overlay-container" class="lh-unset lh-root lh-vars dark" style="display: block;">
     <div class="lh-overlay">
@@ -172,9 +182,12 @@
       <div class="lh-column">
         <div class="lh-metric lh-metric--${metrics.lcp.pass ? 'pass':'fail'}">
           <div class="lh-metric__innerwrap">
-            <span class="lh-metric__title">
-              Largest Contentful Paint 
-                <span class="lh-metric-state">${metrics.lcp.final ? '(final)' : '(not final)'}</span></span>
+            <div>
+              <span class="lh-metric__title">
+                Largest Contentful Paint 
+                  <span class="lh-metric-state">${metrics.lcp.final ? '(final)' : '(not final)'}</span></span>
+                  ${tabLoadedInBackground ? '<span class="lh-metric__subtitle">Value inflated as tab was loaded in background</span>' : ''}
+            </div>
             <div class="lh-metric__value">${(metrics.lcp.value/1000).toFixed(2)}&nbsp;s</div>
           </div>
         </div>
