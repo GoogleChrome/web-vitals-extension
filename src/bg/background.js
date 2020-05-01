@@ -217,10 +217,6 @@ function passVitalsToPSI(badgeMetrics) {
       chrome.tabs.query({active: true, currentWindow: true}, (tabs) => {
         chrome.runtime.sendMessage({
           metrics: badgeMetrics,
-        }, (response) => {
-          if (!chrome.runtime.lastError) {
-            // Proceed
-          }
         });
       });
     }
