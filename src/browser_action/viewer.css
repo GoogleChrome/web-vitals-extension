@@ -1666,7 +1666,7 @@
   top: 20px;
   right: 20px;
   width: 430px;
-  height: 200px;
+  height: auto;
   border: green;
   display: inline-block;
 }
