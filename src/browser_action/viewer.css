@@ -1231,7 +1231,6 @@
 
 .lh-categories {
   width: 100%;
-  overflow: hidden;
 }
 
 .lh-category {
@@ -1708,6 +1707,13 @@
 .lh-overlay .lh-metric__subtitle {
     font-size: var(--report-font-size-small);
     color: var(--color-gray-600);
+}
+
+.lh-warning {
+  display: block;
+  background-color: var(--topbar-background-color);
+  padding: 4px 6px 6px 6px;
+  height: var(--topbar-height);
 }
 
 #web-vitals-close, .lh-overlay-close {
