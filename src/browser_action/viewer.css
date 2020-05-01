@@ -1665,7 +1665,7 @@
   z-index: 100000000;
   top: 20px;
   right: 20px;
-  width: 400px;
+  width: 430px;
   height: auto;
   border: green;
   display: inline-block;
@@ -1714,6 +1714,10 @@
   background-color: var(--topbar-background-color);
   padding: 4px 6px 6px 6px;
   height: var(--topbar-height);
+}
+
+.lh-overlay .lh-metric-state {
+  color: var(--color-informative);
 }
 
 #web-vitals-close, .lh-overlay-close {

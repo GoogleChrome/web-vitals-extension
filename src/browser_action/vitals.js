@@ -185,7 +185,7 @@
             <div>
               <span class="lh-metric__title">
                 Largest Contentful Paint 
-                  <span class="lh-metric-state">${metrics.lcp.final ? '(final)' : '(not final)'}</span></span>
+                  <span class="lh-metric-state">${metrics.lcp.final ? '' : '(might change)'}</span></span>
                   ${tabLoadedInBackground ? '<span class="lh-metric__subtitle">Value inflated as tab was loaded in background</span>' : ''}
             </div>
             <div class="lh-metric__value">${(metrics.lcp.value/1000).toFixed(2)}&nbsp;s</div>
@@ -195,15 +195,15 @@
           <div class="lh-metric__innerwrap">
             <span class="lh-metric__title">
               First Input Delay 
-                <span class="lh-metric-state">${metrics.fid.final ? '(final)' : '(not final)'}</span></span>
-            <div class="lh-metric__value">${metrics.fid.value.toFixed(2)}&nbsp;ms</div>
+                <span class="lh-metric-state">${metrics.fid.final ? '' : '(waiting for input)'}</span></span>
+            <div class="lh-metric__value">${metrics.fid.final ? `${metrics.fid.value.toFixed(2)}&nbsp;ms` : ''}</div>
           </div>
         </div>
         <div class="lh-metric lh-metric--${metrics.cls.pass ? 'pass':'fail'}">
           <div class="lh-metric__innerwrap">
             <span class="lh-metric__title">
               Cumulative Layout Shift 
-                <span class="lh-metric-state">${metrics.cls.final ? '(final)' : '(not final)'}</span></span>
+                <span class="lh-metric-state">${metrics.cls.final ? '' : '(might change)'}</span></span>
             <div class="lh-metric__value">${metrics.cls.value.toFixed(3)}&nbsp;</div>
           </div>
         </div>
