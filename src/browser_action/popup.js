@@ -128,8 +128,15 @@ function buildLocalMetricsTemplate(metrics, tabLoadedInBackground) {
         </div>
       </div>
     </div>
-    <div class="lh-footer"><a href="https://github.com/GoogleChrome/web-vitals#api" target="_blank">Learn more</a> about when these values are final</div>
-  </div>`;
+  </div>
+  <div class="lh-footer lh-metrics-final">
+    <a href="https://github.com/GoogleChrome/web-vitals#api" target="_blank">Learn more</a> about when these values are final</div>
+    <div class="lh-footer lh-warning">
+      Desktop performance may appear faster than on mobile devices. 
+      <a href="https://web.dev/what-should-you-measure-to-improve-performance/" target="_blank">Learn more</a>
+    </div>
+  </div>
+  `;
 }
 
 /**

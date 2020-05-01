@@ -1,13 +1,13 @@
 html {
     width: 450px;
-    height: 200px;
+    height: 180px;
     text-align: left;
     font: 400 14px/20px Roboto,sans-serif
 }
 
 h1 {
-margin-left: 14px;
-font-size: 1.5em;
+    margin-left: 14px;
+    font-size: 1.5em;
 }
 
 .main-action {
