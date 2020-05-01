@@ -119,6 +119,7 @@
   --report-font-family-monospace: 'Roboto Mono', 'Menlo', 'dejavu sans mono', 'Consolas', 'Lucida Console', monospace;
   --report-font-family: Roboto, Helvetica, Arial, sans-serif;
   --report-font-size: 16px;
+  --report-font-size-small: 13px;
   --report-line-height: 24px;
   --report-min-width: 400px;
   --report-text-color-secondary: var(--color-gray-800);
@@ -221,6 +222,7 @@
     --plugin-icon-size: 75%;
     --pwa-icon-margin: 0 7px 0 -3px;
     --report-font-size: 14px;
+    --report-font-size-small: 12px;
     --report-line-height: 20px;
     --score-icon-margin-left: 2px;
     --score-icon-size: 10px;
@@ -1229,7 +1231,6 @@
 
 .lh-categories {
   width: 100%;
-  overflow: hidden;
 }
 
 .lh-category {
@@ -1684,13 +1685,15 @@
 .lh-overlay .metric-name {
   color: white;
 }
-
+.lh-overlay .lh-columns {
+  padding: 0 5px 15px;
+}
 .lh-overlay .lh-column {
   color: white;
 }
 .lh-overlay .lh-audit-group__title {
     color: white;
-    margin-left: 10px;
+    margin: 10px 0 0 10px;
 }
 .lh-overlay .lh-column {
     margin-right: 2px;
@@ -1700,6 +1703,17 @@
 }
 .lh-overlay .lh-metric__innerwrap {
     margin-left: 2px;
+}
+.lh-overlay .lh-metric__subtitle {
+    font-size: var(--report-font-size-small);
+    color: var(--color-gray-600);
+}
+
+.lh-warning {
+  display: block;
+  background-color: var(--topbar-background-color);
+  padding: 4px 6px 6px 6px;
+  height: var(--topbar-height);
 }
 
 .lh-overlay .lh-metric-state {

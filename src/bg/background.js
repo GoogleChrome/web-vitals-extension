@@ -45,13 +45,6 @@ function getWebVitals(tabId) {
   }, (result) => {
     // Catch errors such as "This page cannot be scripted due
     // to an ExtensionsSettings policy."
-    const lastErr = chrome.runtime.lastError;
-    if (lastErr) {
-      chrome.browserAction.setIcon({
-        path: '../../icons/default128w.png',
-        tabId: tabId,
-      });
-    }
   });
 }
 
@@ -221,17 +214,12 @@ function badgeMetric(metric, value, tabid) {
 function passVitalsToPSI(badgeMetrics) {
   chrome.tabs.onUpdated.addListener((tabId, {status}, tab) => {
     if (status == 'complete') {
-      chrome.tabs.query({active: true}, (tabs) => {
+      chrome.tabs.query({active: true, currentWindow: true}, (tabs) => {
         chrome.runtime.sendMessage({
           metrics: badgeMetrics,
-        }, (response) => {
         });
       });
     }
-  });
-  chrome.runtime.sendMessage({
-    metrics: badgeMetrics,
-  }, (response) => {
   });
 }
 
@@ -267,7 +255,7 @@ async function animateBadges(request, tabId) {
 }
 
 // message from content script
-chrome.runtime.onMessage.addListener((request, sender, response) => {
+chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
   if (request.passesAllThresholds !== undefined) {
     // e.g passesAllThresholds === 'GOOD' => green badge
     animateBadges(request, sender.tab.id);
@@ -279,5 +267,7 @@ chrome.runtime.onMessage.addListener((request, sender, response) => {
       const key = hashCode(sender.tab.url);
       chrome.storage.local.set({[key]: request.metrics});
     }
+    // send TabId to content script
+    sendResponse({tabId: sender.tab.id});
   }
 });
