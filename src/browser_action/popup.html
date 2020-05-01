@@ -5,11 +5,30 @@
   <link rel="stylesheet" type="text/css" href="viewer.css">
   <style>
     .lh-audit-group--metrics, .lh-metrics-final {
-      padding: 10px 10px 0px 10px;
+      padding: 3px 10px 0px 10px;
     }
     
     .lh-metric-state {
       color: #cccccc;
+    }
+    
+    .lh-topbar {
+      position: sticky;
+      top: 0;
+      left: 0;
+      right: 0;
+      z-index: 1000;
+      display: flex;
+      align-items: center;
+      height: var(--topbar-height);
+      background-color: var(--topbar-background-color);
+      padding: var(--topbar-padding);
+      font-size: 12px;
+    }
+    
+    .lh-topbar a, .lh-topbar a:active {
+      color: var(--color-gray-900);
+      text-decoration: none;
     }
   </style>
   <script type="text/javascript" src="popup.js"></script>

@@ -865,7 +865,7 @@
 /* Audit Group */
 
 .lh-audit-group {
-  margin-bottom: var(--audit-group-margin-bottom);
+  /* margin-bottom: var(--audit-group-margin-bottom); */
   position: relative;
 }
 
@@ -1737,3 +1737,40 @@
   display: block; 
   margin: 7px 9px 0px 0px;
 }
+
+.lh-footer .lh-generated {
+  text-align: center;
+}
+.lh-env__title {
+  font-size: var(--env-item-font-size-big);
+  line-height: var(--env-item-line-height-big);
+  text-align: center;
+  padding: var(--score-container-padding);
+}
+.lh-env {
+  padding: var(--default-padding) 0;
+}
+.lh-env__items {
+  padding-left: 16px;
+  margin: 0 0 var(--audits-margin-bottom);
+  padding: 0;
+}
+.lh-env__items .lh-env__item:nth-child(2n) {
+  background-color: var(--env-item-background-color);
+}
+.lh-env__item {
+  display: flex;
+  padding: var(--env-item-padding);
+  position: relative;
+}
+span.lh-env__name {
+  font-weight: bold;
+  min-width: var(--env-name-min-width);
+  flex: 0.5;
+  padding: 0 8px;
+}
+span.lh-env__description {
+  text-align: left;
+  flex: 1;
+}
+

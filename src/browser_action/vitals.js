@@ -73,7 +73,7 @@
      */
   function drawOverlay(metrics, tabId) {
     let tabLoadedInBackground = false;
-    const key = tabId.toString()
+    const key = tabId.toString();
 
     // Check if tab was loaded in background
     chrome.storage.local.get(key, (result) => {
@@ -122,6 +122,25 @@
     });
   }
 
+  /**
+ * Return a short (host) and full URL for the measured page
+ * @return {Object}
+ */
+  function getURL() {
+    const url = document.location.href;
+    const shortURL = `${document.location.protocol}//${document.location.host}`;
+    return {shortURL, url};
+  }
+
+  /**
+   * Return a short timestamp (HH:MM:SS) for current time
+   * @return {String}
+   */
+  function getTimestamp() {
+    const date = new Date();
+    return date.toLocaleTimeString('en-US', {hour12: false});
+  }
+
 
   /**
      *
@@ -137,14 +156,16 @@
     }
     badgeMetrics[metricName].value = body.value;
     badgeMetrics[metricName].final = body.isFinal;
+    badgeMetrics.location = getURL();
+    badgeMetrics.timestamp = getTimestamp();
     const passes = scoreBadgeMetrics(badgeMetrics);
     // Broadcast metrics updates for badging
     chrome.runtime.sendMessage(
-      {
-        passesAllThresholds: passes,
-        metrics: badgeMetrics,
-      },
-      (response) => drawOverlay(badgeMetrics, response.tabId) // TODO: Once the metrics are final, cache locally.
+        {
+          passesAllThresholds: passes,
+          metrics: badgeMetrics,
+        },
+        (response) => drawOverlay(badgeMetrics, response.tabId), // TODO: Once the metrics are final, cache locally.
     );
   }
 
