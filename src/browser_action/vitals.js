@@ -134,10 +134,6 @@
     chrome.runtime.sendMessage({
       passesAllThresholds: passes,
       metrics: badgeMetrics,
-    }, (result) => {
-      if (!chrome.runtime.lastError) {
-        // Proceed
-      }
     });
     // TODO: Once the metrics are final, cache locally.
     drawOverlay(badgeMetrics);
