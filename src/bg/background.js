@@ -255,7 +255,7 @@ async function animateBadges(request, tabId) {
 }
 
 // message from content script
-chrome.runtime.onMessage.addListener((request, sender, response) => {
+chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
   if (request.passesAllThresholds !== undefined) {
     // e.g passesAllThresholds === 'GOOD' => green badge
     animateBadges(request, sender.tab.id);
@@ -267,5 +267,7 @@ chrome.runtime.onMessage.addListener((request, sender, response) => {
       const key = hashCode(sender.tab.url);
       chrome.storage.local.set({[key]: request.metrics});
     }
+    // send TabId to content script
+    sendResponse({tabId: sender.tab.id});
   }
 });
