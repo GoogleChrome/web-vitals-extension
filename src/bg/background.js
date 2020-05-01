@@ -45,13 +45,6 @@ function getWebVitals(tabId) {
   }, (result) => {
     // Catch errors such as "This page cannot be scripted due
     // to an ExtensionsSettings policy."
-    const lastErr = chrome.runtime.lastError;
-    if (lastErr) {
-      chrome.browserAction.setIcon({
-        path: '../../icons/default128w.png',
-        tabId: tabId,
-      });
-    }
   });
 }
 
@@ -221,17 +214,16 @@ function badgeMetric(metric, value, tabid) {
 function passVitalsToPSI(badgeMetrics) {
   chrome.tabs.onUpdated.addListener((tabId, {status}, tab) => {
     if (status == 'complete') {
-      chrome.tabs.query({active: true}, (tabs) => {
+      chrome.tabs.query({active: true, currentWindow: true}, (tabs) => {
         chrome.runtime.sendMessage({
           metrics: badgeMetrics,
         }, (response) => {
+          if (!chrome.runtime.lastError) {
+            // Proceed
+          }
         });
       });
     }
-  });
-  chrome.runtime.sendMessage({
-    metrics: badgeMetrics,
-  }, (response) => {
   });
 }
 
