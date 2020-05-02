@@ -128,7 +128,7 @@
  */
   function getURL() {
     const url = document.location.href;
-    const shortURL = `${document.location.protocol}//${document.location.host}`;
+    const shortURL = document.location.origin;
     return {shortURL, url};
   }
 

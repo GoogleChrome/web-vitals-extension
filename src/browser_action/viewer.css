@@ -865,7 +865,6 @@
 /* Audit Group */
 
 .lh-audit-group {
-  /* margin-bottom: var(--audit-group-margin-bottom); */
   position: relative;
 }
 
