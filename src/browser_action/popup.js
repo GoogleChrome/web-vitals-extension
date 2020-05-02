@@ -101,6 +101,10 @@ function createPSITemplate(result) {
  */
 function buildLocalMetricsTemplate(metrics, tabLoadedInBackground) {
   return `
+  <div class="lh-topbar">
+    <a href="${metrics.location.url}" class="lh-topbar__url" target="_blank" rel="noopener" title="${metrics.location.url}">
+  ${metrics.location.shortURL}</a>&nbsp;- ${metrics.timestamp}
+  </div>
     <div class="lh-audit-group lh-audit-group--metrics">
     <div class="lh-audit-group__header"><span class="lh-audit-group__title">Metrics</span></div>
     <div class="lh-columns">
@@ -129,8 +133,10 @@ function buildLocalMetricsTemplate(metrics, tabLoadedInBackground) {
       </div>
     </div>
   </div>
-  <div class="lh-footer lh-metrics-final">
-    <a href="https://github.com/GoogleChrome/web-vitals#api" target="_blank">Learn more</a> about when these values are final</div>
+  <div class="lh-metrics-final lh-metrics__disclaimer" hidden>
+    <div><span>${metrics.location.url} - ${metrics.timestamp}</span></div>
+  </div>
+
     <div class="lh-footer lh-warning">
       Mobile performance may be significantly slower. 
       <a href="https://web.dev/load-fast-enough-for-pwa/" target="_blank">Learn more</a>
