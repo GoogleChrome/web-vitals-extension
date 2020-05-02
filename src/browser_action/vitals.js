@@ -151,7 +151,7 @@
      * @param {Object} body
      */
   function broadcastMetricsUpdates(metricName, body) {
-    if (metricName === undefined) {
+    if (metricName === undefined || badgeMetrics === undefined) {
       return;
     }
     badgeMetrics[metricName].value = body.value;
