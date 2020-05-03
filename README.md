@@ -22,7 +22,7 @@ The extensions supports all of the [Core Web Vitals](https://web.dev/vitals/#cor
 
 ### Ambient badge
 
-![](media/cwv-extension-badge.png)
+<img src="media/cwv-extension-badge.png" width="75%">
 
 The ambient badge helps check if a page passing the Core Web Vitals thresholds.
 
@@ -38,20 +38,17 @@ If one or more metrics are failing, the badge will animate the values of these m
 
 ### Detailed drill-down
 
-![](media/cwv-extension-drilldown.png)
+<img src="media/cwv-extension-drilldown.png" width="75%">
 
 Clicking the Ambient badge icon will allow you to drill in to the individual metric values. In this mode, the extension will also say if a metric value is `final` or `not final`. 
 
-For example, First Input Delay requires a real interaction with the page and will be in a `not final` state until this is the case.
+For example, First Input Delay requires a real interaction with the page and will be in a `not final` state until this is the case. We recommend consulting the web.dev documentation for [LCP](https://web.dev/lcp), [CLS](https://web.dev/cls) and [FID](https://web.dev/fid) to get an understanding of when metric values settle.
 
-We recommend consulting the web.dev documentation for [LCP](https://web.dev/lcp), [CLS](https://web.dev/cls) and [FID](https://web.dev/fid) to get an understanding of when metric values settle.
-
-In a future release, the drill-down will also include aggregate field performance data
-from PageSpeed Insights and the Chrome User Experience Report.
+In a future release, the drill-down will also include aggregate field performance data from PageSpeed Insights and the Chrome User Experience Report.
 
 ### Overlay
 
-![](media/cwv-extension-overlay.png)
+<img src="media/cwv-extension-overlay.png" width="75%">
 
 The overlay displays a Heads up display (HUD) which overlays your page. It is useful if you need a persistent view of your Core Web Vitals metrics during development. To enable the overlay: 
 
