@@ -2,15 +2,13 @@
   "name": "Web Vitals",
   "version": "0.0.1",
   "manifest_version": 2,
-  "description": "This extension visualizes Web Vitals metrics",
-  "homepage_url": "http://web.dev/metrics",
+  "description": "Measure metrics for a healthy site",
+  "homepage_url": "http://web.dev/vitals",
   "icons": {
-    "16": "icons/default16w.png",
-    "48": "icons/default48w.png",
-    "128": "icons/default128w.png",
-    "256": "icons/default256w.png"
+    "128": "icons/vitals128w.png",
+    "256": "icons/vitals256w.png",
+    "512": "icons/vitals512w.png"
   },
-  "default_locale": "en",
   "browser_action": {
     "default_icon": "icons/default256w.png",
     "default_title": "Web Vitals",
