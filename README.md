@@ -22,6 +22,8 @@ The extensions supports all of the [Core Web Vitals](https://web.dev/vitals/#cor
 
 ### Ambient badge
 
+![](media/cwv-extension-badge.png)
+
 The ambient badge helps check if a page passing the Core Web Vitals thresholds.
 
 Once installed, the extension will display a disabled state badge icon until you navigate to a URL. At this point it will update the badge to green or red depending on whether the URL passes the Core Web Vitals metrics thresholds.
@@ -36,6 +38,8 @@ If one or more metrics are failing, the badge will animate the values of these m
 
 ### Detailed drill-down
 
+![](media/cwv-extension-drilldown.png)
+
 Clicking the Ambient badge icon will allow you to drill in to the individual metric values. In this mode, the extension will also say if a metric value is `final` or `not final`. 
 
 For example, First Input Delay requires a real interaction with the page and will be in a `not final` state until this is the case.
@@ -46,6 +50,8 @@ In a future release, the drill-down will also include aggregate field performanc
 from PageSpeed Insights and the Chrome User Experience Report.
 
 ### Overlay
+
+![](media/cwv-extension-overlay.png)
 
 The overlay displays a Heads up display (HUD) which overlays your page. It is useful if you need a persistent view of your Core Web Vitals metrics during development. To enable the overlay: 
 
