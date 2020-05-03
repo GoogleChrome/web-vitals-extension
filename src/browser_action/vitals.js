@@ -15,11 +15,15 @@
   const src = chrome.runtime.getURL('node_modules/web-vitals/dist/web-vitals.min.js');
   const webVitals = await import(src);
   let overlayClosedForSession = false;
+  let latestCLS = {};
 
   // Core Web Vitals thresholds
   const LCP_THRESHOLD = 2500;
   const FID_THRESHOLD = 100;
   const CLS_THRESHOLD = 0.1;
+
+  // CLS update frequency
+  const DEBOUNCE_DELAY = 500;
 
   // Registry for badge metrics
   badgeMetrics = {
@@ -170,12 +174,34 @@
   }
 
   /**
+   * Broadcasts the latest CLS value
+   */
+  function broadcastCLS() {
+    broadcastMetricsUpdates('cls', latestCLS);
+  }
+
+  /**
+ * Debounces the broadcast of CLS values for stability.
+ * broadcastCLS is invoked on the trailing edge of the
+ * DEBOUNCE_DELAY timeout if invoked more than once during
+ * the wait timeout.
+ */
+  const debouncedCLSBroadcast = _.debounce(broadcastCLS, DEBOUNCE_DELAY, {
+    leading: true,
+    trailing: true,
+    maxWait: 5000});
+
+  /**
  *
  * Fetches Web Vitals metrics via WebVitals.js
  */
   function fetchWebPerfMetrics() {
     webVitals.getCLS((metric) => {
-      broadcastMetricsUpdates('cls', metric);
+      // As CLS values can fire frequently in the case
+      // of animations or highly-dynamic content, we
+      // debounce the broadcast of the metric.
+      latestCLS = metric;
+      debouncedCLSBroadcast();
     }, true);
     webVitals.getLCP((metric) => {
       broadcastMetricsUpdates('lcp', metric);
