@@ -13,7 +13,8 @@
   "devDependencies": {
     "babel-eslint": "^10.1.0",
     "eslint": "^6.8.0",
-    "eslint-config-google": "^0.14.0"
+    "eslint-config-google": "^0.14.0",
+    "lodash.debounce": "^4.0.8"
   },
   "dependencies": {
     "web-vitals": "^0.1.0"
