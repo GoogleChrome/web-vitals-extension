@@ -1,9 +1,11 @@
-# Web Vitals Chrome Extension
+# Web Vitals Chrome Extension (alpha)
 *A Chrome extension to measure metrics for a healthy site*
+
+<img src="media/cwv-extension-screenshot.png">
 
 This extension measures the three [Core Web Vitals](https://web.dev/vitals) metrics in a way that matches how they're measured by Chrome and reported to other Google tools (e.g. [Chrome User Experience Report](https://developers.google.com/web/tools/chrome-user-experience-report), [Page Speed Insights](https://developers.google.com/speed/pagespeed/insights/), [Search Console](https://search.google.com/search-console/about)).
 
-The extensions supports all of the [Core Web Vitals](https://web.dev/vitals/#core-web-vitals) and leverages the [web-vitals](https://github.com/GoogleChrome/web-vitals) library under the hood to capture:
+It supports all of the [Core Web Vitals](https://web.dev/vitals/#core-web-vitals) and leverages the [web-vitals](https://github.com/GoogleChrome/web-vitals) library under the hood to capture:
 
 * [Largest Contentful Paint](https://web.dev/lcp)
 * [Cumulative Layout Shift](https://web.dev/cls)
@@ -69,6 +71,16 @@ If your feedback is related to how we measure metrics, please file an issue agai
 data to `popup.js` in order to display the more detailed local metrics summary.
 * `src/browser_action/popup.js`: Content Script that handles rendering detailed metrics reports in the pop-up window displayed when clicking the badge icon.
 * `src/options/options.js`: Options UI (saved configuration) for advanced features like the HUD Overlay
+
+## FAQ
+
+**Is this extension available on the Chrome Web Store?**
+
+Not yet. While in alpha, the extension is available to download and install as an unpacked extension from this GitHub repository. When further along, we will officially publish it to the Chrome Web Store.
+
+**How should I interpret the metrics numbers reported by this tool?**
+
+This extension reports metrics for your desktop or laptop machine. In many cases your hardware will be significantly faster than that of your median mobile user. For this reason, it is strongly recommended that you test using tools like [Lighthouse](https://developers.google.com/web/tools/lighthouse/) and on real mobile hardware to ensure all your users there have a positive experience.
 
 ## License
 
