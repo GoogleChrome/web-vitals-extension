@@ -26,7 +26,7 @@ It supports all of the [Core Web Vitals](https://web.dev/vitals/#core-web-vitals
 
 <img src="media/cwv-extension-badge.png" width="75%">
 
-The ambient badge helps check if a page passing the Core Web Vitals thresholds.
+The Ambient Badge helps check if a page passing the Core Web Vitals thresholds.
 
 Once installed, the extension will display a disabled state badge icon until you navigate to a URL. At this point it will update the badge to green or red depending on whether the URL passes the Core Web Vitals metrics thresholds.
 
@@ -42,9 +42,9 @@ If one or more metrics are failing, the badge will animate the values of these m
 
 <img src="media/cwv-extension-drilldown.png" width="75%">
 
-Clicking the Ambient badge icon will allow you to drill in to the individual metric values. In this mode, the extension will also say if a metric value is `final` or `not final`. 
+Clicking the Ambient badge icon will allow you to drill in to the individual metric values. In this mode, the extension will also say if a metric value `might change` or requires a user action.
 
-For example, First Input Delay requires a real interaction with the page and will be in a `not final` state until this is the case. We recommend consulting the web.dev documentation for [LCP](https://web.dev/lcp), [CLS](https://web.dev/cls) and [FID](https://web.dev/fid) to get an understanding of when metric values settle.
+For example, First Input Delay requires a real interaction (e.g click/tap) with the page and will be in a `waiting for input` state until this is the case. We recommend consulting the web.dev documentation for [LCP](https://web.dev/lcp), [CLS](https://web.dev/cls) and [FID](https://web.dev/fid) to get an understanding of when metric values settle.
 
 In a future release, the drill-down will also include aggregate field performance data from PageSpeed Insights and the Chrome User Experience Report.
 
@@ -80,7 +80,7 @@ Not yet. While in alpha, the extension is available to download and install as a
 
 **How should I interpret the metrics numbers reported by this tool?**
 
-This extension reports metrics for your desktop or laptop machine. In many cases your hardware will be significantly faster than that of your median mobile user. For this reason, it is strongly recommended that you test using tools like [Lighthouse](https://developers.google.com/web/tools/lighthouse/) and on real mobile hardware to ensure all your users there have a positive experience.
+This extension reports metrics for your desktop or laptop machine. In many cases this hardware will be significantly faster than that of the median mobile phone your users may have. For this reason, it is strongly recommended that you test using tools like [Lighthouse](https://developers.google.com/web/tools/lighthouse/) and on real mobile hardware (e.g via [WebPageTest](https://webpagetest.org/easy)) to ensure all your users there have a positive experience.
 
 ## License
 
