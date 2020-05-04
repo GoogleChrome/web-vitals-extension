@@ -117,7 +117,7 @@
   }
 
   /**
- * Return a short (host) and full URL for the measured page
+ * Closes the overlay and disables it from the options menu
  * @param {Element} overlayElement
  * @param {Element} overlayCloseElement
  */
