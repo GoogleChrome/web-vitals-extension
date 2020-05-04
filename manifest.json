@@ -31,7 +31,8 @@
   "content_scripts": [
     {
       "matches": ["https://*/*", "http://*/*"],
-      "css": ["src/browser_action/viewer.css"]
+      "css": ["src/browser_action/viewer.css"],
+      "js": ["src/browser_action/lodash-debounce-custom.js"]
     }
   ],
   "background": {
