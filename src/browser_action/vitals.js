@@ -86,7 +86,7 @@
     }, ({
       enableOverlay,
     }) => {
-      if (enableOverlay === true && overlayClosedForSession == false) {
+      if (enableOverlay === true) {
         // Overlay
         const overlayElement = document.getElementById('web-vitals-extension');
         if (overlayElement === null) {
@@ -105,20 +105,29 @@
           overlayClose.innerText = 'Close';
           overlayClose.id = 'web-vitals-close';
           overlayClose.className = 'lh-overlay-close';
-          overlayClose.addEventListener('click', () => {
-            overlayElement.remove();
-            overlayClose.remove();
-            overlayClosedForSession = true;
-          });
+
           document.body.appendChild(overlayClose);
-        } else {
-          overlayClose.addEventListener('click', () => {
-            overlayElement.remove();
-            overlayClose.remove();
-            overlayClosedForSession = true;
-          });
         }
+
+        overlayClose.addEventListener('click', () => {
+          closeOverlay(overlayElement, overlayClose);
+        });
       }
+    });
+  }
+
+  /**
+ * Return a short (host) and full URL for the measured page
+ * @param {Element} overlayElement
+ * @param {Element} overlayCloseElement
+ */
+
+  function closeOverlay(overlayElement, overlayCloseElement) {
+    overlayElement.remove();
+    overlayCloseElement.remove();
+
+    chrome.storage.sync.set({
+      enableOverlay: false,
     });
   }
 

@@ -1735,6 +1735,7 @@
   border-image: initial;
   display: block; 
   margin: 7px 9px 0px 0px;
+  cursor: pointer;
 }
 
 .lh-footer .lh-generated {
