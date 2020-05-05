@@ -150,11 +150,15 @@
     right: 0;
 }
 
-.web-vitals-chrome-extension-popup .result-tabs .goog-tab-selected .icon, .result-tabs .goog-tab-selected.goog-tab-hover .icon, .result-tabs .goog-tab-selected .tab-title, .result-tabs .goog-tab-selected.goog-tab-hover .tab-title {
+.web-vitals-chrome-extension-popup .result-tabs .goog-tab-selected .icon, 
+.web-vitals-chrome-extension-popup .result-tabs .goog-tab-selected.goog-tab-hover .icon, 
+.web-vitals-chrome-extension-popup .result-tabs .goog-tab-selected .tab-title, 
+.web-vitals-chrome-extension-popup .result-tabs .goog-tab-selected.goog-tab-hover .tab-title {
     opacity: 1;
 }
 
-.web-vitals-chrome-extension-popup .result-tabs .goog-tab .icon, .result-tabs .goog-tab .tab-title {
+.web-vitals-chrome-extension-popup .result-tabs .goog-tab .icon, 
+.web-vitals-chrome-extension-popup .result-tabs .goog-tab .tab-title {
     opacity: .8;
     transition: opacity .1s ease;
 }
@@ -173,7 +177,8 @@
     text-transform: uppercase;
 }
 
-.web-vitals-chrome-extension-popup .dark-mode-theme .result-tabs .tab-bar-wrapper,.dark-mode-theme .main-action {
+.web-vitals-chrome-extension-popup .dark-mode-theme .result-tabs .tab-bar-wrapper,
+.web-vitals-chrome-extension-popup .dark-mode-theme .main-action {
     background: #0c3b6d;
 }
 
@@ -280,12 +285,14 @@
 }
 
 
-.web-vitals-chrome-extension-popup .metric-wrapper:first-of-type, .lh-column:first-of-type {
+.web-vitals-chrome-extension-popup .metric-wrapper:first-of-type, 
+.web-vitals-chrome-extension-popup .lh-column:first-of-type {
     margin-left: 0;
     margin-right: 12px
 }
 
-.web-vitals-chrome-extension-popup .metric-wrapper, .lh-column {
+.web-vitals-chrome-extension-popup .metric-wrapper, 
+.web-vitals-chrome-extension-popup .lh-column {
     margin-left: 12px;
     margin-right: 0
 }
@@ -350,7 +357,9 @@
 }
 
 
-.web-vitals-chrome-extension-popup .dark-mode-theme .lh-audit-group__description, .dark-mode-theme .field-data-description, .dark-mode-theme .lh-audit-group__subheader--title {
+.web-vitals-chrome-extension-popup .dark-mode-theme .lh-audit-group__description, 
+.web-vitals-chrome-extension-popup .dark-mode-theme .field-data-description, 
+.web-vitals-chrome-extension-popup .dark-mode-theme .lh-audit-group__subheader--title {
     background: #464040;
     border-bottom: 1px solid #5f5f5f;
     border-right: 1px solid #353535;
