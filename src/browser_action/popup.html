@@ -7,11 +7,11 @@
     .lh-audit-group--metrics, .lh-metrics-final {
       padding: 3px 10px 0px 10px;
     }
-    
+
     .lh-metric-state {
       color: #cccccc;
     }
-    
+
     .lh-topbar {
       position: sticky;
       top: 0;
@@ -25,7 +25,7 @@
       padding: var(--topbar-padding);
       font-size: 12px;
     }
-    
+
     .lh-topbar a, .lh-topbar a:active {
       color: var(--color-gray-900);
       text-decoration: none;
@@ -41,7 +41,55 @@
         <div class="lh-category-wrapper-">
           <div class="lh-category-custom" id="local-metrics">
             Metrics data unavailable.
+
             <!-- Placeholder content -->
+            <template id="local-metrics-template">
+              <div class="lh-topbar">
+                <a id="local-test-url" href="" class="lh-topbar__url" target="_blank" rel="noopener" title=""></a>&nbsp;-&nbsp;<span id="local-test-time"></span>
+              </div>
+                <div class="lh-audit-group lh-audit-group--metrics">
+                <div class="lh-audit-group__header"><span class="lh-audit-group__title">Metrics</span></div>
+                <div class="lh-columns">
+                  <div class="lh-column">
+                    <div id="metric-lcp" class="lh-metric">
+                      <div class="lh-metric__innerwrap">
+                        <div>
+                          <span class="lh-metric__title">
+                            Largest Contentful Paint
+                            <span class="lh-metric-state"></span>
+                          </span>
+                          <span class="lh-metric__subtitle"></span>
+                        </div>
+                        <div class="lh-metric__value"></div>
+                      </div>
+                    </div>
+                    <div id="metric-fid" class="lh-metric">
+                      <div class="lh-metric__innerwrap">
+                        <span class="lh-metric__title">
+                          First Input Delay
+                          <span class="lh-metric-state"></span>
+                        </span>
+                        <div class="lh-metric__value"></div>
+                      </div>
+                    </div>
+                    <div id="metric-cls" class="lh-metric">
+                      <div class="lh-metric__innerwrap">
+                        <span class="lh-metric__title">
+                          Cumulative Layout Shift
+                          <span class="lh-metric-state"></span>
+                        </span>
+                        <div class="lh-metric__value"></div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="lh-footer lh-warning">
+                Mobile performance may be significantly slower.
+                <a href="https://web.dev/load-fast-enough-for-pwa/" target="_blank">Learn more</a>
+              </div>
+            </template>
           </div>
         </div>
         <!-- End Lighthouse report -->
