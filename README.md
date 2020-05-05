@@ -1,5 +1,6 @@
 # Web Vitals Chrome Extension (alpha)
-*A Chrome extension to measure metrics for a healthy site*
+*A Chrome extension to measure metrics for a healthy site* 
+[Install now](#install)
 
 <img src="media/cwv-extension-screenshot.png">
 
@@ -11,7 +12,7 @@ It supports all of the [Core Web Vitals](https://web.dev/vitals/#core-web-vitals
 * [Cumulative Layout Shift](https://web.dev/cls)
 * [First Input Delay](https://web.dev/fid)
 
-### Installation Instructions
+<h3 id="install">Installation Instructions</h3>
 
 **Google Chrome**
 1. Download this repo as a [ZIP file from GitHub](https://github.com/googlechrome/web-vitals-extension/archive/master.zip).
@@ -60,7 +61,7 @@ The overlay displays a Heads up display (HUD) which overlays your page. It is us
 
 ## Contributing
 
-Contributions to this project are welcome in the form of pull requests or issues. 
+Contributions to this project are welcome in the form of pull requests or issues. See [CONTRIBUTING.md](/CONTRIBUTING.md) for further details.
 
 If your feedback is related to how we measure metrics, please file an issue against [web-vitals](https://github.com/GoogleChrome/web-vitals) directly. 
 
@@ -78,9 +79,28 @@ data to `popup.js` in order to display the more detailed local metrics summary.
 
 Not yet. While in alpha, the extension is available to download and install as an unpacked extension from this GitHub repository. When further along, we will officially publish it to the Chrome Web Store.
 
+**Who is the primary audience for this extension?**
+
+The primary audience for this extension is developers who would like instant feedback on how their pages are doing on the Core Web Vitals metrics during development on a desktop machine.
+
 **How should I interpret the metrics numbers reported by this tool?**
 
 This extension reports metrics for your desktop or laptop machine. In many cases this hardware will be significantly faster than that of the median mobile phone your users may have. For this reason, it is strongly recommended that you test using tools like [Lighthouse](https://developers.google.com/web/tools/lighthouse/) and on real mobile hardware (e.g via [WebPageTest](https://webpagetest.org/easy)) to ensure all your users there have a positive experience.
+
+**What actions can I take to improve my Core Web Vitals?**
+
+We are making available a set of guides for optimizing each of the Core Web Vitals metrics if you find your page is not passing a particular threshold:
+
+* [Optimize CLS](https://web.dev/optimize-cls)
+* [Optimize LCP](https://web.dev/optimize-lcp)
+* [Optimize FID](https://web.dev/optimize-fid)
+
+Lighthouse 6.0 final will also include additional actionability audits for these metrics. They will answer questions like:
+
+* What element was identified as the Largest Contentful Paint?
+* What elements experienced a shift and contributed to Cumulative Layout Shift?
+
+We envision users will use the extension for instant feedback on metrics (for their desktop machine) but will then go and do a Lighthouse audit for (1) a diagnostic view of how these metrics look on a median mobile device and (2) specifically what you can do to improve.
 
 ## License
 
