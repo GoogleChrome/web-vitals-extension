@@ -83,9 +83,15 @@
     // Check for preferences set in options
     chrome.storage.sync.get({
       enableOverlay: false,
+      closedOverlayTabs: {}
     }, ({
-      enableOverlay,
+      enableOverlay, closedOverlayTabs
     }) => {
+      // check if overlay was previously closed on this tab
+      if (closedOverlayTabs[tabId]) {
+        return;
+      }
+
       if (enableOverlay === true) {
         // Overlay
         const overlayElement = document.getElementById('web-vitals-extension');
@@ -107,27 +113,18 @@
           overlayClose.className = 'lh-overlay-close';
 
           document.body.appendChild(overlayClose);
+        } else {
+          overlayClose.addEventListener('click', () => {
+            overlayElement.remove();
+            overlayClose.remove();
+
+            // add tab id to hash of tabs where the overlay was closed
+            chrome.storage.sync.set({
+              closedOverlayTabs: { ...closedOverlayTabs, [tabId]: true },
+            });
+          });
         }
-
-        overlayClose.addEventListener('click', () => {
-          closeOverlay(overlayElement, overlayClose);
-        });
       }
-    });
-  }
-
-  /**
- * Closes the overlay and disables it from the options menu
- * @param {Element} overlayElement
- * @param {Element} overlayCloseElement
- */
-
-  function closeOverlay(overlayElement, overlayCloseElement) {
-    overlayElement.remove();
-    overlayCloseElement.remove();
-
-    chrome.storage.sync.set({
-      enableOverlay: false,
     });
   }
 
