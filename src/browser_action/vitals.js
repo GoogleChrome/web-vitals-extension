@@ -92,10 +92,11 @@
     }) => {
       if (enableOverlay === true && overlayClosedForSession == false) {
         // Overlay
-        const overlayElement = document.getElementById('web-vitals-extension');
+        const overlayElement = document.getElementById('web-vitals-extension-overlay');
         if (overlayElement === null) {
           const overlayElement = document.createElement('div');
-          overlayElement.id = 'web-vitals-extension';
+          overlayElement.id = 'web-vitals-extension-overlay';
+          overlayElement.classList.add('web-vitals-chrome-extension');
           overlayElement.innerHTML = buildOverlayTemplate(metrics, tabLoadedInBackground);
           document.body.appendChild(overlayElement);
         } else {
