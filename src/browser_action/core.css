@@ -343,14 +343,17 @@
 
 
 
-.web-vitals-chrome-extension-popup .field-data-description, .lh-audit-group__description {
+.web-vitals-chrome-extension-popup .field-data-description, 
+.web-vitals-chrome-extension-popup .lh-audit-group__description {
     font-size: 1.5rem;
     padding: 8px;
     font-weight: 600;
     background: #eee;
 }
 
-.web-vitals-chrome-extension-popup .lh-audit-group__description, .field-data-description, .lh-audit-group__subheader--title {
+.web-vitals-chrome-extension-popup .lh-audit-group__description, 
+.web-vitals-chrome-extension-popup .field-data-description, 
+.web-vitals-chrome-extension-popup .lh-audit-group__subheader--title {
     background: #eee;
     border-bottom: 1px solid #bdbdbd;
     border-right: 1px solid #bdbdbd;
