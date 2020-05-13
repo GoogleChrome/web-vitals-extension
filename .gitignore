@@ -10,4 +10,4 @@
 # do ignore web-vitals/dist contents
 **/node_modules/web-vitals/dist/*
 # don't ignore web-vitals.min.js
-!**/node_modules/web-vitals/dist/web-vitals.min.js
+!**/node_modules/web-vitals/dist/web-vitals.es5.min.js
