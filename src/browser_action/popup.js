@@ -16,7 +16,7 @@ const API_KEY = '...';
 const API_URL = 'https://www.googleapis.com/pagespeedonline/v5/runPagespeed?';
 const FE_URL = 'https://developers.google.com/speed/pagespeed/insights/';
 const encodedUrl = '';
-const resultsFetched = false;
+let resultsFetched = false;
 
 /**
  *
@@ -100,6 +100,7 @@ function createPSITemplate(result) {
  * @returns
  */
 function buildLocalMetricsTemplate(metrics, tabLoadedInBackground) {
+  if (metrics === undefined) { return ``; }
   return `
   <div class="lh-topbar">
     <a href="${metrics.location.url}" class="lh-topbar__url" target="_blank" rel="noopener" title="${metrics.location.url}">
@@ -220,7 +221,9 @@ chrome.tabs.query({active: true, currentWindow: true}, function(tabs) {
     });
 
     chrome.storage.local.get(key, (result) => {
-      renderLocalMetricsTemplate(result[key], tabLoadedInBackground);
+      if (result[key] !== undefined) {
+        renderLocalMetricsTemplate(result[key], tabLoadedInBackground);
+      }
     });
   }
 });
