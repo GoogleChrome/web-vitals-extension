@@ -187,11 +187,13 @@
  * DEBOUNCE_DELAY timeout if invoked more than once during
  * the wait timeout.
  */
-  const debouncedCLSBroadcast = _.debounce(broadcastCLS, DEBOUNCE_DELAY, {
-    leading: true,
-    trailing: true,
-    maxWait: 5000});
-
+  let debouncedCLSBroadcast = () => {};
+  if (_ !== undefined) {
+    debouncedCLSBroadcast = _.debounce(broadcastCLS, DEBOUNCE_DELAY, {
+      leading: true,
+      trailing: true,
+      maxWait: 5000});
+  }
   /**
  *
  * Fetches Web Vitals metrics via WebVitals.js
