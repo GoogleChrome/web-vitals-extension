@@ -1,6 +1,6 @@
 # Web Vitals Chrome Extension (alpha)
 *A Chrome extension to measure metrics for a healthy site* 
-[Install now](#install)
+[Install now](https://chrome.google.com/webstore/detail/web-vitals/ahfhijdlegdabablpippeagghigmibma)
 
 <img src="media/cwv-extension-screenshot.png">
 
@@ -13,6 +13,12 @@ It supports all of the [Core Web Vitals](https://web.dev/vitals/#core-web-vitals
 * [First Input Delay](https://web.dev/fid)
 
 <h3 id="install">Installation Instructions</h3>
+
+The Web Vitals Chrome Extenstion can be installed from the [Chrome Web Store](https://chrome.google.com/webstore/detail/web-vitals/ahfhijdlegdabablpippeagghigmibma).
+
+If you are looking for a more bleeding-edge build, you can also install the version of the extension from master.
+
+<h4 id="install-master">Install from master</h4>
 
 **Google Chrome**
 1. Download this repo as a [ZIP file from GitHub](https://github.com/googlechrome/web-vitals-extension/archive/master.zip).
@@ -74,10 +80,6 @@ data to `popup.js` in order to display the more detailed local metrics summary.
 * `src/options/options.js`: Options UI (saved configuration) for advanced features like the HUD Overlay
 
 ## FAQ
-
-**Is this extension available on the Chrome Web Store?**
-
-Not yet. While in alpha, the extension is available to download and install as an unpacked extension from this GitHub repository. When further along, we will officially publish it to the Chrome Web Store.
 
 **Who is the primary audience for this extension?**
 
