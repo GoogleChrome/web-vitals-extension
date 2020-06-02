@@ -143,7 +143,7 @@
    */
   function getTimestamp() {
     const date = new Date();
-    return date.toLocaleTimeString('en-US', {hour12: false});
+    return date.toLocaleTimeString('en-US', {hourCycle: 'h23'});
   }
 
 
