@@ -170,7 +170,7 @@ function badgeMetric(metric, value, tabid) {
           tabId: currentTab,
         });
         chrome.browserAction.setBadgeText({
-          text: (value).toFixed(2).toString(),
+          text: (value).toFixed(2),
           tabId: currentTab,
         });
         break;
@@ -184,7 +184,7 @@ function badgeMetric(metric, value, tabid) {
           tabId: currentTab,
         });
         chrome.browserAction.setBadgeText({
-          text: value.toFixed(2).toString(),
+          text: value.toFixed(2),
           tabId: currentTab,
         });
         break;
