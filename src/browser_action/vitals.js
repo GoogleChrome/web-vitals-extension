@@ -199,6 +199,12 @@
  * Fetches Web Vitals metrics via WebVitals.js
  */
   function fetchWebPerfMetrics() {
+    // web-vitals.js doesn't have a way to remove previous listeners, so we'll save whether
+    // we've already installed the listeners before installing them again.
+    // See https://github.com/GoogleChrome/web-vitals/issues/55.
+    if (self._hasInstalledPerfMetrics) return;
+    self._hasInstalledPerfMetrics = true;
+
     webVitals.getCLS((metric) => {
       // As CLS values can fire frequently in the case
       // of animations or highly-dynamic content, we
