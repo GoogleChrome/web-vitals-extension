@@ -192,7 +192,7 @@
     debouncedCLSBroadcast = _.debounce(broadcastCLS, DEBOUNCE_DELAY, {
       leading: true,
       trailing: true,
-      maxWait: 5000});
+      maxWait: 1000});
   }
   /**
  *

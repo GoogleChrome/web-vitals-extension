@@ -35,8 +35,8 @@ function hashCode(str) {
 }
 
 /**
- *
- * Call vitals.js to begin collecting local WebVitals metrics
+ * Call vitals.js to begin collecting local WebVitals metrics.
+ * This will cause the content script to emit an event that kicks off the badging flow.
  * @param {Number} tabId
  */
 function getWebVitals(tabId) {
@@ -233,24 +233,43 @@ function wait(ms) {
   return new Promise((r) => setTimeout(r, ms));
 }
 
+/** @type {number} */
+let globalAnimationId = 0;
+/** @type {Map<number, number>} */
+const animationsByTabId = new Map();
+
 /**
- * Animate badges between pass/fail -> each failing metric
+ * Animate badges between pass/fail -> each failing metric.
+ * We track each animation by tabId so that we can handle "cancellation" of the animation on new information.
  * @param {Object} request
  * @param {Number} tabId
  */
 async function animateBadges(request, tabId) {
+  const animationId = globalAnimationId;
+  animationsByTabId.set(tabId, animationId);
+  globalAnimationId++;
+
   const delay = 2000;
   // First badge overall perf
   badgeOverallPerf(request.passesAllThresholds, tabId);
   // If perf is poor, animate the sequence
   if (request.passesAllThresholds === 'POOR') {
     await wait(delay);
+    if (animationsByTabId.get(tabId) !== animationId) return;
     badgeMetric('lcp', request.metrics.lcp.value, tabId);
+
     await wait(delay);
+    if (animationsByTabId.get(tabId) !== animationId) return;
     badgeMetric('fid', request.metrics.fid.value, tabId);
+
     await wait(delay);
+    if (animationsByTabId.get(tabId) !== animationId) return;
     badgeMetric('cls', request.metrics.cls.value, tabId);
+
+    // Loop the animation if no new information came in while we animated.
     await wait(delay);
+    if (animationsByTabId.get(tabId) !== animationId) return;
+    animateBadges(request, tabId);
   }
 }
 
