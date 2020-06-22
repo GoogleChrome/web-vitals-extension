@@ -188,7 +188,7 @@
  * the wait timeout.
  */
   let debouncedCLSBroadcast = () => {};
-  if (_ !== undefined) {
+  if (typeof _ !== 'undefined') {
     debouncedCLSBroadcast = _.debounce(broadcastCLS, DEBOUNCE_DELAY, {
       leading: true,
       trailing: true,
