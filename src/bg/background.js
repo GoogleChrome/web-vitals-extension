@@ -216,6 +216,16 @@ function wait(ms) {
   return new Promise((r) => setTimeout(r, ms));
 }
 
+/**
+ * @param {number} tabId
+ * @return {Promise<boolean>}
+ */
+function doesTabExist(tabId) {
+  return new Promise((resolve) => {
+    chrome.tabs.get(tabId, () => resolve(!chrome.runtime.lastError));
+  });
+}
+
 /** @type {number} */
 let globalAnimationId = 0;
 /** @type {Map<number, number>} */
@@ -252,6 +262,8 @@ async function animateBadges(request, tabId) {
     // Loop the animation if no new information came in while we animated.
     await wait(delay);
     if (animationsByTabId.get(tabId) !== animationId) return;
+    // Stop animating if the tab is gone
+    if (!(await doesTabExist(tabId))) return;
     animateBadges(request, tabId);
   }
 }
