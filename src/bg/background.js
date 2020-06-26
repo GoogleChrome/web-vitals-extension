@@ -207,23 +207,6 @@ function badgeMetric(metric, value, tabid) {
 }
 
 /**
- *
- * Broadcast collected WebVitals metrics for usage in the PSI popup
- * @param {Object} badgeMetrics
- */
-function passVitalsToPSI(badgeMetrics) {
-  chrome.tabs.onUpdated.addListener((tabId, {status}, tab) => {
-    if (status == 'complete') {
-      chrome.tabs.query({active: true, currentWindow: true}, (tabs) => {
-        chrome.runtime.sendMessage({
-          metrics: badgeMetrics,
-        });
-      });
-    }
-  });
-}
-
-/**
  * Wait ms milliseconds
  *
  * @param {Number} ms
@@ -278,10 +261,8 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
   if (request.passesAllThresholds !== undefined) {
     // e.g passesAllThresholds === 'GOOD' => green badge
     animateBadges(request, sender.tab.id);
-    // also pass the WebVitals metrics on to PSI for when
-    // the badge icon is clicked and the pop-up opens.
-    passVitalsToPSI(request.metrics);
-    // Store latest metrics locally only
+    // Store latest metrics locally only.
+    // The popup will load the metric values from this storage.
     if (sender.tab.url) {
       const key = hashCode(sender.tab.url);
       chrome.storage.local.set({[key]: request.metrics});
