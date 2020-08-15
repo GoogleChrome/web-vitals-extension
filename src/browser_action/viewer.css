@@ -1726,6 +1726,7 @@
   border-image: initial;
   display: block; 
   margin: 7px 9px 0px 0px;
+  cursor: pointer;
 }
 
 .web-vitals-chrome-extension .lh-footer .lh-generated {

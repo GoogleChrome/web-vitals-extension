@@ -7,6 +7,7 @@ const optionsStatus = document.getElementById('status');
  */
 function saveOptions() {
   chrome.storage.sync.set({
+    closedOverlayTabs: {}, // resets closed tab ids
     enableOverlay: optionsOverlayNode.checked,
   }, () => {
     // Update status to let user know options were saved.

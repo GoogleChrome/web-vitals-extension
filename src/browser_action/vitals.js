@@ -87,10 +87,16 @@
     // Check for preferences set in options
     chrome.storage.sync.get({
       enableOverlay: false,
+      closedOverlayTabs: {}
     }, ({
-      enableOverlay,
+      enableOverlay, closedOverlayTabs
     }) => {
-      if (enableOverlay === true && overlayClosedForSession == false) {
+      // check if overlay was previously closed on this tab
+      if (closedOverlayTabs[tabId]) {
+        return;
+      }
+
+      if (enableOverlay === true) {
         // Overlay
         const overlayElement = document.getElementById('web-vitals-extension-overlay');
         if (overlayElement === null) {
@@ -110,17 +116,17 @@
           overlayClose.innerText = 'Close';
           overlayClose.id = 'web-vitals-close';
           overlayClose.className = 'lh-overlay-close';
-          overlayClose.addEventListener('click', () => {
-            overlayElement.remove();
-            overlayClose.remove();
-            overlayClosedForSession = true;
-          });
+
           document.body.appendChild(overlayClose);
         } else {
           overlayClose.addEventListener('click', () => {
             overlayElement.remove();
             overlayClose.remove();
-            overlayClosedForSession = true;
+
+            // add tab id to hash of tabs where the overlay was closed
+            chrome.storage.sync.set({
+              closedOverlayTabs: { ...closedOverlayTabs, [tabId]: true },
+            });
           });
         }
       }
