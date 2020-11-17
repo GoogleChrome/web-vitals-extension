@@ -16,6 +16,7 @@
   const webVitals = await import(src);
   let overlayClosedForSession = false;
   let latestCLS = {};
+  let enableLogging = localStorage.getItem('web-vitals-extension-debug')=='TRUE';
 
   // Core Web Vitals thresholds
   const LCP_THRESHOLD = 2500;
@@ -87,8 +88,9 @@
     // Check for preferences set in options
     chrome.storage.sync.get({
       enableOverlay: false,
+      debug: false,
     }, ({
-      enableOverlay,
+      enableOverlay, debug,
     }) => {
       if (enableOverlay === true && overlayClosedForSession == false) {
         // Overlay
@@ -124,6 +126,13 @@
           });
         }
       }
+      if (debug) {
+        localStorage.setItem('web-vitals-extension-debug', 'TRUE');
+        enableLogging = true;
+      } else {
+        localStorage.removeItem('web-vitals-extension-debug');
+        enableLogging = false;
+      }
     });
   }
 
@@ -158,6 +167,9 @@
   function broadcastMetricsUpdates(metricName, body) {
     if (metricName === undefined || badgeMetrics === undefined) {
       return;
+    }
+    if (enableLogging) {
+      console.log('[Web Vitals]', body.name, body.value.toFixed(2), body);
     }
     badgeMetrics[metricName].value = body.value;
     badgeMetrics[metricName].final = body.isFinal;
