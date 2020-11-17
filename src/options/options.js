@@ -1,4 +1,5 @@
 const optionsOverlayNode = document.getElementById('overlay');
+const optionsConsoleLoggingNode = document.getElementById('consoleLogging');
 const optionsSaveBtn = document.getElementById('save');
 const optionsStatus = document.getElementById('status');
 
@@ -8,6 +9,7 @@ const optionsStatus = document.getElementById('status');
 function saveOptions() {
   chrome.storage.sync.set({
     enableOverlay: optionsOverlayNode.checked,
+    debug: optionsConsoleLoggingNode.checked,
   }, () => {
     // Update status to let user know options were saved.
     optionsStatus.textContent = 'Options saved.';
@@ -24,8 +26,10 @@ function saveOptions() {
 function restoreOptions() {
   chrome.storage.sync.get({
     enableOverlay: false,
-  }, ({enableOverlay}) => {
+    debug: false,
+  }, ({enableOverlay, debug}) => {
     optionsOverlayNode.checked = enableOverlay;
+    optionsConsoleLoggingNode.checked = debug;
   });
 }
 document.addEventListener('DOMContentLoaded', restoreOptions);
