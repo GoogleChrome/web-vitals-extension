@@ -16,7 +16,7 @@
   const webVitals = await import(src);
   let overlayClosedForSession = false;
   let latestCLS = {};
-  let enableLogging = localStorage.getItem('web-vitals-extension-debug')=="TRUE";
+  let enableLogging = localStorage.getItem('web-vitals-extension-debug')=='TRUE';
 
   // Core Web Vitals thresholds
   const LCP_THRESHOLD = 2500;
@@ -90,7 +90,7 @@
       enableOverlay: false,
       debug: false,
     }, ({
-      enableOverlay,debug,
+      enableOverlay, debug,
     }) => {
       if (enableOverlay === true && overlayClosedForSession == false) {
         // Overlay
@@ -168,6 +168,9 @@
     if (metricName === undefined || badgeMetrics === undefined) {
       return;
     }
+    if (enableLogging) {
+      console.log('[Web Vitals]', body.name, body.value.toFixed(2), body);
+    }
     badgeMetrics[metricName].value = body.value;
     badgeMetrics[metricName].final = body.isFinal;
     badgeMetrics.location = getURL();
@@ -219,21 +222,12 @@
       // of animations or highly-dynamic content, we
       // debounce the broadcast of the metric.
       latestCLS = metric;
-      if(enableLogging) {
-        console.log(metric.name, metric.value.toFixed(2), metric.entries[metric.entries.length-1]);
-      }
       debouncedCLSBroadcast();
     }, true);
     webVitals.getLCP((metric) => {
-      if(enableLogging) {
-        console.log(metric.name, metric.value.toFixed(2)+"ms", metric.entries[metric.entries.length-1]);
-      }
       broadcastMetricsUpdates('lcp', metric);
     }, true);
     webVitals.getFID((metric) => {
-      if(enableLogging) {
-        console.log(metric.name, metric.value.toFixed(2)+"ms", metric.entries[metric.entries.length-1]);
-      }
       broadcastMetricsUpdates('fid', metric);
     }, true);
   }
