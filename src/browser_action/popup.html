@@ -1,55 +1,98 @@
 <!DOCTYPE html>
 <html class="web-vitals-chrome-extension web-vitals-chrome-extension-popup">
-<head>
-  <link rel="stylesheet" type="text/css" href="core.css">
-  <link rel="stylesheet" type="text/css" href="viewer.css">
-  <style>
-    .lh-audit-group--metrics, .lh-metrics-final {
-      padding: 3px 10px 0px 10px;
-    }
-    
-    .lh-metric-state {
-      color: #cccccc;
-    }
-    
-    .lh-topbar {
-      position: sticky;
-      top: 0;
-      left: 0;
-      right: 0;
-      z-index: 1000;
-      display: flex;
-      align-items: center;
-      height: var(--topbar-height);
-      background-color: var(--topbar-background-color);
-      padding: var(--topbar-padding);
-      font-size: 12px;
-    }
-    
-    .lh-topbar a, .lh-topbar a:active {
-      color: var(--color-gray-900);
-      text-decoration: none;
-    }
-  </style>
-  <script type="text/javascript" src="popup.js"></script>
-</head>
-<body class="lh-root lh-vars">
-  <!-- Lighthouse report metrics -->
-  <div class="lh-container">
-    <div class="lh-report">
-      <div class="lh-categories">
-        <div class="lh-category-wrapper-">
-          <div class="lh-category-custom" id="local-metrics">
-            Metrics data unavailable.
-            <!-- Placeholder content -->
+  <head>
+    <link rel="stylesheet" type="text/css" href="core.css">
+    <script type="text/javascript" src="popup.js"></script>
+  </head>
+  <body>
+    <header>
+      <h1>Metrics</h1>
+
+      <div class="metadata">
+        <span id="status">Loading field data&hellip;</span>
+        <span id="info" title="TODO">
+          <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M10 1.66669C5.4 1.66669 1.66666 5.40002 1.66666 10C1.66666 14.6 5.4 18.3334 10 18.3334C14.6 18.3334 18.3333 14.6 18.3333 10C18.3333 5.40002 14.6 1.66669 10 1.66669ZM10.8333 14.1667H9.16666V9.16669H10.8333V14.1667ZM10.8333 7.50002H9.16666V5.83335H10.8333V7.50002Z"/>
+          </svg>
+        </span>
+      </div>
+    </header>
+
+    <main>
+      <template id="metric-template" class="metric-wrapper">
+        <div class="metric">
+          <div class="metric-name">Metric Name</div>
+
+          <div class="metric-performance metadata">
+            <span class="metric-performance-local">Waiting&hellip;</span>
+
+            <div class="metric-performance-distribution">
+              <div class="metric-performance-distribution-rating good"></div>
+              <div class="metric-performance-distribution-rating needs-improvement"></div>
+              <div class="metric-performance-distribution-rating poor"></div>
+            </div>
           </div>
         </div>
-        <!-- End Lighthouse report -->
+      </template>
 
-        <!-- PageSpeed Insights -->
-        <div id="mainPopup">
-          <p id="report"></p>
+      <div id="lcp" class="metric-wrapper">
+        <div class="metric">
+          <div class="metric-name">Largest Contentful Paint</div>
+
+          <div class="metric-performance metadata">
+            <span class="metric-performance-local">Waiting&hellip;</span>
+
+            <div class="metric-performance-distribution">
+              <div class="metric-performance-distribution-rating good"></div>
+              <div class="metric-performance-distribution-rating needs-improvement"></div>
+              <div class="metric-performance-distribution-rating poor"></div>
+            </div>
+          </div>
         </div>
-</body>
+      </div>
 
+      <div id="fid" class="metric-wrapper">
+        <div class="metric">
+          <div class="metric-name">First Input Delay</div>
+
+          <div class="metric-performance metadata">
+            <span class="metric-performance-local">Waiting&hellip;</span>
+
+            <div class="metric-performance-distribution">
+              <div class="metric-performance-distribution-rating good"></div>
+              <div class="metric-performance-distribution-rating needs-improvement"></div>
+              <div class="metric-performance-distribution-rating poor"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div id="cls" class="metric-wrapper">
+        <div class="metric">
+          <div class="metric-name">Cumulative Layout Shift</div>
+
+          <div class="metric-performance metadata">
+            <span class="metric-performance-local">Waiting&hellip;</span>
+
+            <div class="metric-performance-distribution">
+              <div class="metric-performance-distribution-rating good"></div>
+              <div class="metric-performance-distribution-rating needs-improvement"></div>
+              <div class="metric-performance-distribution-rating poor"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+
+    <footer class="metadata">
+      <div>
+        <span id="page">https://www.apple.com</span> &#8212; <span id="timestamp">11:50:58, Sep 8, 2020</span>
+      </div>
+
+      <span>
+        Mobile performance may be significantly slower.
+        <a href="#todo">Learn more</a>
+      </span>
+    </footer>
+  </body>
 </html>

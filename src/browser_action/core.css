@@ -1,432 +1,143 @@
 .web-vitals-chrome-extension-popup {
-    width: 450px;
-    height: 180px;
-    text-align: left;
-    font: 400 14px/20px Roboto,sans-serif
+  width: 560px;
+  height: 350px;
+
+  font-size: 12px;
+
+  --color-good: #0CCE6A;
+  --color-good-text: #1E8E3E;
+  --color-good-muted: hsl(149 0% 43% / 0.38);
+  --color-needs-improvement: #FFA400;
+  --color-needs-improvement-text: #AE6032;
+  --color-needs-improvement-muted: hsl(39 0% 50% / 0.38);
+  --color-poor: #FF4E42;
+  --color-poor-text: ##EB0F00;
+  --color-poor-muted: hsl(4 0% 63% / 0.38);
+  --color-text: #3C4043;
+  --color-text-muted: #5F6368;
+  --color-text-link: #3740FF;
+  --color-light-grey: #F8F9FA;
+  --color-dark-grey: #DADCE0;
+}
+
+.web-vitals-chrome-extension-popup body {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  margin: 0px;
+  height: 100%;
+
+  font-size: 12px;
+  line-height: 14px;
+  font-weight: 400;
+  font-family: Roboto, sans-serif;
+  color: var(--color-text);
+}
+
+.web-vitals-chrome-extension-popup header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem;
+}
+
+.web-vitals-chrome-extension-popup footer {
+  padding: 1rem;
+}
+
+.web-vitals-chrome-extension-popup footer > * {
+  margin-bottom: 0.75rem;
+}
+.web-vitals-chrome-extension-popup footer > *:last-child {
+  margin-bottom: 0rem;
 }
 
 .web-vitals-chrome-extension-popup h1 {
-    margin-left: 14px;
-    font-size: 1.5em;
+  margin: 0px;
+  font-size: 1.5rem;
+  line-height: 2rem;
+  font-weight: 500;
+  font-family: "Google Sans", Roboto, sans-serif;
 }
 
-.web-vitals-chrome-extension-popup .main-action {
-    padding: 4rem 0 0;
-    background: #007bff;
-    line-height: 4rem;
-    margin-top: 2rem;
-    margin-bottom: 3rem;
+.web-vitals-chrome-extension-popup a {
+  color: var(--color-text-link);
+  text-decoration: none;
 }
-
-.web-vitals-chrome-extension-popup .main-action div.url-and-analyze .url {
-    width: 600px;
-    height: auto;
-    padding-left: 8px;
-}
-
-.web-vitals-chrome-extension-popup .dark-mode-theme .main-action div.url-and-analyze .url {
-    background: #e4e4e4;
-}
-
-.web-vitals-chrome-extension-popup .main-action div.analyze-cell {
-    border: none;
-    color: #fff;
-    margin-left: 8px;
-    min-width: 96px;
-    font-size: 14px;
-    line-height: 32px;
-}
-
-.web-vitals-chrome-extension-popup .main-action .main-submit {
-    background-color: #3367d6;
-    box-shadow: none;
-    padding: 8px 16px;
-    cursor: pointer;
-}
-
-.web-vitals-chrome-extension-popup .main-action .form-check-input {
-   margin-top: 1.2rem;
-    margin-left: -2rem;
-}
-
-.web-vitals-chrome-extension-popup .main-action .form-check-label {
-    color: #fff;
-    font-size: 1.6rem;
-}
-
-.web-vitals-chrome-extension-popup .report-summary {
-    flex-wrap: nowrap;
-    align-items: center;
-    word-break: break-word;
-    font-size: 1.5rem;
-}
-
-.web-vitals-chrome-extension-popup .report-summary .gauge-scale {
-    margin: 8px 0;
-}
-
-.web-vitals-chrome-extension-popup .report-summary p {
-    margin: 8px 0;
-}
-
-.web-vitals-chrome-extension-popup .report-summary .range.fast::before {
-    background-color: #178239;
-}
-
-.web-vitals-chrome-extension-popup .report-summary .range.average::before {
-    background-color: #e67700;
-}
-
-.web-vitals-chrome-extension-popup .report-summary .range.slow::before {
-    background-color: #c7221f;
-}
-
-.web-vitals-chrome-extension-popup .report-summary .gauge-scale .range::before {
-    content: '';
-    width: 16px;
-    height: 8px;
-    border-radius: 4px;
-    display: inline-block;
-    margin: 1px 8px;
-}
-
-.web-vitals-chrome-extension-popup .bottom-border {
-    border-bottom: solid 1px #e0e0e0;
-}
-
-.web-vitals-chrome-extension-popup .dark-mode-theme .bottom-border {
-    border-bottom: 1px solid #464646;
-}
-
-.web-vitals-chrome-extension-popup .summary-description .audited-url {
-    font-size: 2rem;
-    font-weight: 400;
-    width: 60px;
-    color: inherit;
-}
-
-.web-vitals-chrome-extension-popup .loading-spinner .text-center {
-    color: red;
-    animation: changecolor 3s linear infinite;
-    -webkit-animation: changecolor 3s linear infinite;
-}
-
-@-webkit-keyframes changecolor {
-    0% {
-        color: red;
-    }
-    25% {
-        color: yellow;
-    }
-    50% {
-        color: blue;
-    }
-    100% {
-        color: green;
-    }
-}
-
-@keyframes changecolor {
-    0% {
-        color: red;
-    }
-    25% {
-        color: yellow;
-    }
-    50% {
-        color: blue;
-    }
-    100% {
-        color: green;
-    }
-}
-
-/* tabs */
-.web-vitals-chrome-extension-popup .result-tabs {
-    color: #fff;
-    font-weight: 500;
-    height: 50px;
-    left: 0;
-    right: 0;
-}
-
-.web-vitals-chrome-extension-popup .result-tabs .goog-tab-selected .icon, 
-.web-vitals-chrome-extension-popup .result-tabs .goog-tab-selected.goog-tab-hover .icon, 
-.web-vitals-chrome-extension-popup .result-tabs .goog-tab-selected .tab-title, 
-.web-vitals-chrome-extension-popup .result-tabs .goog-tab-selected.goog-tab-hover .tab-title {
-    opacity: 1;
-}
-
-.web-vitals-chrome-extension-popup .result-tabs .goog-tab .icon, 
-.web-vitals-chrome-extension-popup .result-tabs .goog-tab .tab-title {
-    opacity: .8;
-    transition: opacity .1s ease;
-}
-
-.web-vitals-chrome-extension-popup .result-tabs .tab-title {
-    display: inline;
-    padding: 0 8px;
-}
-
-.web-vitals-chrome-extension-popup .result-tabs .tab-bar-wrapper {
-    background: #007bff;
-    box-shadow: 0 4px 4px 0 rgba(0, 0, 0, 0.2), 0 1px 0 0 rgba(0, 0, 0, 0.01);
-    height: 50px;
-    overflow: hidden;
-    white-space: nowrap;
-    text-transform: uppercase;
-}
-
-.web-vitals-chrome-extension-popup .dark-mode-theme .result-tabs .tab-bar-wrapper,
-.web-vitals-chrome-extension-popup .dark-mode-theme .main-action {
-    background: #0c3b6d;
-}
-
-.web-vitals-chrome-extension-popup .result-tabs .goog-tab-selected {
-    border-bottom: solid 2px #fff;
-    z-index: 2;
-}
-
-.web-vitals-chrome-extension-popup .result-tabs .goog-tab {
-    border-radius: 2px 2px 0 0;
-    cursor: pointer;
-    display: inline-block;
-    font-size: 14px;
-    font-weight: 1000;
-    height: 50px;
-    line-height: 20px;
-    min-width: 120px;
-    overflow: hidden;
-    padding: 14px 18px;
-    position: relative;
-    text-align: center;
-    white-space: nowrap;
-    outline: none;
-    transition: opacity .1s ease, background .1s ease, box-shadow .1s ease, border .1s ease;
-    z-index: 1;
-}
-
-/* tabs */
-
-
-.web-vitals-chrome-extension-popup .tooltip-boundary {
-    position: relative;
-}
-
-.web-vitals-chrome-extension-popup .tooltip-inner {
-    font-size: 1.5rem;
-    text-align: left;
-    padding: 1rem;
-    background-color: #ddd;
-    color: #111;
-}
-
-.web-vitals-chrome-extension-popup .tooltip > .arrow:before {
-    border-top-color: #ddd;
-}
-
-.web-vitals-chrome-extension-popup .field-data {
-    font-weight: normal;
-    /* padding-top: 24px; */
-}
-
-.web-vitals-chrome-extension-popup .field-data .metrics {
-    display: flex;
-    flex-wrap: nowrap;
-    flex: 1;
-    width: 100%;
-}
-
-.web-vitals-chrome-extension-popup .field-data .metric-wrapper {
-    font-size: 14px;
-    flex: 1;
-    padding: 1rem;
-}
-
-.web-vitals-chrome-extension-popup .field-data .metric-wrapper .metric-chart {
-    display: flex;
-    margin-top: 16px;
-    margin-bottom: 24px
-}
-
-.web-vitals-chrome-extension-popup .field-data .metric-wrapper .metric-chart .bar {
-    display: inline-block;
-    line-height: 24px;
-    text-align: center;
-    color: #fff;
-    margin-left: 2px
-}
-
-.web-vitals-chrome-extension-popup .field-data .metric-wrapper .metric-chart .fast {
-    background: #178239;
-    border-radius: 4px 0 0 4px
-}
-
-.web-vitals-chrome-extension-popup .field-data .metric-wrapper .metric-chart .average {
-    background: #e67700;
-    color: #000
-}
-
-.web-vitals-chrome-extension-popup .field-data .metric-wrapper .metric-chart .slow {
-    background: #c7221f;
-    border-radius: 0 4px 4px 0
-}
-
-.web-vitals-chrome-extension-popup .field-data-title::before {
-    content: '';
-    width: 32px;
-    height: 32px;
-    background: #007bff none no-repeat center/16px;
-    display: inline-block;
-    border-radius: 50%;
-    vertical-align: top;
-    background-size: 20px 20px;
-    margin-right: 9px;
-}
-
-
-.web-vitals-chrome-extension-popup .metric-wrapper:first-of-type, 
-.web-vitals-chrome-extension-popup .lh-column:first-of-type {
-    margin-left: 0;
-    margin-right: 12px
-}
-
-.web-vitals-chrome-extension-popup .metric-wrapper, 
-.web-vitals-chrome-extension-popup .lh-column {
-    margin-left: 12px;
-    margin-right: 0
-}
-
-.web-vitals-chrome-extension-popup .field-data .field-metric {
-    display: flex;
-    white-space: nowrap;
-    padding: 8px;
-    justify-content: space-between;
-    border-bottom: solid 1px #e0e0e0
-}
-
-.web-vitals-chrome-extension-popup .field-data .field-metric .metric-value::after {
-    content: '';
-    width: 16px;
-    height: 16px;
-    display: inline-block;
-    vertical-align: text-bottom;
-    margin-left: 8px
-}
-
-.web-vitals-chrome-extension-popup .field-data .field-metric.fast .metric-value {
-    color: #178239
-}
-
-.web-vitals-chrome-extension-popup .field-data .field-metric.fast .metric-value::after {
-    background: url(//www.gstatic.com/pagespeed/insights/67/img/ic_check_circle.svg) no-repeat;
-    background-size: 16px 16px
-}
-
-.web-vitals-chrome-extension-popup .field-data .field-metric.average .metric-value {
-    color: #e67700
-}
-
-.web-vitals-chrome-extension-popup .field-data .field-metric.average .metric-value::after {
-    background: url(//www.gstatic.com/pagespeed/insights/67/img/ic_info.svg) no-repeat;
-    background-size: 16px 16px
-}
-
-.web-vitals-chrome-extension-popup .field-data .field-metric.slow .metric-value {
-    color: #c7221f
+.web-vitals-chrome-extension-popup a:hover {
+  text-decoration: underline;
 }
 
-.web-vitals-chrome-extension-popup .field-data .field-metric.slow .metric-value::after {
-    background: url(//www.gstatic.com/pagespeed/insights/67/img/ic_warning.svg) no-repeat;
-    background-size: 16px 16px
+.web-vitals-chrome-extension-popup .metadata {
+  color: var(--color-text-muted);
+  letter-spacing: 0.2px;
 }
 
-
-
-.web-vitals-chrome-extension-popup .field-data-description, 
-.web-vitals-chrome-extension-popup .lh-audit-group__description {
-    font-size: 1.5rem;
-    padding: 8px;
-    font-weight: 600;
-    background: #eee;
+.web-vitals-chrome-extension-popup #info {
+  margin-left: 0.83rem;
+  vertical-align: middle;
 }
-
-.web-vitals-chrome-extension-popup .lh-audit-group__description, 
-.web-vitals-chrome-extension-popup .field-data-description, 
-.web-vitals-chrome-extension-popup .lh-audit-group__subheader--title {
-    background: #eee;
-    border-bottom: 1px solid #bdbdbd;
-    border-right: 1px solid #bdbdbd;
+.web-vitals-chrome-extension-popup #info svg {
+  fill: currentColor;
 }
-
 
-.web-vitals-chrome-extension-popup .dark-mode-theme .lh-audit-group__description, 
-.web-vitals-chrome-extension-popup .dark-mode-theme .field-data-description, 
-.web-vitals-chrome-extension-popup .dark-mode-theme .lh-audit-group__subheader--title {
-    background: #464040;
-    border-bottom: 1px solid #5f5f5f;
-    border-right: 1px solid #353535;
+.web-vitals-chrome-extension-popup .metric-wrapper {
+  padding: 0rem 1rem;
 }
-
-.web-vitals-chrome-extension-popup .field-data-description.fast b {
-    color: #178239
+.web-vitals-chrome-extension-popup .metric-wrapper:hover {
+  background-color: var(--color-light-grey);
 }
 
-.web-vitals-chrome-extension-popup .field-data-description.average b {
-    color: #e67700
+.web-vitals-chrome-extension-popup .metric {
+  display: grid;
+  grid-template-areas: "metric-name metric-performance";
+  grid-template-columns: 1fr 2fr;
+  column-gap: 4.17rem;
+  align-items: center;
+  border-bottom: 1px solid var(--color-dark-grey);
+  padding: 1.33rem 0rem;
 }
-
-.web-vitals-chrome-extension-popup .field-data-description.slow b {
-    color: #c7221f
+.web-vitals-chrome-extension-popup .metric-wrapper:last-child .metric {
+  border-bottom: none;
 }
 
-.web-vitals-chrome-extension-popup html[dir=rtl] .result-container {
-    padding: 0 32px 0 0
+.web-vitals-chrome-extension-popup .metric-name {
+  grid-area: metric-name;
+  font-size: 1.17rem;
+  line-height: 1.67rem;
 }
 
-.web-vitals-chrome-extension-popup .origin-field-data {
-    padding-top: 24px
+.web-vitals-chrome-extension-popup .metric-performance-local {
+  margin-bottom: 0.33rem;
 }
 
-.web-vitals-chrome-extension-popup .screenshot-container {
-    padding: 24px 24px 0 24px;
-    width: 18vw;
-    max-width: 328px;
-    min-width: 168px
+.web-vitals-chrome-extension-popup .metric-performance {
+  grid-area: metric-performance;
+  display: flex;
+  flex-direction: column;
 }
 
-.web-vitals-chrome-extension-popup .screenshot-container img {
-    border: 1px solid #e0e0e0;
-    border-radius: 4px;
-    width: 100%
+.web-vitals-chrome-extension-popup .metric-performance-distribution {
+  display: flex;
 }
 
-.web-vitals-chrome-extension-popup .finalScreenshot img {
-    max-width: 100%;
-    max-height: 30rem;
+.web-vitals-chrome-extension-popup .metric-performance-distribution-rating {
+  width: 33.33%;
+  min-width: 2%;
+  margin-right: 0.17rem;
+  border-top: 4px solid;
 }
-
-.web-vitals-chrome-extension-popup .url-length {
-    word-break: break-word;
-    max-width: 500px;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
+.web-vitals-chrome-extension-popup .metric-performance-distribution-rating:last-child {
+  margin-right: 0rem;
 }
 
-
-.web-vitals-chrome-extension-popup #bootup-time-chart .pass {
-    color: #85868a;
-    font-weight: 600;
+.web-vitals-chrome-extension-popup .metric-performance-distribution-rating.good {
+  border-top-color: var(--color-good-muted);
 }
-
-.web-vitals-chrome-extension-popup #bootup-time-chart .fail {
-    color: #c7221f;
-    font-weight: 600;
+.web-vitals-chrome-extension-popup .metric-performance-distribution-rating.needs-improvement {
+  border-top-color: var(--color-needs-improvement-muted);
 }
-
-.web-vitals-chrome-extension-popup #bootup-time-chart .average {
-    color: #e67700;
-    font-weight: 600;
+.web-vitals-chrome-extension-popup .metric-performance-distribution-rating.poor {
+  border-top-color: var(--color-poor-muted);
+  text-align: right;
 }
-
