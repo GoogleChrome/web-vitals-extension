@@ -184,7 +184,7 @@
   display: inline-block;
   width: var(--pinhead-size);
   height: var(--pinhead-size);
-  transform: translateX(calc((var(--pinhead-size) - 2px) / -2));
+  transform: translateX(calc((var(--pinhead-size) - 1px) / -2));
 
   --pinhead-size: calc(5 / 6 * 1rem + 1px);
 }
@@ -192,6 +192,7 @@
   /* Circle */
   border-radius: 100%;
   background-color: var(--color-good);
+  transform: translateX(calc((var(--pinhead-size) - 2px) / -2));
 }
 .web-vitals-chrome-extension-popup .needs-improvement .metric-performance-local::after {
   /* Square (default) */

@@ -11,6 +11,7 @@
  limitations under the License.
 */
 
+import { loadLocalMetrics } from './chrome.js';
 import { LCP, FID, CLS } from './metric.js';
 
 class Popup {
@@ -22,16 +23,23 @@ class Popup {
 
     this.location = location;
     this.timestamp = timestamp;
-    this.metrics = _metrics;
+    this._metrics = _metrics;
     this.background = background;
+    this.metrics = {};
 
     this.init();
   }
 
   init() {
+    this.initStatus();
     this.initPage();
     this.initTimestamp();
     this.initMetrics();
+  }
+
+  initStatus() {
+    const status = document.getElementById('status');
+    status.innerText = '';
   }
 
   initPage() {
@@ -46,59 +54,60 @@ class Popup {
   }
 
   initMetrics() {
-    const lcp = new LCP({
-      local: this.metrics.lcp.value,
-      finalized: this.metrics.lcp.final
+    this.metrics.lcp = new LCP({
+      local: this._metrics.lcp.value,
+      finalized: this._metrics.lcp.final
     });
-    const fid = new FID({
-      local: this.metrics.fid.value,
-      finalized: this.metrics.fid.final
+    this.metrics.fid = new FID({
+      local: this._metrics.fid.value,
+      finalized: this._metrics.fid.final
     });
-    const cls = new CLS({
-      local: this.metrics.cls.value,
-      finalized: this.metrics.cls.final
+    this.metrics.cls = new CLS({
+      local: this._metrics.cls.value,
+      finalized: this._metrics.cls.final
     });
+
+    this.renderMetrics();
+  }
+
+  renderMetrics() {
+    Object.values(this.metrics).forEach(this.renderMetric.bind(this));
+  }
+
+  renderMetric(metric) {
+    const template = document.getElementById('metric-template');
+    const fragment = template.content.cloneNode(true);
+    const metricElement = fragment.querySelector('.metric-wrapper ');
+    const name = fragment.querySelector('.metric-name');
+    const local = fragment.querySelector('.metric-performance-local');
+    const localValue = fragment.querySelector('.metric-performance-local-value');
+    const assessment = metric.getAssessment(metric.local);
+
+    metricElement.id = metric.id;
+    name.innerText = metric.name;
+    local.style.marginLeft = metric.getRelativePosition(metric.local);
+    localValue.innerText = metric.formatValue(metric.local);
+    metricElement.classList.add(assessment);
+
+    template.parentElement.appendChild(fragment);
+
+    requestAnimationFrame(this.checkReversal.bind(this, metric));
+  }
+
+  checkReversal(metric) {
+    const container = document.querySelector(`#${metric.id} .metric-performance`);
+    const local = document.querySelector(`#${metric.id} .metric-performance-local`);
+    const localValue = document.querySelector(`#${metric.id} .metric-performance-local-value`);
+
+    const containerBoundingRect = container.getBoundingClientRect();
+    const localValueBoundingRect = localValue.getBoundingClientRect();
+    const isOverflow = localValueBoundingRect.right > containerBoundingRect.right;
+
+    local.classList.toggle('reversed', isOverflow);
   }
 
 }
 
-function hashCode(str) {
-  let hash = 0;
-  if (str.length == 0) {
-    return '';
-  }
-  for (let i = 0; i < str.length; i++) {
-    const char = str.charCodeAt(i);
-    hash = (hash << 5) - hash + char;
-    // Convert to 32bit integer
-    hash = hash & hash;
-  }
-  return hash.toString();
-}
-
-chrome.tabs.query({active: true, currentWindow: true}, tabs => {
-  const thisTab = tabs[0];
-
-  // Retrieve the stored latest metrics
-  if (thisTab.url) {
-    const key = hashCode(thisTab.url);
-    const loadedInBackgroundKey = thisTab.id.toString();
-    
-    let tabLoadedInBackground = false;
-
-    chrome.storage.local.get(loadedInBackgroundKey, result => {
-      tabLoadedInBackground = result[loadedInBackgroundKey];
-    });
-
-    chrome.storage.local.get(key, result => {
-      if (result[key] !== undefined) {
-        new Popup({
-          metrics: result[key],
-          background: tabLoadedInBackground
-        });
-      } else {
-        console.warn('undefined result', key)
-      }
-    });
-  }
+loadLocalMetrics(result => {
+  new Popup(result);
 });

@@ -7,28 +7,6 @@ class Metric {
     this.finalized = finalized;
     this.thresholds = thresholds;
     this.digitsOfPrecision = 3;
-
-    this.init();
-  }
-
-  init() {
-    const template = document.getElementById('metric-template');
-    const fragment = template.content.cloneNode(true);
-    const metric = fragment.querySelector('.metric-wrapper ');
-    const name = fragment.querySelector('.metric-name');
-    const local = fragment.querySelector('.metric-performance-local');
-    const localValue = fragment.querySelector('.metric-performance-local-value');
-    const assessment = this.getAssessment(this.local);
-
-    metric.id = this.id;
-    name.innerText = this.name;
-    local.style.marginLeft = this.getRelativePosition(this.local);
-    localValue.innerText = this.formatValue(this.local);
-    metric.classList.add(assessment);
-
-    template.parentElement.appendChild(fragment);
-
-    requestAnimationFrame(this.checkReversal.bind(this));
   }
 
   formatValue(value) {
@@ -73,18 +51,6 @@ class Metric {
     }
 
     return `${pct * 100}%`;
-  }
-
-  checkReversal() {
-    const container = document.querySelector(`#${this.id} .metric-performance`);
-    const local = document.querySelector(`#${this.id} .metric-performance-local`);
-    const localValue = document.querySelector(`#${this.id} .metric-performance-local-value`);
-
-    const containerBoundingRect = container.getBoundingClientRect();
-    const localValueBoundingRect = localValue.getBoundingClientRect();
-    const isOverflow = localValueBoundingRect.right > containerBoundingRect.right;
-
-    local.classList.toggle('reversed', isOverflow);
   }
 
   toLocaleFixed({value, unit}) {
@@ -144,10 +110,22 @@ export class FID extends Metric {
   }
 
   formatValue(value) {
+    if (!this.finalized) {
+      return 'Waiting for input…';
+    }
+
     return this.toLocaleFixed({
       value,
       unit: 'millisecond'
     });
+  }
+
+  getAssessment(value) {
+    if (!this.finalized) {
+      return;
+    }
+
+    return super.getAssessment(value);
   }
 
 }
