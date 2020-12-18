@@ -20,6 +20,10 @@
   --color-dark-grey: #DADCE0;
 }
 
+.web-vitals-chrome-extension-popup * {
+  box-sizing: border-box;
+}
+
 .web-vitals-chrome-extension-popup body {
   display: flex;
   flex-direction: column;
@@ -109,6 +113,12 @@
 
 .web-vitals-chrome-extension-popup .metric-performance-local {
   margin-bottom: 0.33rem;
+  white-space: nowrap;
+}
+
+/* If the pin is too far right, put the label before it. */
+.web-vitals-chrome-extension-popup .metric-performance-local.reversed span {
+  margin-left: calc(-200% - 1rem);
 }
 
 .web-vitals-chrome-extension-popup .good .metric-performance-local,
