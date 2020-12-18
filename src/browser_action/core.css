@@ -11,7 +11,7 @@
   --color-needs-improvement-text: #AE6032;
   --color-needs-improvement-muted: hsl(39 0% 50% / 0.38);
   --color-poor: #FF4E42;
-  --color-poor-text: ##EB0F00;
+  --color-poor-text: #EB0F00;
   --color-poor-muted: hsl(4 0% 63% / 0.38);
   --color-text: #3C4043;
   --color-text-muted: #5F6368;
@@ -111,6 +111,86 @@
   margin-bottom: 0.33rem;
 }
 
+.web-vitals-chrome-extension-popup .good .metric-performance-local,
+.web-vitals-chrome-extension-popup .needs-improvement .metric-performance-local,
+.web-vitals-chrome-extension-popup .poor .metric-performance-local {
+  position: relative;
+  font-size: 1.17rem;
+  line-height: 1.67rem;
+  font-weight: 500;
+  text-indent: 1rem;
+}
+.web-vitals-chrome-extension-popup .good .metric-performance-local {
+  color: var(--color-good-text);
+}
+.web-vitals-chrome-extension-popup .needs-improvement .metric-performance-local {
+  color: var(--color-needs-improvement-text);
+}
+.web-vitals-chrome-extension-popup .poor .metric-performance-local {
+  color: var(--color-poor-text);
+}
+
+/* Pinpoint */
+.web-vitals-chrome-extension-popup .good .metric-performance-local::before,
+.web-vitals-chrome-extension-popup .needs-improvement .metric-performance-local::before,
+.web-vitals-chrome-extension-popup .poor .metric-performance-local::before {
+  position: absolute;
+  top: 1rem;
+  left: -2px;
+  content: '';
+  width: 1px;
+  height: 1.17rem;
+  border: 2px solid #fff;
+  border-bottom: 0;
+}
+.web-vitals-chrome-extension-popup .good .metric-performance-local::before {
+  background-color: var(--color-good);
+}
+.web-vitals-chrome-extension-popup .needs-improvement .metric-performance-local::before {
+  background-color: var(--color-needs-improvement);
+}
+.web-vitals-chrome-extension-popup .poor .metric-performance-local::before {
+  background-color: var(--color-poor);
+}
+.web-vitals-chrome-extension-popup .good:hover .metric-performance-local::before,
+.web-vitals-chrome-extension-popup .needs-improvement:hover .metric-performance-local::before,
+.web-vitals-chrome-extension-popup .poor:hover .metric-performance-local::before {
+  border-color: var(--color-light-grey);
+}
+
+/* Pinhead*/
+.web-vitals-chrome-extension-popup .good .metric-performance-local::after,
+.web-vitals-chrome-extension-popup .needs-improvement .metric-performance-local::after,
+.web-vitals-chrome-extension-popup .poor .metric-performance-local::after {
+  position: absolute;
+  top: 0.33rem;
+  left: 0rem;
+  content: '';
+  display: inline-block;
+  width: var(--pinhead-size);
+  height: var(--pinhead-size);
+  transform: translateX(-50%);
+
+  --pinhead-size: calc(5 / 6 * 1rem);
+}
+.web-vitals-chrome-extension-popup .good .metric-performance-local::after {
+  /* Circle */
+  border-radius: 100%;
+  background-color: var(--color-good);
+}
+.web-vitals-chrome-extension-popup .needs-improvement .metric-performance-local::after {
+  /* Square (default) */
+  background-color: var(--color-needs-improvement);
+}
+.web-vitals-chrome-extension-popup .poor .metric-performance-local::after {
+  /* Triangle */
+  height: 0rem;
+  width: 0rem;
+  border-left: calc(var(--pinhead-size) / 2) solid transparent;
+  border-right: calc(var(--pinhead-size) / 2) solid transparent;
+  border-bottom: var(--pinhead-size) solid var(--color-poor);
+}
+
 .web-vitals-chrome-extension-popup .metric-performance {
   grid-area: metric-performance;
   display: flex;
@@ -140,4 +220,14 @@
 .web-vitals-chrome-extension-popup .metric-performance-distribution-rating.poor {
   border-top-color: var(--color-poor-muted);
   text-align: right;
+}
+
+.web-vitals-chrome-extension-popup .good .metric-performance-distribution-rating.good {
+  border-top-color: var(--color-good);
+}
+.web-vitals-chrome-extension-popup .needs-improvement .metric-performance-distribution-rating.needs-improvement {
+  border-top-color: var(--color-needs-improvement);
+}
+.web-vitals-chrome-extension-popup .poor .metric-performance-distribution-rating.poor {
+  border-top-color: var(--color-poor);
 }
