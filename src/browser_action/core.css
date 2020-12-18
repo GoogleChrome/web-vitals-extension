@@ -232,12 +232,15 @@
   text-align: right;
 }
 
-.web-vitals-chrome-extension-popup .good .metric-performance-distribution-rating.good {
+.web-vitals-chrome-extension-popup .good .metric-performance-distribution-rating.good,
+.web-vitals-chrome-extension-popup .metric-wrapper:hover .metric-performance-distribution-rating.good {
   border-top-color: var(--color-good);
 }
-.web-vitals-chrome-extension-popup .needs-improvement .metric-performance-distribution-rating.needs-improvement {
+.web-vitals-chrome-extension-popup .needs-improvement .metric-performance-distribution-rating.needs-improvement,
+.web-vitals-chrome-extension-popup .metric-wrapper:hover .metric-performance-distribution-rating.needs-improvement {
   border-top-color: var(--color-needs-improvement);
 }
-.web-vitals-chrome-extension-popup .poor .metric-performance-distribution-rating.poor {
+.web-vitals-chrome-extension-popup .poor .metric-performance-distribution-rating.poor,
+.web-vitals-chrome-extension-popup .metric-wrapper:hover .metric-performance-distribution-rating.poor {
   border-top-color: var(--color-poor);
 }
