@@ -2,7 +2,6 @@
 <html class="web-vitals-chrome-extension web-vitals-chrome-extension-popup">
   <head>
     <link rel="stylesheet" type="text/css" href="core.css">
-    <script type="text/javascript" src="popup.js"></script>
   </head>
   <body>
     <header>
@@ -19,82 +18,39 @@
     </header>
 
     <main>
-      <template id="metric-template" class="metric-wrapper">
-        <div class="metric">
-          <div class="metric-name">Metric Name</div>
+      <template id="metric-template">
+        <div class="metric-wrapper">
+          <div class="metric">
+            <div class="metric-name">Metric Name</div>
 
-          <div class="metric-performance metadata">
-            <span class="metric-performance-local">Waiting&hellip;</span>
+            <div class="metric-performance metadata">
+              <div class="metric-performance-local">
+                <div class="metric-performance-local-value">Waiting&hellip;</div>
+              </div>
 
-            <div class="metric-performance-distribution">
-              <div class="metric-performance-distribution-rating good"></div>
-              <div class="metric-performance-distribution-rating needs-improvement"></div>
-              <div class="metric-performance-distribution-rating poor"></div>
+              <div class="metric-performance-distribution">
+                <div class="metric-performance-distribution-rating good"></div>
+                <div class="metric-performance-distribution-rating needs-improvement"></div>
+                <div class="metric-performance-distribution-rating poor"></div>
+              </div>
             </div>
           </div>
         </div>
       </template>
-
-      <div id="lcp" class="metric-wrapper good">
-        <div class="metric">
-          <div class="metric-name">Largest Contentful Paint</div>
-
-          <div class="metric-performance metadata">
-            <span class="metric-performance-local" style="margin-left: 10%">0.46s</span>
-
-            <div class="metric-performance-distribution">
-              <div class="metric-performance-distribution-rating good" style="width: 58%">50%</div>
-              <div class="metric-performance-distribution-rating needs-improvement" style="width: 40%">40%</div>
-              <div class="metric-performance-distribution-rating poor" style="width: 10%">10%</div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <div id="fid" class="metric-wrapper needs-improvement">
-        <div class="metric">
-          <div class="metric-name">First Input Delay</div>
-
-          <div class="metric-performance metadata">
-            <span class="metric-performance-local" style="margin-left: 50%">150ms</span>
-
-            <div class="metric-performance-distribution">
-              <div class="metric-performance-distribution-rating good" style="width: 10%">10%</div>
-              <div class="metric-performance-distribution-rating needs-improvement" style="width: 50%">50%</div>
-              <div class="metric-performance-distribution-rating poor" style="width: 40%">40%</div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <div id="cls" class="metric-wrapper poor">
-        <div class="metric">
-          <div class="metric-name">Cumulative Layout Shift</div>
-
-          <div class="metric-performance metadata">
-            <span class="metric-performance-local reversed" style="margin-left: 95%">
-              <span>5.0</span>
-            </span>
-
-            <div class="metric-performance-distribution">
-              <div class="metric-performance-distribution-rating good" style="width: 10%">10%</div>
-              <div class="metric-performance-distribution-rating needs-improvement" style="width: 40%">40%</div>
-              <div class="metric-performance-distribution-rating poor" style="width: 50%">50%</div>
-            </div>
-          </div>
-        </div>
-      </div>
     </main>
 
     <footer class="metadata">
-      <div>
-        <span id="page">https://www.apple.com</span> &#8212; <span id="timestamp">11:50:58, Sep 8, 2020</span>
-      </div>
+      <div id="page"></div>
 
-      <span>
-        Mobile performance may be significantly slower.
-        <a href="https://web.dev/load-fast-enough-for-pwa/">Learn more</a>
-      </span>
+      <div>
+        <span id="timestamp"></span> &bull;
+        <span>
+          Mobile performance may be significantly slower.
+          <a href="https://web.dev/load-fast-enough-for-pwa/">Learn more</a>
+        </span>
+      </div>
     </footer>
+
+    <script type="module" src="popup.js"></script>
   </body>
 </html>

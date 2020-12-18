@@ -11,20 +11,57 @@
  limitations under the License.
 */
 
-const PSI_ENABLED = false;
-const API_KEY = '...';
-const API_URL = 'https://www.googleapis.com/pagespeedonline/v5/runPagespeed?';
-const FE_URL = 'https://developers.google.com/speed/pagespeed/insights/';
-const encodedUrl = '';
-let resultsFetched = false;
+import { LCP, FID, CLS } from './metric.js';
 
-/**
- *
- * Hash the URL and return a numeric hash as a String
- * to be used as the key
- * @param {String} str
- * @returns
- */
+class Popup {
+
+  constructor({metrics, background}) {
+    console.log('Popup', metrics, background)
+
+    const {location, timestamp, ..._metrics} = metrics;
+
+    this.location = location;
+    this.timestamp = timestamp;
+    this.metrics = _metrics;
+    this.background = background;
+
+    this.init();
+  }
+
+  init() {
+    this.initPage();
+    this.initTimestamp();
+    this.initMetrics();
+  }
+
+  initPage() {
+    const page = document.getElementById('page');
+    page.innerText = this.location.url;
+    page.title = this.location.url;
+  }
+
+  initTimestamp() {
+    const timestamp = document.getElementById('timestamp');
+    timestamp.innerText = this.timestamp;
+  }
+
+  initMetrics() {
+    const lcp = new LCP({
+      local: this.metrics.lcp.value,
+      finalized: this.metrics.lcp.final
+    });
+    const fid = new FID({
+      local: this.metrics.fid.value,
+      finalized: this.metrics.fid.final
+    });
+    const cls = new CLS({
+      local: this.metrics.cls.value,
+      finalized: this.metrics.cls.final
+    });
+  }
+
+}
+
 function hashCode(str) {
   let hash = 0;
   if (str.length == 0) {
@@ -39,190 +76,28 @@ function hashCode(str) {
   return hash.toString();
 }
 
-
-/**
- *
- * Fetches API results from PSI API endpoint
- * @param {String} url
- * @returns
- */
-async function fetchAPIResults(url) {
-  if (PSI_ENABLED) {
-    if (resultsFetched) {
-      return;
-    }
-    const query = [
-      'url=url%3A' + url,
-      'key=' + API_KEY,
-    ].join('&');
-    const queryURL = API_URL + query;
-    try {
-      const response = await fetch(queryURL);
-      const json = await response.json();
-      createPSITemplate(json);
-    } catch (err) {
-      const el = document.getElementById('report');
-      el.innerHTML = `We were unable to process your request.`;
-    }
-  }
-}
-
-/**
- *
- * Build the PSI template to render in the pop-up
- * @param {Object} result
- */
-function createPSITemplate(result) {
-  if (PSI_ENABLED) {
-    const experience = result.loadingExperience;
-    const metrics = experience.metrics;
-    const overall_category = experience.overall_category;
-    const fcp = metrics.FIRST_CONTENTFUL_PAINT_MS;
-    const fid = metrics.FIRST_INPUT_DELAY_MS;
-  
-    const fcp_template = buildDistributionTemplate(fcp, 'First Contentful Paint (FCP)');
-    const fid_template = buildDistributionTemplate(fid, 'First Input Delay (FID)');
-    const link_template = buildPSILink();
-    const tmpl = `<h1>Origin Performance (${overall_category})</h1> ${fcp_template} ${fid_template} ${link_template}`;
-    const el = document.getElementById('report');
-    el.innerHTML = tmpl;
-    // TODO: Implement per-tab/URL report caching scheme
-    resultsFetched = true;
-  }
-}
-
-/**
- *
- * Construct a WebVitals.js metrics template for display at the
- * top of the pop-up. Consumes a custom metrics object provided
- * by vitals.js.
- * @param {Object} metrics
- * @returns
- */
-function buildLocalMetricsTemplate(metrics, tabLoadedInBackground) {
-  if (metrics === undefined) { return ``; }
-  return `
-  <div class="lh-topbar">
-    <a href="${metrics.location.url}" class="lh-topbar__url" target="_blank" rel="noopener" title="${metrics.location.url}">
-  ${metrics.location.shortURL}</a>&nbsp;- ${metrics.timestamp}
-  </div>
-    <div class="lh-audit-group lh-audit-group--metrics">
-    <div class="lh-audit-group__header"><span class="lh-audit-group__title">Metrics</span></div>
-    <div class="lh-columns">
-      <div class="lh-column">
-        <div class="lh-metric lh-metric--${metrics.lcp.pass ? 'pass':'fail'}">
-          <div class="lh-metric__innerwrap">
-            <div>
-              <span class="lh-metric__title">Largest Contentful Paint <span class="lh-metric-state">${metrics.lcp.final ? '' : '(might change)'}</span></span>
-              ${tabLoadedInBackground ? '<span class="lh-metric__subtitle">Value inflated as tab was loaded in background</span>' : ''}
-            </div>
-            <div class="lh-metric__value">${(metrics.lcp.value/1000).toFixed(2)}&nbsp;s</div>
-          </div>
-        </div>
-        <div class="lh-metric lh-metric--${metrics.fid.pass ? 'pass':'fail'}">
-          <div class="lh-metric__innerwrap">
-            <span class="lh-metric__title">First Input Delay <span class="lh-metric-state">${metrics.fid.final ? '' : '(waiting for input)'}</span></span>
-            <div class="lh-metric__value">${metrics.fid.final ? `${metrics.fid.value.toFixed(2)}&nbsp;ms` : ''}</div>
-          </div>
-        </div>
-        <div class="lh-metric lh-metric--${metrics.cls.pass ? 'pass':'fail'}">
-          <div class="lh-metric__innerwrap">
-            <span class="lh-metric__title">Cumulative Layout Shift <span class="lh-metric-state">${metrics.cls.final ? '' : '(might change)'}</span></span>
-            <div class="lh-metric__value">${metrics.cls.value.toFixed(3)}&nbsp;</div>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-  <div class="lh-metrics-final lh-metrics__disclaimer" hidden>
-    <div><span>${metrics.location.url} - ${metrics.timestamp}</span></div>
-  </div>
-
-    <div class="lh-footer lh-warning">
-      Mobile performance may be significantly slower. 
-      <a href="https://web.dev/load-fast-enough-for-pwa/" target="_blank">Learn more</a>
-    </div>
-  </div>
-  `;
-}
-
-/**
- *
- * Render a WebVitals.js metrics table in the pop-up window
- * @param {Object} metrics
- * @returns
- */
-function renderLocalMetricsTemplate(metrics, tabLoadedInBackground) {
-  const el = document.getElementById('local-metrics');
-  el.innerHTML = buildLocalMetricsTemplate(metrics, tabLoadedInBackground);
-}
-
-function buildDistributionTemplate(metric, label) {
-  return `<div class="field-data">
-    <div class="metric-wrapper lh-column">
-      <div class="lh-metric">
-        <div class="field-metric ${metric.category.toLowerCase()} lh-metric__innerwrap">
-          <span class="metric-description">${label}</span>
-          <div class="metric-value lh-metric__value">${formatDisplayValue(label, metric.percentile)}</div></div>
-        <div class="metric-chart">
-          <div class="bar fast" style="flex-grow: 
-          ${Math.floor(metric.distributions[0].proportion * 100)};">
-          ${Math.floor(metric.distributions[0].proportion * 100)}%</div>
-          <div class="bar average" style="flex-grow: 
-          ${Math.floor(metric.distributions[1].proportion * 100)};">
-          ${Math.floor(metric.distributions[1].proportion * 100)}%</div>
-          <div class="bar slow" style="flex-grow: 
-          ${Math.floor(metric.distributions[2].proportion * 100)};">
-          ${Math.floor(metric.distributions[2].proportion * 100)}%</div>
-        </div></div>
-      </div>
-    </div> `;
-}
-
-function buildPSILink() {
-  return `<br><a href='${FE_URL}?url=${encodedUrl}' target='_blank'>
-       View Report on PageSpeed Insights</a>`;
-}
-
-/**
- *
- * Format PSI API metric values
- * @param {String} metricName
- * @param {Number} metricValueMs
- * @returns
- */
-function formatDisplayValue(metricName, metricValueMs) {
-  if (metricValueMs === undefined) {
-    return '';
-  }
-  if (metricName === 'First Input Delay (FID)') {
-    return Number(metricValueMs.toFixed(0)) + ' ms';
-  } else {
-    return Number((metricValueMs / 1000).toFixed(1)) + ' s';
-  }
-};
-
-chrome.tabs.query({active: true, currentWindow: true}, function(tabs) {
+chrome.tabs.query({active: true, currentWindow: true}, tabs => {
   const thisTab = tabs[0];
-  // TODO: Re-enable PSI support once LCP, CLS land
-  if (PSI_ENABLED) {
-    fetchAPIResults(thisTab.url);
-  }
 
   // Retrieve the stored latest metrics
   if (thisTab.url) {
     const key = hashCode(thisTab.url);
-    const loadedInBackgroundKey = thisTab.id.toString()
+    const loadedInBackgroundKey = thisTab.id.toString();
     
     let tabLoadedInBackground = false;
 
-    chrome.storage.local.get(loadedInBackgroundKey, (result) => {
+    chrome.storage.local.get(loadedInBackgroundKey, result => {
       tabLoadedInBackground = result[loadedInBackgroundKey];
     });
 
-    chrome.storage.local.get(key, (result) => {
+    chrome.storage.local.get(key, result => {
       if (result[key] !== undefined) {
-        renderLocalMetricsTemplate(result[key], tabLoadedInBackground);
+        new Popup({
+          metrics: result[key],
+          background: tabLoadedInBackground
+        });
+      } else {
+        console.warn('undefined result', key)
       }
     });
   }

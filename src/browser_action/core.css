@@ -100,6 +100,7 @@
   align-items: center;
   border-bottom: 1px solid var(--color-dark-grey);
   padding: 1.33rem 0rem;
+  min-height: 6.67rem;
 }
 .web-vitals-chrome-extension-popup .metric-wrapper:last-child .metric {
   border-bottom: none;
@@ -116,9 +117,13 @@
   white-space: nowrap;
 }
 
+.web-vitals-chrome-extension-popup .metric-performance-local-value {
+  display: inline-block;
+}
+
 /* If the pin is too far right, put the label before it. */
-.web-vitals-chrome-extension-popup .metric-performance-local.reversed span {
-  margin-left: calc(-200% - 1rem);
+.web-vitals-chrome-extension-popup .reversed .metric-performance-local-value {
+  transform: translateX(calc(-100% - 2rem));
 }
 
 .web-vitals-chrome-extension-popup .good .metric-performance-local,
@@ -179,9 +184,9 @@
   display: inline-block;
   width: var(--pinhead-size);
   height: var(--pinhead-size);
-  transform: translateX(-50%);
+  transform: translateX(calc((var(--pinhead-size) - 2px) / -2));
 
-  --pinhead-size: calc(5 / 6 * 1rem);
+  --pinhead-size: calc(5 / 6 * 1rem + 1px);
 }
 .web-vitals-chrome-extension-popup .good .metric-performance-local::after {
   /* Circle */
@@ -243,4 +248,10 @@
 .web-vitals-chrome-extension-popup .poor .metric-performance-distribution-rating.poor,
 .web-vitals-chrome-extension-popup .metric-wrapper:hover .metric-performance-distribution-rating.poor {
   border-top-color: var(--color-poor);
+}
+
+.web-vitals-chrome-extension-popup #page {
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  overflow: hidden;
 }
