@@ -34,7 +34,7 @@ export function loadLocalMetrics(callback) {
             background: tabLoadedInBackground
           });
         } else {
-          console.warn('undefined result', key)
+          callback({error: `Storage empty for key ${key}: ${result}`});
         }
       });
     }

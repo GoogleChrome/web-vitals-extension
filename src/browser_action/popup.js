@@ -18,7 +18,13 @@ import { LCP, FID, CLS } from './metric.js';
 
 class Popup {
 
-  constructor({metrics, background}) {
+  constructor({metrics, background, error}) {
+    if (error) {
+      console.error(error);
+      this.setStatus('Web Vitals are unavailble for this page');
+      return;
+    }
+
     const {location, timestamp, ..._metrics} = metrics;
 
     this.location = location;
@@ -74,6 +80,7 @@ class Popup {
       this.renderFieldData(fieldData);
     }).catch(e => {
       console.warn('Unable to load any CrUX data', e);
+      this.setStatus('Local metrics only (field data unavailble)');
     });
   }
 
@@ -114,7 +121,9 @@ class Popup {
 
     template.parentElement.appendChild(fragment);
 
-    requestAnimationFrame(this.checkReversal.bind(this, metric));
+    // Check reversal before and after the transition is settled.
+    requestAnimationFrame(_ => this.checkReversal(metric));
+    this.whenSettled(metric).then(_ => this.checkReversal(metric));
   }
 
   checkReversal(metric) {
@@ -126,14 +135,14 @@ class Popup {
     const localValueBoundingRect = localValue.getBoundingClientRect();
     const isOverflow = localValueBoundingRect.right > containerBoundingRect.right;
 
-    local.classList.toggle('reversed', isOverflow);
+    local.classList.toggle('reversed', isOverflow || local.classList.contains('reversed'));
   }
 
   renderFieldData(fieldData) {
     if (CrUX.isOriginFallback(fieldData)) {
       const fragment = document.createDocumentFragment();
       const span = document.createElement('span');
-      span.innerHTML = 'Page level data is not available<br>Comparing local metrics to <strong>origin level data</strong> instead';
+      span.innerHTML = 'Page-level field data is not available<br>Comparing local metrics to <strong>origin-level field data</strong> instead';
       fragment.appendChild(span);
       this.setStatus(fragment);
       this.setPage(CrUX.getOrigin(fieldData));
@@ -157,7 +166,6 @@ class Popup {
 
       const local = document.querySelector(`#${metric.id} .metric-performance-local`);
       local.style.marginLeft = metric.getRelativePosition(metric.local);
-      local.classList.remove('reversed');
 
       ['good', 'needs-improvement', 'poor'].forEach((rating, i) => {
         const ratingElement = document.querySelector(`#${metric.id} .metric-performance-distribution-rating.${rating}`);
@@ -167,7 +175,14 @@ class Popup {
         ratingElement.style.setProperty('--min-rating-width', `${metric.MIN_PCT * 100}%`);
       });
 
-      requestAnimationFrame(this.checkReversal.bind(this, metric));
+      this.whenSettled(metric).then(_ => this.checkReversal(metric));
+    });
+  }
+
+  whenSettled(metric) {
+    const local = document.querySelector(`#${metric.id} .metric-performance-local`);
+    return new Promise(resolve => {
+      local.addEventListener('transitionend', resolve);
     });
   }
 

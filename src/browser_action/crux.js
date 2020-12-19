@@ -17,6 +17,7 @@ export class CrUX {
   }
 
   static query(request) {
+    request.formFactor = 'DESKTOP';
     const ENDPOINT = `https://chromeuxreport.googleapis.com/v1/records:queryRecord?key=${CRUX_API_KEY}`;
     return fetch(ENDPOINT, {
       method: 'POST',
@@ -54,7 +55,7 @@ export class CrUX {
   }
 
   static getDistribution(data) {
-    return data.histogram.map(({density}) => density);
+    return data.histogram.map(({density}) => density || 0);
   }
 
 }

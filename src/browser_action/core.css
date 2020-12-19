@@ -18,6 +18,7 @@
   --color-text-link: #3740FF;
   --color-light-grey: #F8F9FA;
   --color-dark-grey: #DADCE0;
+  --transition-duration-easing: 250ms cubic-bezier(0.4, 0.0, 0.2, 1);
 }
 
 .web-vitals-chrome-extension-popup * {
@@ -31,8 +32,8 @@
   margin: 0px;
   height: 100%;
 
-  font-size: 12px;
-  line-height: 14px;
+  font-size: 1rem;
+  line-height: 1.17rem;
   font-weight: 400;
   font-family: Roboto, sans-serif;
   color: var(--color-text);
@@ -85,6 +86,7 @@
   display: flex;
   flex-direction: row;
   align-items: center;
+  min-height: 2.34rem;
 }
 
 .web-vitals-chrome-extension-popup #status {
@@ -112,8 +114,7 @@
   column-gap: 4.17rem;
   align-items: center;
   border-bottom: 1px solid var(--color-dark-grey);
-  padding: 1.33rem 0rem;
-  min-height: 6.67rem;
+  height: 6.67rem;
 }
 .web-vitals-chrome-extension-popup .metric-wrapper:last-child .metric {
   border-bottom: none;
@@ -142,6 +143,7 @@
 .web-vitals-chrome-extension-popup .good .metric-performance-local,
 .web-vitals-chrome-extension-popup .needs-improvement .metric-performance-local,
 .web-vitals-chrome-extension-popup .poor .metric-performance-local {
+  transition: margin-left var(--transition-duration-easing);
   position: relative;
   font-size: 1.17rem;
   line-height: 1.67rem;
@@ -231,6 +233,7 @@
 }
 
 .web-vitals-chrome-extension-popup .metric-performance-distribution-rating {
+  transition: width var(--transition-duration-easing);
   width: var(--rating-width, 33.33%);
   min-width: var(--min-rating-width, 0%);
   margin-right: 0.17rem;
@@ -274,4 +277,8 @@
   text-overflow: ellipsis;
   white-space: nowrap;
   overflow: hidden;
+}
+
+.web-vitals-chrome-extension-popup #timestamp:not(:empty):after {
+  content: ' \2219';
 }
