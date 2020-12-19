@@ -20,7 +20,7 @@ export function loadLocalMetrics(callback) {
     if (thisTab.url) {
       const key = hashCode(thisTab.url);
       const loadedInBackgroundKey = thisTab.id.toString();
-      
+
       let tabLoadedInBackground = false;
 
       chrome.storage.local.get(loadedInBackgroundKey, result => {

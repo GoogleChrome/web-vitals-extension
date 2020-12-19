@@ -72,14 +72,27 @@
   text-decoration: underline;
 }
 
+.web-vitals-chrome-extension-popup strong {
+  font-weight: 500;
+}
+
 .web-vitals-chrome-extension-popup .metadata {
   color: var(--color-text-muted);
   letter-spacing: 0.2px;
 }
 
+.web-vitals-chrome-extension-popup #metadata {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+}
+
+.web-vitals-chrome-extension-popup #status {
+  text-align: right;
+}
+
 .web-vitals-chrome-extension-popup #info {
   margin-left: 0.83rem;
-  vertical-align: middle;
 }
 .web-vitals-chrome-extension-popup #info svg {
   fill: currentColor;
@@ -218,10 +231,16 @@
 }
 
 .web-vitals-chrome-extension-popup .metric-performance-distribution-rating {
-  width: 33.33%;
-  min-width: 2%;
+  width: var(--rating-width, 33.33%);
+  min-width: var(--min-rating-width, 0%);
   margin-right: 0.17rem;
   border-top: 4px solid;
+
+  /* Hide the % when the density is too small. */
+  box-sizing: content-box;
+  max-height: 1rem;
+  word-break: break-word;
+  overflow: hidden;
 }
 .web-vitals-chrome-extension-popup .metric-performance-distribution-rating:last-child {
   margin-right: 0rem;

@@ -11,3 +11,5 @@
 **/node_modules/web-vitals/dist/*
 # don't ignore web-vitals.min.js
 !**/node_modules/web-vitals/dist/web-vitals.es5.min.js
+
+src/browser_action/secrets.js

@@ -12,13 +12,13 @@
 */
 
 import { loadLocalMetrics } from './chrome.js';
+import { CrUX } from './crux.js';
 import { LCP, FID, CLS } from './metric.js';
+
 
 class Popup {
 
   constructor({metrics, background}) {
-    console.log('Popup', metrics, background)
-
     const {location, timestamp, ..._metrics} = metrics;
 
     this.location = location;
@@ -35,17 +35,15 @@ class Popup {
     this.initPage();
     this.initTimestamp();
     this.initMetrics();
+    this.initFieldData();
   }
 
   initStatus() {
-    const status = document.getElementById('status');
-    status.innerText = '';
+    this.setStatus('Loading field data…');
   }
 
   initPage() {
-    const page = document.getElementById('page');
-    page.innerText = this.location.url;
-    page.title = this.location.url;
+    this.setPage(this.location.url);
   }
 
   initTimestamp() {
@@ -104,6 +102,72 @@ class Popup {
     const isOverflow = localValueBoundingRect.right > containerBoundingRect.right;
 
     local.classList.toggle('reversed', isOverflow);
+  }
+
+  initFieldData() {
+    CrUX.load(this.location.url).then(fieldData => {
+      console.log('[Web Vitals] CrUX data', fieldData);
+      this.renderFieldData(fieldData);
+    }).catch(e => {
+      console.warn('[Web Vitals] Unable to load any CrUX data', e);
+    });
+  }
+
+  renderFieldData(fieldData) {
+    if (CrUX.isOriginFallback(fieldData)) {
+      const fragment = document.createDocumentFragment();
+      const span = document.createElement('span');
+      span.innerHTML = 'Page level data is not available<br>Comparing local metrics to <strong>origin level data</strong> instead';
+      fragment.appendChild(span);
+      this.setStatus(fragment);
+      this.setPage(CrUX.getOrigin(fieldData));
+    } else {
+      this.setStatus('Local metrics compared to field data');
+
+      const normalizedUrl = CrUX.getNormalizedUrl(fieldData);
+      if (normalizedUrl) {
+        this.setPage(normalizedUrl);
+      }
+    }
+
+    const metrics = CrUX.getMetrics(fieldData).forEach(({id, data}) => {
+      const metric = this.metrics[id];
+      if (!metric) {
+        // The API may return additional metrics that we don't support.
+        return;
+      }
+
+      metric.distribution = CrUX.getDistribution(data);
+
+      const local = document.querySelector(`#${metric.id} .metric-performance-local`);
+      local.style.marginLeft = metric.getRelativePosition(metric.local);
+
+      ['good', 'needs-improvement', 'poor'].forEach((rating, i) => {
+        const ratingElement = document.querySelector(`#${metric.id} .metric-performance-distribution-rating.${rating}`);
+
+        ratingElement.innerText = metric.getDensity(i);
+        ratingElement.style.setProperty('--rating-width', metric.getDensity(i, 2));
+        ratingElement.style.setProperty('--min-rating-width', `${metric.MIN_PCT * 100}%`);
+      });
+
+      requestAnimationFrame(this.checkReversal.bind(this, metric));
+    });
+  }
+
+  setStatus(status) {
+    const statusElement = document.getElementById('status');
+
+    if (typeof status === 'string') {
+      statusElement.innerText = status;
+    } else {
+      statusElement.replaceChildren(status);
+    }
+  }
+
+  setPage(url) {
+    const page = document.getElementById('page');
+    page.innerText = url;
+    page.title = url;
   }
 
 }

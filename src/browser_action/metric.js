@@ -1,5 +1,5 @@
-class Metric {
-  
+export class Metric {
+
   constructor({id, name, local, finalized, thresholds}) {
     this.id = id;
     this.name = name;
@@ -7,6 +7,8 @@ class Metric {
     this.finalized = finalized;
     this.thresholds = thresholds;
     this.digitsOfPrecision = 3;
+    // This will be replaced with field data, if available.
+    this.distribution = [1/3, 1/3, 1/3];
   }
 
   formatValue(value) {
@@ -35,22 +37,33 @@ class Metric {
       return '0%';
     }
 
-    // TODO: Position relative to field distribution, if available.
-    // For now assume 33/33/33.
-    const distribution = [0.33, 0.33, 0.33];
+    let relativePosition = 0;
     const {good, poor} = this.thresholds;
-    let pct = 0;
+    // Densities smaller than this amount are visually insignificant.
+    const MIN_PCT = this.MIN_PCT;
+    // The poor bucket is unbounded, so a value can never really be 100%.
+    const MAX_PCT = 0.95;
+    // ... but we still need to use something as the upper limit.
+    const MAX_VALUE = poor * 2.5;
+    //
+    let totalDensity = 0;
+    const [pctGood, pctNeedsImprovement, pctPoor] = this.distribution.map(density => {
+      // Rating widths aren't affected by MAX_PCT, so we don't adjust for it here.
+      density = Math.max(density, MIN_PCT);
+      totalDensity += density;
+      return density;
+    }).map(density => density / totalDensity);
+
+    // The relative position is linearly interpolated for simplicity.
     if (value < good) {
-      pct = value * distribution[0] / good;
+      relativePosition = value * pctGood / good;
     } else if (value >= poor) {
-      // The poor bucket is unbounded, but for positioning purposes we'll
-      // consider the rightmost edge to be a multiple of the poor threshold.
-      pct = Math.min(0.95, (value - poor) / (poor * 2.5)) * distribution[2] + distribution[0] + distribution[1];
+      relativePosition = Math.min(MAX_PCT, (value - poor) / (poor * MAX_VALUE)) * pctPoor + pctGood + pctNeedsImprovement;
     } else {
-      pct = (value - good) * distribution[1] / (poor - good) + distribution[0];
+      relativePosition = (value - good) * pctNeedsImprovement / (poor - good) + pctGood;
     }
 
-    return `${pct * 100}%`;
+    return `${relativePosition * 100}%`;
   }
 
   toLocaleFixed({value, unit}) {
@@ -61,6 +74,27 @@ class Metric {
       minimumFractionDigits: this.digitsOfPrecision,
       maximumFractionDigits: this.digitsOfPrecision
     });
+  }
+
+  getDensity(i, decimalPlaces=0) {
+    const density = this.distribution[i];
+
+    return `${(density * 100).toFixed(decimalPlaces)}%`;
+  }
+
+  static mapCruxNameToId(cruxName) {
+    const nameMap = {
+      'largest_contentful_paint': 'lcp',
+      'first_input_delay': 'fid',
+      'cumulative_layout_shift': 'cls',
+      'first_contentful_paint': 'fcp'
+    };
+
+    return nameMap[cruxName];
+  }
+
+  get MIN_PCT() {
+    return 0.02;
   }
 
 }
