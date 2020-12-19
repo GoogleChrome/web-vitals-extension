@@ -82,6 +82,44 @@ export class Metric {
     return `${(density * 100).toFixed(decimalPlaces)}%`;
   }
 
+  get MIN_PCT() {
+    return 0.02;
+  }
+
+  set distribution(distribution) {
+    const [good, needsImprovement, poor] = distribution;
+    let total = good + needsImprovement + poor;
+    if (Math.abs(1 - total) > 0.0001) {
+      console.warn('Field distribution densities don\'t sum to 100%:', good, needsImprovement, poor);
+    }
+
+    // Normalize the densities so they always sum to exactly 100%.
+    // Consider [98.29%, 1.39%, 0.31%]. Naive rounding would produce [98%, 1%, 0%].
+    // Since 1.39% lost the most due to rounding (0.39%), we overcompensate by making it 2%.
+    // This way, the result adds up to 100%: [98%, 2%, 0%].
+
+    // Sort the indices by those that "have the most to lose" by rounding.
+    let sortedIndices = distribution.map(i => i - (Math.floor(i * 100) / 100));
+    sortedIndices = Array.from(sortedIndices).sort().reverse().map(i => sortedIndices.indexOf(i));
+    // Round all densities down to the hundredths place.
+    // This is expected to change the total to < 1 (underflow).
+    distribution = distribution.map(density => {
+      return Math.floor(density * 100 / total) / 100;
+    });
+    // Add 1% back to the densities that "lost the most" until we reach 100%.
+    total = distribution.reduce((total, i) => total + (i * 100), 0);
+    for (let i = 0; i < (100 - total); i++) {
+      const densityIndex = sortedIndices[i];
+      distribution[densityIndex] += 0.01;
+    }
+
+    this._distribution = distribution;
+  }
+
+  get distribution() {
+    return this._distribution;
+  }
+
   static mapCruxNameToId(cruxName) {
     const nameMap = {
       'largest_contentful_paint': 'lcp',
@@ -91,10 +129,6 @@ export class Metric {
     };
 
     return nameMap[cruxName];
-  }
-
-  get MIN_PCT() {
-    return 0.02;
   }
 
 }

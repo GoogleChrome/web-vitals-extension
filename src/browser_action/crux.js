@@ -10,7 +10,7 @@ export class CrUX {
     const origin = urlHelper.origin;
 
     return CrUX.query({url}).catch(e =>{
-      console.warn('[Web Vitals] CrUX data unavailable', e);
+      console.warn('CrUX URL data unavailable', e);
       // If URL data is unavailable, fall back to the origin.
       return CrUX.query({origin});
     });

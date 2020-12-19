@@ -68,6 +68,31 @@ class Popup {
     this.renderMetrics();
   }
 
+  initFieldData() {
+    CrUX.load(this.location.url).then(fieldData => {
+      console.log('CrUX data', fieldData);
+      this.renderFieldData(fieldData);
+    }).catch(e => {
+      console.warn('Unable to load any CrUX data', e);
+    });
+  }
+
+  setStatus(status) {
+    const statusElement = document.getElementById('status');
+
+    if (typeof status === 'string') {
+      statusElement.innerText = status;
+    } else {
+      statusElement.replaceChildren(status);
+    }
+  }
+
+  setPage(url) {
+    const page = document.getElementById('page');
+    page.innerText = url;
+    page.title = url;
+  }
+
   renderMetrics() {
     Object.values(this.metrics).forEach(this.renderMetric.bind(this));
   }
@@ -104,15 +129,6 @@ class Popup {
     local.classList.toggle('reversed', isOverflow);
   }
 
-  initFieldData() {
-    CrUX.load(this.location.url).then(fieldData => {
-      console.log('[Web Vitals] CrUX data', fieldData);
-      this.renderFieldData(fieldData);
-    }).catch(e => {
-      console.warn('[Web Vitals] Unable to load any CrUX data', e);
-    });
-  }
-
   renderFieldData(fieldData) {
     if (CrUX.isOriginFallback(fieldData)) {
       const fragment = document.createDocumentFragment();
@@ -141,6 +157,7 @@ class Popup {
 
       const local = document.querySelector(`#${metric.id} .metric-performance-local`);
       local.style.marginLeft = metric.getRelativePosition(metric.local);
+      local.classList.remove('reversed');
 
       ['good', 'needs-improvement', 'poor'].forEach((rating, i) => {
         const ratingElement = document.querySelector(`#${metric.id} .metric-performance-distribution-rating.${rating}`);
@@ -154,24 +171,8 @@ class Popup {
     });
   }
 
-  setStatus(status) {
-    const statusElement = document.getElementById('status');
-
-    if (typeof status === 'string') {
-      statusElement.innerText = status;
-    } else {
-      statusElement.replaceChildren(status);
-    }
-  }
-
-  setPage(url) {
-    const page = document.getElementById('page');
-    page.innerText = url;
-    page.title = url;
-  }
-
 }
 
 loadLocalMetrics(result => {
-  new Popup(result);
+  window.popup = new Popup(result);
 });
