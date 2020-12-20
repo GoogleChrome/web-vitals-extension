@@ -77,6 +77,14 @@
   font-weight: 500;
 }
 
+.web-vitals-chrome-extension-popup .hidden {
+  display: none;
+}
+
+.web-vitals-chrome-extension-popup .nowrap {
+  white-space: nowrap;
+}
+
 .web-vitals-chrome-extension-popup .metadata {
   color: var(--color-text-muted);
   letter-spacing: 0.2px;
@@ -124,6 +132,10 @@
   grid-area: metric-name;
   font-size: 1.17rem;
   line-height: 1.67rem;
+}
+
+.web-vitals-chrome-extension-popup .metric-performance {
+  position: relative;
 }
 
 .web-vitals-chrome-extension-popup .metric-performance-local {
@@ -271,6 +283,65 @@
 .web-vitals-chrome-extension-popup .poor .metric-performance-distribution-rating.poor,
 .web-vitals-chrome-extension-popup .metric-wrapper:hover .metric-performance-distribution-rating.poor {
   border-top-color: var(--color-poor);
+}
+
+.web-vitals-chrome-extension-popup .hovercard {
+  display: none;
+  position: absolute;
+  top: calc(100% + 1rem);
+  left: 0px;
+  z-index: 1;
+  width: 100%;
+  box-shadow: 0px 4px 6px 0px rgba(0,0,0,0.16);
+  border: 1px solid var(--color-dark-grey);
+  border-radius: 3px;
+  padding: 1.33rem 1rem;
+  background-color: #fff;
+  color: var(--color-text);
+  font-size: 1.17rem;
+  line-height: 1.67rem;
+}
+.web-vitals-chrome-extension-popup .metric-wrapper:hover.good .hovercard,
+.web-vitals-chrome-extension-popup .metric-wrapper:hover.needs-improvement .hovercard,
+.web-vitals-chrome-extension-popup .metric-wrapper:hover.poor .hovercard {
+  display: block;
+}
+.web-vitals-chrome-extension-popup .metric-wrapper:last-child .hovercard {
+  top: unset;
+  bottom: calc(100% + 1rem);
+}
+.web-vitals-chrome-extension-popup .hovercard::before {
+  position: absolute;
+  content: '';
+  bottom: calc(100% - 1px);
+  left: 50%;
+  width: var(--pointer-size);
+  height: var(--pointer-size);
+  border: var(--border-width) solid var(--color-dark-grey);
+  border-style: solid none none solid;
+  background-color: var(--background-color);
+  transform: translateX(-50%) translateY(calc(var(--pointer-size) / 2 - var(--border-width))) rotate(45deg);
+
+  --pointer-size: 1rem;
+  --border-width: 1px;
+  --background-color: #fff;
+}
+.web-vitals-chrome-extension-popup .metric-wrapper:last-child .hovercard::before {
+  bottom: unset;
+  top: 100%;
+  border-style: none solid solid none;
+  box-shadow: -2px -2px 0px 2px var(--background-color), 4px 4px 6px 0px rgba(0,0,0,0.16);
+  transform: translateX(-50%) translateY(calc(var(--pointer-size) / -2)) rotate(45deg);
+}
+.web-vitals-chrome-extension-popup .good .hovercard-local {
+  color: var(--color-good-text);
+}
+.web-vitals-chrome-extension-popup .needs-improvement .hovercard-local {
+  color: var(--color-needs-improvement-text);
+}
+.web-vitals-chrome-extension-popup .poor .hovercard-local {
+  color: var(--color-poor-text);
+}
 }
 
 .web-vitals-chrome-extension-popup #page {

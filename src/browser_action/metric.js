@@ -2,6 +2,7 @@ export class Metric {
 
   constructor({id, name, local, finalized, thresholds}) {
     this.id = id;
+    this.abbr = id.toUpperCase();
     this.name = name;
     this.local = local;
     this.finalized = finalized;
@@ -15,20 +16,30 @@ export class Metric {
     return value;
   }
 
-  getAssessment(value) {
+  getAssessmentIndex() {
     if (!this.thresholds) {
       console.warn('Unable to assess', this, '(no thresholds)');
       return undefined;
     }
 
-    let assessment = 'needs-improvement';
-    if (value < this.thresholds.good) {
-      assessment = 'good';
-    } else if (value >= this.thresholds.poor) {
-      assessment = 'poor';
+    let index = 1;
+    if (this.local < this.thresholds.good) {
+      index = 0;
+    } else if (this.local >= this.thresholds.poor) {
+      index = 2;
     }
 
-    return assessment;
+    return index;
+  }
+
+  getAssessment() {
+    const assessments = ['good', 'needs improvement', 'poor'];
+    return assessments[this.getAssessmentIndex()];
+  }
+
+  getAssessmentClass() {
+    const assessments = ['good', 'needs-improvement', 'poor'];
+    return assessments[this.getAssessmentIndex()];
   }
 
   getRelativePosition(value) {
@@ -110,7 +121,7 @@ export class Metric {
     total = distribution.reduce((total, i) => total + (i * 100), 0);
     for (let i = 0; i < (100 - total); i++) {
       const densityIndex = sortedIndices[i];
-      distribution[densityIndex] += 0.01;
+      distribution[densityIndex] = ((distribution[densityIndex] * 100) + 1) / 100;
     }
 
     this._distribution = distribution;
@@ -188,12 +199,12 @@ export class FID extends Metric {
     });
   }
 
-  getAssessment(value) {
+  getAssessmentIndex(value) {
     if (!this.finalized) {
       return;
     }
 
-    return super.getAssessment(value);
+    return super.getAssessmentIndex(value);
   }
 
 }

@@ -94,10 +94,33 @@ class Popup {
     }
   }
 
+  setInfoTooltip(info) {
+    const infoElement = document.getElementById('info');
+    infoElement.title = info;
+    infoElement.classList.toggle('hidden', info == '')
+  }
+
   setPage(url) {
     const page = document.getElementById('page');
     page.innerText = url;
     page.title = url;
+  }
+
+  setHovercardText(metric, fieldData) {
+    const hovercard = document.querySelector(`#${metric.id} .hovercard`);
+    const abbr = metric.abbr;
+    const local = metric.formatValue(metric.local);
+    const assessment = metric.getAssessment();
+    let text = `Your local <strong>${abbr}</strong> experience is <strong class="hovercard-local">${local}</strong> and rated <strong class="hovercard-local">${assessment}</strong>.`;
+
+    if (fieldData) {
+      const assessmentIndex = metric.getAssessmentIndex();
+      const density = metric.getDensity(assessmentIndex, 0);
+      const scope = CrUX.isOriginFallback(fieldData) ? 'origin' : 'page';
+      text += ` Your experience is similar to <strong>${density}</strong> of <span class="nowrap">real-user</span> <strong>${abbr}</strong> experiences on this ${scope}.`
+    }
+
+    hovercard.innerHTML = text;
   }
 
   renderMetrics() {
@@ -107,22 +130,25 @@ class Popup {
   renderMetric(metric) {
     const template = document.getElementById('metric-template');
     const fragment = template.content.cloneNode(true);
-    const metricElement = fragment.querySelector('.metric-wrapper ');
+    const metricElement = fragment.querySelector('.metric-wrapper');
     const name = fragment.querySelector('.metric-name');
     const local = fragment.querySelector('.metric-performance-local');
     const localValue = fragment.querySelector('.metric-performance-local-value');
-    const assessment = metric.getAssessment(metric.local);
+    const assessment = metric.getAssessmentClass();
 
     metricElement.id = metric.id;
     name.innerText = metric.name;
     local.style.marginLeft = metric.getRelativePosition(metric.local);
     localValue.innerText = metric.formatValue(metric.local);
-    metricElement.classList.add(assessment);
+    metricElement.classList.toggle(assessment, !!assessment);
 
     template.parentElement.appendChild(fragment);
 
-    // Check reversal before and after the transition is settled.
-    requestAnimationFrame(_ => this.checkReversal(metric));
+    requestAnimationFrame(_ => {
+      // Check reversal before and after the transition is settled.
+      this.checkReversal(metric);
+      this.setHovercardText(metric);
+    });
     this.whenSettled(metric).then(_ => this.checkReversal(metric));
   }
 
@@ -175,6 +201,7 @@ class Popup {
         ratingElement.style.setProperty('--min-rating-width', `${metric.MIN_PCT * 100}%`);
       });
 
+      this.setHovercardText(metric, fieldData);
       this.whenSettled(metric).then(_ => this.checkReversal(metric));
     });
   }
