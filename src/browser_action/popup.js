@@ -60,15 +60,18 @@ class Popup {
   initMetrics() {
     this.metrics.lcp = new LCP({
       local: this._metrics.lcp.value,
-      finalized: this._metrics.lcp.final
+      finalized: this._metrics.lcp.final,
+      background: this.background
     });
     this.metrics.fid = new FID({
       local: this._metrics.fid.value,
-      finalized: this._metrics.fid.final
+      finalized: this._metrics.fid.final,
+      background: this.background
     });
     this.metrics.cls = new CLS({
       local: this._metrics.cls.value,
-      finalized: this._metrics.cls.final
+      finalized: this._metrics.cls.final,
+      background: this.background
     });
 
     this.renderMetrics();
@@ -92,12 +95,6 @@ class Popup {
     } else {
       statusElement.replaceChildren(status);
     }
-  }
-
-  setInfoTooltip(info) {
-    const infoElement = document.getElementById('info');
-    infoElement.title = info;
-    infoElement.classList.toggle('hidden', info == '')
   }
 
   setPage(url) {
@@ -134,6 +131,8 @@ class Popup {
     const name = fragment.querySelector('.metric-name');
     const local = fragment.querySelector('.metric-performance-local');
     const localValue = fragment.querySelector('.metric-performance-local-value');
+    const infoElement = fragment.querySelector('.info');
+    const info = metric.getInfo() || '';
     const assessment = metric.getAssessmentClass();
 
     metricElement.id = metric.id;
@@ -141,6 +140,8 @@ class Popup {
     local.style.marginLeft = metric.getRelativePosition(metric.local);
     localValue.innerText = metric.formatValue(metric.local);
     metricElement.classList.toggle(assessment, !!assessment);
+    infoElement.title = info;
+    infoElement.classList.toggle('hidden', info == '')
 
     template.parentElement.appendChild(fragment);
 

@@ -1,11 +1,12 @@
 export class Metric {
 
-  constructor({id, name, local, finalized, thresholds}) {
+  constructor({id, name, local, finalized, background, thresholds}) {
     this.id = id;
     this.abbr = id.toUpperCase();
     this.name = name;
     this.local = local;
     this.finalized = finalized;
+    this.background = background;
     this.thresholds = thresholds;
     this.digitsOfPrecision = 3;
     // This will be replaced with field data, if available.
@@ -77,6 +78,10 @@ export class Metric {
     return `${relativePosition * 100}%`;
   }
 
+  getInfo() {
+    return;
+  }
+
   toLocaleFixed({value, unit}) {
     return value.toLocaleString(undefined, {
       style: unit && 'unit',
@@ -146,7 +151,7 @@ export class Metric {
 
 export class LCP extends Metric {
 
-  constructor({local, finalized}) {
+  constructor({local, finalized, background}) {
     const thresholds = {
       good: 2500,
       poor: 4000
@@ -157,6 +162,7 @@ export class LCP extends Metric {
       name: 'Largest Contentful Paint',
       local,
       finalized,
+      background,
       thresholds
     });
   }
@@ -169,11 +175,23 @@ export class LCP extends Metric {
     });
   }
 
+  getAssessmentIndex(value) {
+    return super.getAssessmentIndex(value);
+  }
+
+  getInfo() {
+    if (this.background) {
+      return 'LCP inflated by tab loading in the background';
+    }
+
+    return super.getInfo();
+  }
+
 }
 
 export class FID extends Metric {
 
-  constructor({local, finalized}) {
+  constructor({local, finalized, background}) {
     const thresholds = {
       good: 100,
       poor: 300
@@ -184,6 +202,7 @@ export class FID extends Metric {
       name: 'First Input Delay',
       local,
       finalized,
+      background,
       thresholds
     });
   }
@@ -211,7 +230,7 @@ export class FID extends Metric {
 
 export class CLS extends Metric {
 
-  constructor({local, finalized}) {
+  constructor({local, finalized, background}) {
     const thresholds = {
       good: 0.10,
       poor: 0.25
@@ -222,6 +241,7 @@ export class CLS extends Metric {
       name: 'Cumulative Layout Shift',
       local,
       finalized,
+      background,
       thresholds
     });
   }

@@ -101,10 +101,11 @@
   text-align: right;
 }
 
-.web-vitals-chrome-extension-popup #info {
-  margin-left: 0.83rem;
+.web-vitals-chrome-extension-popup .info {
+  margin-left: 1rem;
+  text-indent: 0rem;
 }
-.web-vitals-chrome-extension-popup #info svg {
+.web-vitals-chrome-extension-popup .info svg {
   fill: currentColor;
 }
 
@@ -143,12 +144,17 @@
   white-space: nowrap;
 }
 
+.web-vitals-chrome-extension-popup .metric-performance-local-value-wrapper {
+  display: inline-flex;
+}
+
 .web-vitals-chrome-extension-popup .metric-performance-local-value {
   display: inline-block;
 }
 
 /* If the pin is too far right, put the label before it. */
-.web-vitals-chrome-extension-popup .reversed .metric-performance-local-value {
+.web-vitals-chrome-extension-popup .reversed .metric-performance-local-value-wrapper {
+  flex-direction: row-reverse;
   transform: translateX(calc(-100% - 2rem));
 }
 
@@ -292,7 +298,7 @@
   left: 0px;
   z-index: 1;
   width: 100%;
-  box-shadow: 0px 4px 6px 0px rgba(0,0,0,0.16);
+  box-shadow: 0px 4px 8px rgba(60, 64, 67, 0.15), 0px 1px 3px rgba(60, 64, 67, 0.3);
   border: 1px solid var(--color-dark-grey);
   border-radius: 3px;
   padding: 1.33rem 1rem;
@@ -313,12 +319,11 @@
 .web-vitals-chrome-extension-popup .hovercard::before {
   position: absolute;
   content: '';
-  bottom: calc(100% - 1px);
+  bottom: calc(100% + var(--border-width));
   left: 50%;
   width: var(--pointer-size);
   height: var(--pointer-size);
-  border: var(--border-width) solid var(--color-dark-grey);
-  border-style: solid none none solid;
+  box-shadow: 6px 6px 0px 6px var(--background-color), 0px 0px 0px var(--border-width) var(--color-dark-grey), 4px 4px 8px rgba(60, 64, 67, 0.15), 1px 1px 3px rgba(60, 64, 67, 0.3);
   background-color: var(--background-color);
   transform: translateX(-50%) translateY(calc(var(--pointer-size) / 2 - var(--border-width))) rotate(45deg);
 
@@ -328,9 +333,8 @@
 }
 .web-vitals-chrome-extension-popup .metric-wrapper:last-child .hovercard::before {
   bottom: unset;
-  top: 100%;
-  border-style: none solid solid none;
-  box-shadow: -2px -2px 0px 2px var(--background-color), 4px 4px 6px 0px rgba(0,0,0,0.16);
+  top: calc(100% + var(--border-width));
+  box-shadow: -3px -3px 0px 3px var(--background-color), 0px 0px 0px var(--border-width) var(--color-dark-grey), 4px 4px 8px rgba(60, 64, 67, 0.15), 1px 1px 3px rgba(60, 64, 67, 0.3);
   transform: translateX(-50%) translateY(calc(var(--pointer-size) / -2)) rotate(45deg);
 }
 .web-vitals-chrome-extension-popup .good .hovercard-local {
