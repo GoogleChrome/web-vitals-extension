@@ -1,5 +1,7 @@
 import { Metric } from './metric.js';
-import { CRUX_API_KEY } from './secrets.js';
+
+// This key only works from the Web Vitals extension.
+const CRUX_API_KEY = 'AIzaSyCZKhcAeiqGCp34891LPqVteT5kUMMq1og';
 
 
 export class CrUX {
