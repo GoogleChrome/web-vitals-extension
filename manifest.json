@@ -21,7 +21,7 @@
     "https://*/*",
     "https://www.googleapis.com/pagespeedonline/v5/runPagespeed?*"
   ],
-  "permissions": ["tabs", "storage", "activeTab"],
+  "permissions": ["tabs", "storage", "activeTab", "scripting"],
   "web_accessible_resources": [
     {
       "resources": [

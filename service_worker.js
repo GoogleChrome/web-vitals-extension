@@ -40,8 +40,9 @@ function hashCode(str) {
  * @param {Number} tabId
  */
 function getWebVitals(tabId) {
-  chrome.tabs.executeScript({
-    file: 'src/browser_action/vitals.js',
+  chrome.scripting.executeScript({
+    target: { tabId: tabId },
+    files: ['src/browser_action/vitals.js'],
   }, (result) => {
     // Catch errors such as "This page cannot be scripted due
     // to an ExtensionsSettings policy."
