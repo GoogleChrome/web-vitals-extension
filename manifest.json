@@ -15,15 +15,13 @@
     "default_popup": "src/browser_action/popup.html"
   },
   "options_page": "src/options/options.html",
-  "permissions": [
-    "tabs",
-    "storage",
-    "activeTab",
+  "host_permissions": [
     "http://localhost/",
     "http://*/*",
     "https://*/*",
     "https://www.googleapis.com/pagespeedonline/v5/runPagespeed?*"
   ],
+  "permissions": ["tabs", "storage", "activeTab"],
   "web_accessible_resources": [
     {
       "resources": [
