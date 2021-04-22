@@ -9,7 +9,7 @@
     "256": "icons/vitals256w.png",
     "512": "icons/vitals512w.png"
   },
-  "browser_action": {
+  "action": {
     "default_icon": "icons/default256w.png",
     "default_title": "Web Vitals",
     "default_popup": "src/browser_action/popup.html"
