@@ -36,8 +36,7 @@
     }
   ],
   "background": {
-    "scripts": ["src/bg/background.js"],
-    "persistent": false
+    "service_worker": "service_worker.js"
   },
   "content_security_policy": "script-src 'self' https://www.googleapis.com; object-src 'self'"
 }
