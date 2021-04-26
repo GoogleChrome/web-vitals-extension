@@ -21,7 +21,7 @@ class Popup {
   constructor({metrics, background, error}) {
     if (error) {
       console.error(error);
-      this.setStatus('Web Vitals are unavailble for this page');
+      this.setStatus('Web Vitals are unavailable for this page');
       return;
     }
 
@@ -83,7 +83,7 @@ class Popup {
       this.renderFieldData(fieldData);
     }).catch(e => {
       console.warn('Unable to load any CrUX data', e);
-      this.setStatus('Local metrics only (field data unavailble)');
+      this.setStatus('Local metrics only (field data unavailable)');
     });
   }
 
