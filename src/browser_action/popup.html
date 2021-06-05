@@ -44,11 +44,23 @@
     </main>
 
     <footer class="metadata">
-      <div id="page"></div>
+      <div id="device-page-wrapper">
+        <span class="device-icon">
+          <svg id="device-icon-desktop" width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg" aria-label="Desktop field data">
+            <title>Desktop field data</title>
+            <path fill-rule="evenodd" clip-rule="evenodd" d="M3 4H13V10H3L3 4ZM2 4C2 3.44772 2.44772 3 3 3H13C13.5523 3 14 3.44772 14 4V10C14 10.5523 13.5523 11 13 11H3C2.44772 11 2 10.5523 2 10V4ZM16 12H0V13H16V12Z"/>
+          </svg>
+          <svg id="device-icon-phone" width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg" aria-label="Phone field data">
+            <title>Phone field data</title>
+            <path fill-rule="evenodd" clip-rule="evenodd" d="M11 2H5V3H11V2ZM4 3V4V12V13V14C4 14.5523 4.44772 15 5 15H11C11.5523 15 12 14.5523 12 14V13V12V4V3V2C12 1.44772 11.5523 1 11 1H5C4.44772 1 4 1.44772 4 2V3ZM11 12V4H5V12H11ZM5 13V14H11V13H5Z"/>
+          </svg>
+        </span>
+        <span id="page"></span>
+      </div>
 
       <div>
         <span id="timestamp"></span>
-        <span>
+        <span id="mobile-warning">
           Mobile performance may be significantly slower.
           <a href="https://web.dev/load-fast-enough-for-pwa/" target="_blank" rel="noopener">Learn more</a>
         </span>

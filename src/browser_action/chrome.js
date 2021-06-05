@@ -12,31 +12,39 @@ function hashCode(str) {
   return hash.toString();
 }
 
-export function loadLocalMetrics(callback) {
-  chrome.tabs.query({active: true, currentWindow: true}, tabs => {
-    const thisTab = tabs[0];
+export function loadLocalMetrics() {
+  return new Promise(resolve => {
+    chrome.tabs.query({active: true, currentWindow: true}, tabs => {
+      const thisTab = tabs[0];
 
-    // Retrieve the stored latest metrics
-    if (thisTab.url) {
-      const key = hashCode(thisTab.url);
-      const loadedInBackgroundKey = thisTab.id.toString();
+      // Retrieve the stored latest metrics
+      if (thisTab.url) {
+        const key = hashCode(thisTab.url);
+        const loadedInBackgroundKey = thisTab.id.toString();
 
-      let tabLoadedInBackground = false;
+        let tabLoadedInBackground = false;
 
-      chrome.storage.local.get(loadedInBackgroundKey, result => {
-        tabLoadedInBackground = result[loadedInBackgroundKey];
-      });
+        chrome.storage.local.get(loadedInBackgroundKey, result => {
+          tabLoadedInBackground = result[loadedInBackgroundKey];
+        });
 
-      chrome.storage.local.get(key, result => {
-        if (result[key] !== undefined) {
-          callback({
-            metrics: result[key],
-            background: tabLoadedInBackground
-          });
-        } else {
-          callback({error: `Storage empty for key ${key}: ${result}`});
-        }
-      });
-    }
+        chrome.storage.local.get(key, result => {
+          if (result[key] !== undefined) {
+            resolve({
+              metrics: result[key],
+              background: tabLoadedInBackground
+            });
+          } else {
+            resolve({error: `Storage empty for key ${key}: ${result}`});
+          }
+        });
+      }
+    });
+  });
+}
+
+export function getOptions() {
+  return new Promise(resolve => {
+    chrome.storage.sync.get({preferPhoneField: false}, resolve);
   });
 }

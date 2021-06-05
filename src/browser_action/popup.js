@@ -11,14 +11,14 @@
  limitations under the License.
 */
 
-import { loadLocalMetrics } from './chrome.js';
+import { loadLocalMetrics, getOptions } from './chrome.js';
 import { CrUX } from './crux.js';
 import { LCP, FID, CLS } from './metric.js';
 
 
 class Popup {
 
-  constructor({metrics, background, error}) {
+  constructor({metrics, background, options, error}) {
     if (error) {
       console.error(error);
       this.setStatus('Web Vitals are unavailable for this page');
@@ -31,6 +31,7 @@ class Popup {
     this.timestamp = timestamp;
     this._metrics = _metrics;
     this.background = background;
+    this.options = options;
     this.metrics = {};
 
     this.init();
@@ -78,9 +79,10 @@ class Popup {
   }
 
   initFieldData() {
-    CrUX.load(this.location.url).then(fieldData => {
+    const formFactor = this.options.preferPhoneField ? CrUX.FormFactor.PHONE : CrUX.FormFactor.DESKTOP;
+    CrUX.load(this.location.url, formFactor).then(fieldData => {
       console.log('CrUX data', fieldData);
-      this.renderFieldData(fieldData);
+      this.renderFieldData(fieldData, formFactor);
     }).catch(e => {
       console.warn('Unable to load any CrUX data', e);
       this.setStatus('Local metrics only (field data unavailable)');
@@ -103,7 +105,12 @@ class Popup {
     page.title = url;
   }
 
-  setHovercardText(metric, fieldData) {
+  setDevice(formFactor) {
+    const deviceElement = document.querySelector('.device-icon');
+    deviceElement.classList.add(`device-${formFactor.toLowerCase()}`);
+  }
+
+  setHovercardText(metric, fieldData, formFactor='') {
     const hovercard = document.querySelector(`#${metric.id} .hovercard`);
     const abbr = metric.abbr;
     const local = metric.formatValue(metric.local);
@@ -114,7 +121,7 @@ class Popup {
       const assessmentIndex = metric.getAssessmentIndex();
       const density = metric.getDensity(assessmentIndex, 0);
       const scope = CrUX.isOriginFallback(fieldData) ? 'origin' : 'page';
-      text += ` Your experience is similar to <strong>${density}</strong> of <span class="nowrap">real-user</span> <strong>${abbr}</strong> experiences on this ${scope}.`
+      text += ` Your experience is similar to <strong>${density}</strong> of <span class="nowrap">real-user</span> ${formFactor.toLowerCase()} <strong>${abbr}</strong> experiences on this ${scope}.`
     }
 
     hovercard.innerHTML = text;
@@ -165,16 +172,16 @@ class Popup {
     local.classList.toggle('reversed', isOverflow || local.classList.contains('reversed'));
   }
 
-  renderFieldData(fieldData) {
+  renderFieldData(fieldData, formFactor) {
     if (CrUX.isOriginFallback(fieldData)) {
       const fragment = document.createDocumentFragment();
       const span = document.createElement('span');
-      span.innerHTML = 'Page-level field data is not available<br>Comparing local metrics to <strong>origin-level field data</strong> instead';
+      span.innerHTML = `Page-level field data is not available<br>Comparing local metrics to <strong>origin-level ${formFactor.toLowerCase()} field data</strong> instead`;
       fragment.appendChild(span);
       this.setStatus(fragment);
       this.setPage(CrUX.getOrigin(fieldData));
     } else {
-      this.setStatus('Local metrics compared to field data');
+      this.setStatus(`Local metrics compared to ${formFactor.toLowerCase()} field data`);
 
       const normalizedUrl = CrUX.getNormalizedUrl(fieldData);
       if (normalizedUrl) {
@@ -202,7 +209,8 @@ class Popup {
         ratingElement.style.setProperty('--min-rating-width', `${metric.MIN_PCT * 100}%`);
       });
 
-      this.setHovercardText(metric, fieldData);
+      this.setDevice(formFactor);
+      this.setHovercardText(metric, fieldData, formFactor);
       this.whenSettled(metric).then(_ => this.checkReversal(metric));
     });
   }
@@ -216,6 +224,6 @@ class Popup {
 
 }
 
-loadLocalMetrics(result => {
-  window.popup = new Popup(result);
+Promise.all([loadLocalMetrics(), getOptions()]).then(([localMetrics, options]) => {
+  window.popup = new Popup({...localMetrics, options});
 });

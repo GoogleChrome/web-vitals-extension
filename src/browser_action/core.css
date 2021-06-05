@@ -353,12 +353,28 @@
 .web-vitals-chrome-extension-popup .poor .hovercard-local {
   color: var(--color-poor-text);
 }
+
+.web-vitals-chrome-extension-popup #device-page-wrapper {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.web-vitals-chrome-extension-popup #device-icon-desktop,
+.web-vitals-chrome-extension-popup #device-icon-phone {
+  display: none;
+  fill: currentColor;
+  vertical-align: middle;
+}
+.web-vitals-chrome-extension-popup .device-desktop #device-icon-desktop {
+  display: inline-block;
+}
+.web-vitals-chrome-extension-popup .device-phone #device-icon-phone {
+  display: inline-block;
 }
 
 .web-vitals-chrome-extension-popup #page {
-  text-overflow: ellipsis;
-  white-space: nowrap;
-  overflow: hidden;
+  vertical-align: middle;
 }
 
 .web-vitals-chrome-extension-popup #timestamp:not(:empty):after {

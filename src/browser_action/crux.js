@@ -6,20 +6,19 @@ const CRUX_API_KEY = 'AIzaSyCZKhcAeiqGCp34891LPqVteT5kUMMq1og';
 
 export class CrUX {
 
-  static load(pageUrl) {
+  static load(pageUrl, formFactor) {
     const urlHelper = new URL(pageUrl);
     const url = urlHelper.href;
     const origin = urlHelper.origin;
 
-    return CrUX.query({url}).catch(e =>{
+    return CrUX.query({url, formFactor}).catch(e =>{
       console.warn('CrUX URL data unavailable', e);
       // If URL data is unavailable, fall back to the origin.
-      return CrUX.query({origin});
+      return CrUX.query({origin, formFactor});
     });
   }
 
   static query(request) {
-    request.formFactor = 'DESKTOP';
     const ENDPOINT = `https://chromeuxreport.googleapis.com/v1/records:queryRecord?key=${CRUX_API_KEY}`;
     return fetch(ENDPOINT, {
       method: 'POST',
@@ -58,6 +57,13 @@ export class CrUX {
 
   static getDistribution(data) {
     return data.histogram.map(({density}) => density || 0);
+  }
+
+  static get FormFactor() {
+    return {
+      PHONE: 'PHONE',
+      DESKTOP: 'DESKTOP'
+    };
   }
 
 }
