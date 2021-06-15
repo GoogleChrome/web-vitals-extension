@@ -11,219 +11,219 @@
  limitations under the License.
 */
 
-const PSI_ENABLED = false;
-const API_KEY = '...';
-const API_URL = 'https://www.googleapis.com/pagespeedonline/v5/runPagespeed?';
-const FE_URL = 'https://developers.google.com/speed/pagespeed/insights/';
-const encodedUrl = '';
-let resultsFetched = false;
-
-/**
- *
- * Hash the URL and return a numeric hash as a String
- * to be used as the key
- * @param {String} str
- * @returns
- */
-function hashCode(str) {
-  let hash = 0;
-  if (str.length == 0) {
-    return '';
-  }
-  for (let i = 0; i < str.length; i++) {
-    const char = str.charCodeAt(i);
-    hash = (hash << 5) - hash + char;
-    // Convert to 32bit integer
-    hash = hash & hash;
-  }
-  return hash.toString();
-}
+import { loadLocalMetrics, getOptions } from './chrome.js';
+import { CrUX } from './crux.js';
+import { LCP, FID, CLS } from './metric.js';
 
 
-/**
- *
- * Fetches API results from PSI API endpoint
- * @param {String} url
- * @returns
- */
-async function fetchAPIResults(url) {
-  if (PSI_ENABLED) {
-    if (resultsFetched) {
+class Popup {
+
+  constructor({metrics, background, options, error}) {
+    if (error) {
+      console.error(error);
+      this.setStatus('Web Vitals are unavailable for this page');
       return;
     }
-    const query = [
-      'url=url%3A' + url,
-      'key=' + API_KEY,
-    ].join('&');
-    const queryURL = API_URL + query;
-    try {
-      const response = await fetch(queryURL);
-      const json = await response.json();
-      createPSITemplate(json);
-    } catch (err) {
-      const el = document.getElementById('report');
-      el.innerHTML = `We were unable to process your request.`;
+
+    const {location, timestamp, ..._metrics} = metrics;
+
+    this.location = location;
+    this.timestamp = timestamp;
+    this._metrics = _metrics;
+    this.background = background;
+    this.options = options;
+    this.metrics = {};
+
+    this.init();
+  }
+
+  init() {
+    this.initStatus();
+    this.initPage();
+    this.initTimestamp();
+    this.initMetrics();
+    this.initFieldData();
+  }
+
+  initStatus() {
+    this.setStatus('Loading field data…');
+  }
+
+  initPage() {
+    this.setPage(this.location.url);
+  }
+
+  initTimestamp() {
+    const timestamp = document.getElementById('timestamp');
+    timestamp.innerText = this.timestamp;
+  }
+
+  initMetrics() {
+    this.metrics.lcp = new LCP({
+      local: this._metrics.lcp.value,
+      finalized: this._metrics.lcp.final,
+      background: this.background
+    });
+    this.metrics.fid = new FID({
+      local: this._metrics.fid.value,
+      finalized: this._metrics.fid.final,
+      background: this.background
+    });
+    this.metrics.cls = new CLS({
+      local: this._metrics.cls.value,
+      finalized: this._metrics.cls.final,
+      background: this.background
+    });
+
+    this.renderMetrics();
+  }
+
+  initFieldData() {
+    const formFactor = this.options.preferPhoneField ? CrUX.FormFactor.PHONE : CrUX.FormFactor.DESKTOP;
+    CrUX.load(this.location.url, formFactor).then(fieldData => {
+      console.log('CrUX data', fieldData);
+      this.renderFieldData(fieldData, formFactor);
+    }).catch(e => {
+      console.warn('Unable to load any CrUX data', e);
+      this.setStatus('Local metrics only (field data unavailable)');
+    });
+  }
+
+  setStatus(status) {
+    const statusElement = document.getElementById('status');
+
+    if (typeof status === 'string') {
+      statusElement.innerText = status;
+    } else {
+      statusElement.replaceChildren(status);
     }
   }
-}
 
-/**
- *
- * Build the PSI template to render in the pop-up
- * @param {Object} result
- */
-function createPSITemplate(result) {
-  if (PSI_ENABLED) {
-    const experience = result.loadingExperience;
-    const metrics = experience.metrics;
-    const overall_category = experience.overall_category;
-    const fcp = metrics.FIRST_CONTENTFUL_PAINT_MS;
-    const fid = metrics.FIRST_INPUT_DELAY_MS;
-  
-    const fcp_template = buildDistributionTemplate(fcp, 'First Contentful Paint (FCP)');
-    const fid_template = buildDistributionTemplate(fid, 'First Input Delay (FID)');
-    const link_template = buildPSILink();
-    const tmpl = `<h1>Origin Performance (${overall_category})</h1> ${fcp_template} ${fid_template} ${link_template}`;
-    const el = document.getElementById('report');
-    el.innerHTML = tmpl;
-    // TODO: Implement per-tab/URL report caching scheme
-    resultsFetched = true;
-  }
-}
-
-/**
- *
- * Construct a WebVitals.js metrics template for display at the
- * top of the pop-up. Consumes a custom metrics object provided
- * by vitals.js.
- * @param {Object} metrics
- * @returns
- */
-function buildLocalMetricsTemplate(metrics, tabLoadedInBackground) {
-  if (metrics === undefined) { return ``; }
-  return `
-  <div class="lh-topbar">
-    <a href="${metrics.location.url}" class="lh-topbar__url" target="_blank" rel="noopener" title="${metrics.location.url}">
-  ${metrics.location.shortURL}</a>&nbsp;- ${metrics.timestamp}
-  </div>
-    <div class="lh-audit-group lh-audit-group--metrics">
-    <div class="lh-audit-group__header"><span class="lh-audit-group__title">Metrics</span></div>
-    <div class="lh-columns">
-      <div class="lh-column">
-        <div class="lh-metric lh-metric--${metrics.lcp.pass ? 'pass':'fail'}">
-          <div class="lh-metric__innerwrap">
-            <div>
-              <span class="lh-metric__title">Largest Contentful Paint <span class="lh-metric-state">${metrics.lcp.final ? '' : '(might change)'}</span></span>
-              ${tabLoadedInBackground ? '<span class="lh-metric__subtitle">Value inflated as tab was loaded in background</span>' : ''}
-            </div>
-            <div class="lh-metric__value">${(metrics.lcp.value/1000).toFixed(2)}&nbsp;s</div>
-          </div>
-        </div>
-        <div class="lh-metric lh-metric--${metrics.fid.pass ? 'pass':'fail'}">
-          <div class="lh-metric__innerwrap">
-            <span class="lh-metric__title">First Input Delay <span class="lh-metric-state">${metrics.fid.final ? '' : '(waiting for input)'}</span></span>
-            <div class="lh-metric__value">${metrics.fid.final ? `${metrics.fid.value.toFixed(2)}&nbsp;ms` : ''}</div>
-          </div>
-        </div>
-        <div class="lh-metric lh-metric--${metrics.cls.pass ? 'pass':'fail'}">
-          <div class="lh-metric__innerwrap">
-            <span class="lh-metric__title">Cumulative Layout Shift <span class="lh-metric-state">${metrics.cls.final ? '' : '(might change)'}</span></span>
-            <div class="lh-metric__value">${metrics.cls.value.toFixed(3)}&nbsp;</div>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-  <div class="lh-metrics-final lh-metrics__disclaimer" hidden>
-    <div><span>${metrics.location.url} - ${metrics.timestamp}</span></div>
-  </div>
-
-    <div class="lh-footer lh-warning">
-      Mobile performance may be significantly slower. 
-      <a href="https://web.dev/load-fast-enough-for-pwa/" target="_blank">Learn more</a>
-    </div>
-  </div>
-  `;
-}
-
-/**
- *
- * Render a WebVitals.js metrics table in the pop-up window
- * @param {Object} metrics
- * @returns
- */
-function renderLocalMetricsTemplate(metrics, tabLoadedInBackground) {
-  const el = document.getElementById('local-metrics');
-  el.innerHTML = buildLocalMetricsTemplate(metrics, tabLoadedInBackground);
-}
-
-function buildDistributionTemplate(metric, label) {
-  return `<div class="field-data">
-    <div class="metric-wrapper lh-column">
-      <div class="lh-metric">
-        <div class="field-metric ${metric.category.toLowerCase()} lh-metric__innerwrap">
-          <span class="metric-description">${label}</span>
-          <div class="metric-value lh-metric__value">${formatDisplayValue(label, metric.percentile)}</div></div>
-        <div class="metric-chart">
-          <div class="bar fast" style="flex-grow: 
-          ${Math.floor(metric.distributions[0].proportion * 100)};">
-          ${Math.floor(metric.distributions[0].proportion * 100)}%</div>
-          <div class="bar average" style="flex-grow: 
-          ${Math.floor(metric.distributions[1].proportion * 100)};">
-          ${Math.floor(metric.distributions[1].proportion * 100)}%</div>
-          <div class="bar slow" style="flex-grow: 
-          ${Math.floor(metric.distributions[2].proportion * 100)};">
-          ${Math.floor(metric.distributions[2].proportion * 100)}%</div>
-        </div></div>
-      </div>
-    </div> `;
-}
-
-function buildPSILink() {
-  return `<br><a href='${FE_URL}?url=${encodedUrl}' target='_blank'>
-       View Report on PageSpeed Insights</a>`;
-}
-
-/**
- *
- * Format PSI API metric values
- * @param {String} metricName
- * @param {Number} metricValueMs
- * @returns
- */
-function formatDisplayValue(metricName, metricValueMs) {
-  if (metricValueMs === undefined) {
-    return '';
-  }
-  if (metricName === 'First Input Delay (FID)') {
-    return Number(metricValueMs.toFixed(0)) + ' ms';
-  } else {
-    return Number((metricValueMs / 1000).toFixed(1)) + ' s';
-  }
-};
-
-chrome.tabs.query({active: true, currentWindow: true}, function(tabs) {
-  const thisTab = tabs[0];
-  // TODO: Re-enable PSI support once LCP, CLS land
-  if (PSI_ENABLED) {
-    fetchAPIResults(thisTab.url);
+  setPage(url) {
+    const page = document.getElementById('page');
+    page.innerText = url;
+    page.title = url;
   }
 
-  // Retrieve the stored latest metrics
-  if (thisTab.url) {
-    const key = hashCode(thisTab.url);
-    const loadedInBackgroundKey = thisTab.id.toString()
-    
-    let tabLoadedInBackground = false;
+  setDevice(formFactor) {
+    const deviceElement = document.querySelector('.device-icon');
+    deviceElement.classList.add(`device-${formFactor.toLowerCase()}`);
+  }
 
-    chrome.storage.local.get(loadedInBackgroundKey, (result) => {
-      tabLoadedInBackground = result[loadedInBackgroundKey];
+  setHovercardText(metric, fieldData, formFactor='') {
+    const hovercard = document.querySelector(`#${metric.id} .hovercard`);
+    const abbr = metric.abbr;
+    const local = metric.formatValue(metric.local);
+    const assessment = metric.getAssessment();
+    let text = `Your local <strong>${abbr}</strong> experience is <strong class="hovercard-local">${local}</strong> and rated <strong class="hovercard-local">${assessment}</strong>.`;
+
+    if (fieldData) {
+      const assessmentIndex = metric.getAssessmentIndex();
+      const density = metric.getDensity(assessmentIndex, 0);
+      const scope = CrUX.isOriginFallback(fieldData) ? 'origin' : 'page';
+      text += ` Your experience is similar to <strong>${density}</strong> of <span class="nowrap">real-user</span> ${formFactor.toLowerCase()} <strong>${abbr}</strong> experiences on this ${scope}.`
+    }
+
+    hovercard.innerHTML = text;
+  }
+
+  renderMetrics() {
+    Object.values(this.metrics).forEach(this.renderMetric.bind(this));
+  }
+
+  renderMetric(metric) {
+    const template = document.getElementById('metric-template');
+    const fragment = template.content.cloneNode(true);
+    const metricElement = fragment.querySelector('.metric-wrapper');
+    const name = fragment.querySelector('.metric-name');
+    const local = fragment.querySelector('.metric-performance-local');
+    const localValue = fragment.querySelector('.metric-performance-local-value');
+    const infoElement = fragment.querySelector('.info');
+    const info = metric.getInfo() || '';
+    const assessment = metric.getAssessmentClass();
+
+    metricElement.id = metric.id;
+    name.innerText = metric.name;
+    local.style.marginLeft = metric.getRelativePosition(metric.local);
+    localValue.innerText = metric.formatValue(metric.local);
+    metricElement.classList.toggle(assessment, !!assessment);
+    infoElement.title = info;
+    infoElement.classList.toggle('hidden', info == '')
+
+    template.parentElement.appendChild(fragment);
+
+    requestAnimationFrame(_ => {
+      // Check reversal before and after the transition is settled.
+      this.checkReversal(metric);
+      this.setHovercardText(metric);
     });
+    this.whenSettled(metric).then(_ => this.checkReversal(metric));
+  }
 
-    chrome.storage.local.get(key, (result) => {
-      if (result[key] !== undefined) {
-        renderLocalMetricsTemplate(result[key], tabLoadedInBackground);
+  checkReversal(metric) {
+    const container = document.querySelector(`#${metric.id} .metric-performance`);
+    const local = document.querySelector(`#${metric.id} .metric-performance-local`);
+    const localValue = document.querySelector(`#${metric.id} .metric-performance-local-value`);
+
+    const containerBoundingRect = container.getBoundingClientRect();
+    const localValueBoundingRect = localValue.getBoundingClientRect();
+    const isOverflow = localValueBoundingRect.right > containerBoundingRect.right;
+
+    local.classList.toggle('reversed', isOverflow || local.classList.contains('reversed'));
+  }
+
+  renderFieldData(fieldData, formFactor) {
+    if (CrUX.isOriginFallback(fieldData)) {
+      const fragment = document.createDocumentFragment();
+      const span = document.createElement('span');
+      span.innerHTML = `Page-level field data is not available<br>Comparing local metrics to <strong>origin-level ${formFactor.toLowerCase()} field data</strong> instead`;
+      fragment.appendChild(span);
+      this.setStatus(fragment);
+      this.setPage(CrUX.getOrigin(fieldData));
+    } else {
+      this.setStatus(`Local metrics compared to ${formFactor.toLowerCase()} field data`);
+
+      const normalizedUrl = CrUX.getNormalizedUrl(fieldData);
+      if (normalizedUrl) {
+        this.setPage(normalizedUrl);
       }
+    }
+
+    const metrics = CrUX.getMetrics(fieldData).forEach(({id, data}) => {
+      const metric = this.metrics[id];
+      if (!metric) {
+        // The API may return additional metrics that we don't support.
+        return;
+      }
+
+      metric.distribution = CrUX.getDistribution(data);
+
+      const local = document.querySelector(`#${metric.id} .metric-performance-local`);
+      local.style.marginLeft = metric.getRelativePosition(metric.local);
+
+      ['good', 'needs-improvement', 'poor'].forEach((rating, i) => {
+        const ratingElement = document.querySelector(`#${metric.id} .metric-performance-distribution-rating.${rating}`);
+
+        ratingElement.innerText = metric.getDensity(i);
+        ratingElement.style.setProperty('--rating-width', metric.getDensity(i, 2));
+        ratingElement.style.setProperty('--min-rating-width', `${metric.MIN_PCT * 100}%`);
+      });
+
+      this.setDevice(formFactor);
+      this.setHovercardText(metric, fieldData, formFactor);
+      this.whenSettled(metric).then(_ => this.checkReversal(metric));
     });
   }
+
+  whenSettled(metric) {
+    const local = document.querySelector(`#${metric.id} .metric-performance-local`);
+    return new Promise(resolve => {
+      local.addEventListener('transitionend', resolve);
+    });
+  }
+
+}
+
+Promise.all([loadLocalMetrics(), getOptions()]).then(([localMetrics, options]) => {
+  window.popup = new Popup({...localMetrics, options});
 });

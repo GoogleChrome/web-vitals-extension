@@ -53,7 +53,7 @@ Clicking the Ambient badge icon will allow you to drill in to the individual met
 
 For example, First Input Delay requires a real interaction (e.g click/tap) with the page and will be in a `waiting for input` state until this is the case. We recommend consulting the web.dev documentation for [LCP](https://web.dev/lcp), [CLS](https://web.dev/cls) and [FID](https://web.dev/fid) to get an understanding of when metric values settle.
 
-In a future release, the drill-down will also include aggregate field performance data from PageSpeed Insights and the Chrome User Experience Report.
+As of version 1.0.0, the popup combines your local Core Web Vitals experiences with real-user data from the field via the [Chrome UX Report](https://developers.google.com/web/tools/chrome-user-experience-report) (CrUX) [API](https://developers.google.com/web/tools/chrome-user-experience-report/api/reference). This integration gives you contextual insights to help you understand how similar your individual experiences are to other desktop users on the same page. We've also added a new option to "Compare local experiences to phone field data" instead, if needed. Note that CrUX data may not be available for some pages, in which case we try to load field data for the origin as a whole.
 
 ### Overlay
 

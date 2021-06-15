@@ -1,55 +1,72 @@
 <!DOCTYPE html>
 <html class="web-vitals-chrome-extension web-vitals-chrome-extension-popup">
-<head>
-  <link rel="stylesheet" type="text/css" href="core.css">
-  <link rel="stylesheet" type="text/css" href="viewer.css">
-  <style>
-    .lh-audit-group--metrics, .lh-metrics-final {
-      padding: 3px 10px 0px 10px;
-    }
-    
-    .lh-metric-state {
-      color: #cccccc;
-    }
-    
-    .lh-topbar {
-      position: sticky;
-      top: 0;
-      left: 0;
-      right: 0;
-      z-index: 1000;
-      display: flex;
-      align-items: center;
-      height: var(--topbar-height);
-      background-color: var(--topbar-background-color);
-      padding: var(--topbar-padding);
-      font-size: 12px;
-    }
-    
-    .lh-topbar a, .lh-topbar a:active {
-      color: var(--color-gray-900);
-      text-decoration: none;
-    }
-  </style>
-  <script type="text/javascript" src="popup.js"></script>
-</head>
-<body class="lh-root lh-vars">
-  <!-- Lighthouse report metrics -->
-  <div class="lh-container">
-    <div class="lh-report">
-      <div class="lh-categories">
-        <div class="lh-category-wrapper-">
-          <div class="lh-category-custom" id="local-metrics">
-            Metrics data unavailable.
-            <!-- Placeholder content -->
+  <head>
+    <link rel="stylesheet" type="text/css" href="core.css">
+  </head>
+  <body>
+    <header>
+      <h1>Metrics</h1>
+
+      <div id="metadata" class="metadata">
+        <div id="status">Waiting for local data&hellip;</div>
+      </div>
+    </header>
+
+    <main>
+      <template id="metric-template">
+        <div class="metric-wrapper">
+          <div class="metric">
+            <div class="metric-name">Metric Name</div>
+
+            <div class="metric-performance metadata">
+              <div class="metric-performance-local">
+                <div class="metric-performance-local-value-wrapper">
+                  <div class="metric-performance-local-value">Waiting&hellip;</div>
+                  <div class="info hidden" title="">
+                    <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+                      <path d="M10 1.66669C5.4 1.66669 1.66666 5.40002 1.66666 10C1.66666 14.6 5.4 18.3334 10 18.3334C14.6 18.3334 18.3333 14.6 18.3333 10C18.3333 5.40002 14.6 1.66669 10 1.66669ZM10.8333 14.1667H9.16666V9.16669H10.8333V14.1667ZM10.8333 7.50002H9.16666V5.83335H10.8333V7.50002Z"/>
+                    </svg>
+                  </div>
+                </div>
+              </div>
+
+              <div class="metric-performance-distribution">
+                <div class="metric-performance-distribution-rating good">&nbsp;</div>
+                <div class="metric-performance-distribution-rating needs-improvement"></div>
+                <div class="metric-performance-distribution-rating poor"></div>
+              </div>
+
+              <div class="hovercard"></div>
+            </div>
           </div>
         </div>
-        <!-- End Lighthouse report -->
+      </template>
+    </main>
 
-        <!-- PageSpeed Insights -->
-        <div id="mainPopup">
-          <p id="report"></p>
-        </div>
-</body>
+    <footer class="metadata">
+      <div id="device-page-wrapper">
+        <span class="device-icon">
+          <svg id="device-icon-desktop" width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg" aria-label="Desktop field data">
+            <title>Desktop field data</title>
+            <path fill-rule="evenodd" clip-rule="evenodd" d="M3 4H13V10H3L3 4ZM2 4C2 3.44772 2.44772 3 3 3H13C13.5523 3 14 3.44772 14 4V10C14 10.5523 13.5523 11 13 11H3C2.44772 11 2 10.5523 2 10V4ZM16 12H0V13H16V12Z"/>
+          </svg>
+          <svg id="device-icon-phone" width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg" aria-label="Phone field data">
+            <title>Phone field data</title>
+            <path fill-rule="evenodd" clip-rule="evenodd" d="M11 2H5V3H11V2ZM4 3V4V12V13V14C4 14.5523 4.44772 15 5 15H11C11.5523 15 12 14.5523 12 14V13V12V4V3V2C12 1.44772 11.5523 1 11 1H5C4.44772 1 4 1.44772 4 2V3ZM11 12V4H5V12H11ZM5 13V14H11V13H5Z"/>
+          </svg>
+        </span>
+        <span id="page"></span>
+      </div>
 
+      <div>
+        <span id="timestamp"></span>
+        <span id="mobile-warning">
+          Mobile performance may be significantly slower.
+          <a href="https://web.dev/load-fast-enough-for-pwa/" target="_blank" rel="noopener">Learn more</a>
+        </span>
+      </div>
+    </footer>
+
+    <script type="module" src="popup.js"></script>
+  </body>
 </html>

@@ -13,14 +13,19 @@
         <div class="lh-audit__header lh-expandable-details__summary">
             <span class="lh-audit__score-icon"></span>
             <span class="lh-audit__title-and-text">
-                <label>
+                <label for="overlay">
                     <input type="checkbox" id="overlay">
                     Display HUD overlay
                 </label>
                 <br/>
-                <label>
+                <label for="consoleLogging">
                     <input type="checkbox" id="consoleLogging">
                     Console Logging
+                </label>
+                <br/>
+                <label for="preferPhoneField">
+                    <input type="checkbox" id="preferPhoneField">
+                    Compare local experiences to phone field data
                 </label>
                 <div id="status"></div>
                 <button id="save">Save</button>
