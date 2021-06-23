@@ -1,8 +1,8 @@
-# Web Vitals Chrome Extension (alpha)
+# Web Vitals Chrome Extension 
 *A Chrome extension to measure metrics for a healthy site* 
 [Install now](https://chrome.google.com/webstore/detail/web-vitals/ahfhijdlegdabablpippeagghigmibma)
 
-<img src="media/cwv-extension-screenshot.png">
+<img src="media/cwv-extension-drilldown.png">
 
 This extension measures the three [Core Web Vitals](https://web.dev/vitals) metrics in a way that matches how they're measured by Chrome and reported to other Google tools (e.g. [Chrome User Experience Report](https://developers.google.com/web/tools/chrome-user-experience-report), [Page Speed Insights](https://developers.google.com/speed/pagespeed/insights/), [Search Console](https://search.google.com/search-console/about)).
 
@@ -47,13 +47,15 @@ If one or more metrics are failing, the badge will animate the values of these m
 
 ### Detailed drill-down
 
-<img src="media/cwv-extension-drilldown.png" width="75%">
+<img src="media/cwv-extension-drilldown-2.png" width="75%">
 
 Clicking the Ambient badge icon will allow you to drill in to the individual metric values. In this mode, the extension will also say if a metric value `might change` or requires a user action.
 
 For example, First Input Delay requires a real interaction (e.g click/tap) with the page and will be in a `waiting for input` state until this is the case. We recommend consulting the web.dev documentation for [LCP](https://web.dev/lcp), [CLS](https://web.dev/cls) and [FID](https://web.dev/fid) to get an understanding of when metric values settle.
 
 As of version 1.0.0, the popup combines your local Core Web Vitals experiences with real-user data from the field via the [Chrome UX Report](https://developers.google.com/web/tools/chrome-user-experience-report) (CrUX) [API](https://developers.google.com/web/tools/chrome-user-experience-report/api/reference). This integration gives you contextual insights to help you understand how similar your individual experiences are to other desktop users on the same page. We've also added a new option to "Compare local experiences to phone field data" instead, if needed. Note that CrUX data may not be available for some pages, in which case we try to load field data for the origin as a whole.
+
+<img src="media/cwv-extension-screenshot.png" width="75%">
 
 ### Overlay
 
