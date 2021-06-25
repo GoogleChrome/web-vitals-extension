@@ -12,7 +12,7 @@
 */
 
 (async () => {
-  const src = chrome.runtime.getURL('node_modules/web-vitals/dist/web-vitals.js');
+  const src = chrome.runtime.getURL('src/browser_action/web-vitals.js');
   const webVitals = await import(src);
   let overlayClosedForSession = false;
   let latestCLS = {};
