@@ -61,17 +61,17 @@ class Popup {
   initMetrics() {
     this.metrics.lcp = new LCP({
       local: this._metrics.lcp.value,
-      finalized: this._metrics.lcp.final,
+      finalized: this._metrics.lcp.final !== false,
       background: this.background
     });
     this.metrics.fid = new FID({
       local: this._metrics.fid.value,
-      finalized: this._metrics.fid.final,
+      finalized: this._metrics.fid.final !== false,
       background: this.background
     });
     this.metrics.cls = new CLS({
       local: this._metrics.cls.value,
-      finalized: this._metrics.cls.final,
+      finalized: this._metrics.cls.final !== false,
       background: this.background
     });
 
