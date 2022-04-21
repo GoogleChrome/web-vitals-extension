@@ -17,10 +17,12 @@
   let overlayClosedForSession = false;
   let latestCLS = {};
   let enableLogging = localStorage.getItem('web-vitals-extension-debug')=='TRUE';
+  let enableUserTiming = localStorage.getItem('web-vitals-extension-user-timing')=='TRUE';
 
   // Core Web Vitals thresholds
   const LCP_THRESHOLD = 2500;
   const FID_THRESHOLD = 100;
+  const INP_THRESHOLD = 200;
   const CLS_THRESHOLD = 0.1;
 
   // CLS update frequency
@@ -30,17 +32,18 @@
   badgeMetrics = {
     lcp: {
       value: 0,
-      final: false,
       pass: true,
     },
     cls: {
       value: 0,
-      final: false,
       pass: true,
     },
     fid: {
       value: 0,
-      final: false,
+      pass: true,
+    },
+    inp: {
+      value: 0,
       pass: true,
     },
   };
@@ -62,6 +65,10 @@
     if (metrics.fid.value > FID_THRESHOLD) {
       overallScore = 'POOR';
       metrics.fid.pass = false;
+    }
+    if (metrics.inp.value > INP_THRESHOLD) {
+      overallScore = 'POOR';
+      metrics.inp.pass = false;
     }
     if (metrics.cls.value > CLS_THRESHOLD) {
       overallScore = 'POOR';
@@ -89,8 +96,9 @@
     chrome.storage.sync.get({
       enableOverlay: false,
       debug: false,
+      userTiming: false,
     }, ({
-      enableOverlay, debug,
+      enableOverlay, debug, userTiming,
     }) => {
       if (enableOverlay === true && overlayClosedForSession == false) {
         // Overlay
@@ -133,6 +141,13 @@
         localStorage.removeItem('web-vitals-extension-debug');
         enableLogging = false;
       }
+      if (debug) {
+        localStorage.setItem('web-vitals-extension-user-timing', 'TRUE');
+        enableUserTiming = true;
+      } else {
+        localStorage.removeItem('web-vitals-extension-user-timing');
+        enableUserTiming = false;
+      }
     });
   }
 
@@ -171,8 +186,10 @@
     if (enableLogging) {
       console.log('[Web Vitals]', body.name, body.value.toFixed(2), body);
     }
+    if (enableUserTiming) {
+      addUserTimings(body);
+    }
     badgeMetrics[metricName].value = body.value;
-    badgeMetrics[metricName].final = body.isFinal;
     badgeMetrics.location = getURL();
     badgeMetrics.timestamp = getTimestamp();
     const passes = scoreBadgeMetrics(badgeMetrics);
@@ -184,6 +201,62 @@
         },
         (response) => drawOverlay(badgeMetrics, response.tabId), // TODO: Once the metrics are final, cache locally.
     );
+  }
+
+  function addUserTimings(metric) {
+    switch (metric.name) {
+      case "LCP": {
+        // LCP has a loadTime/renderTime (startTime), but not a duration.
+        // Could visualize relative to timeOrigin, or from loadTime -> renderTime.
+        // Skip for now.
+      }
+      break;
+      case "CLS": {
+        // CLS has a startTime, but not a duration.
+        // Could visualize the time between rendering tasks (Commit-to-Commit).
+        // Skip for now.
+      }
+      break;
+      case "INP": {
+        if (metric.entries.length > 0) {
+          const inpEntry = metric.entries[0];
+
+          // RenderTime is an estimate, because duration is rounded, and may get rounded keydown
+          // In rare cases it can be less than processingEnd and that breaks performance.measure().
+          // Lets make sure its at least 4ms in those cases so you can just barely see it.
+          const presentationTime = inpEntry.startTime + inpEntry.duration;
+          const adjustedPresentationTime = Math.max(inpEntry.processingEnd + 4, presentationTime);
+
+          performance.measure(`[Web Vitals Extension] INP.duration (${inpEntry.name})`, {
+            start: inpEntry.startTime,
+            end: presentationTime,
+          });
+          performance.measure(`[Web Vitals Extension] INP.inputDelay (${inpEntry.name})`, {
+            start: inpEntry.startTime,
+            end: inpEntry.processingStart,
+          });
+          performance.measure(`[Web Vitals Extension] INP.processingTime (${inpEntry.name})`, {
+            start: inpEntry.processingStart,
+            end: inpEntry.processingEnd,
+          });
+          performance.measure(`[Web Vitals Extension] INP.presentationDelay (${inpEntry.name})`, {
+            start: inpEntry.processingEnd,
+            end: adjustedPresentationTime,
+          });
+        }
+      }
+      break;
+      case "FID": {
+        if (metric.entries.length > 0) {
+          const fidEntry = metric.entries[0]
+          performance.measure(`[Web Vitals Extension] FID (${fidEntry.name})`, {
+            start: fidEntry.startTime,
+            end: fidEntry.processingStart,
+          });
+        }
+
+      }
+    }
   }
 
   /**
@@ -200,7 +273,7 @@
  * the wait timeout.
  */
   let debouncedCLSBroadcast = () => {};
-  if (_ !== undefined) {
+  if (typeof _ !== 'undefined') {
     debouncedCLSBroadcast = _.debounce(broadcastCLS, DEBOUNCE_DELAY, {
       leading: true,
       trailing: true,
@@ -230,6 +303,9 @@
     webVitals.getFID((metric) => {
       broadcastMetricsUpdates('fid', metric);
     }, true);
+    webVitals.getINP((metric) => {
+      broadcastMetricsUpdates('inp', metric);
+    }, true);
   }
 
   /**
@@ -253,7 +329,7 @@
             <div>
               <span class="lh-metric__title">
                 Largest Contentful Paint${' '}
-                  <span class="lh-metric-state">${metrics.lcp.final ? '' : '(might change)'}</span></span>
+                  <span class="lh-metric-state">(might change)</span></span>
                   ${tabLoadedInBackground ? '<span class="lh-metric__subtitle">Value inflated as tab was loaded in background</span>' : ''}
             </div>
             <div class="lh-metric__value">${(metrics.lcp.value/1000).toFixed(2)}&nbsp;s</div>
@@ -263,15 +339,23 @@
           <div class="lh-metric__innerwrap">
             <span class="lh-metric__title">
               First Input Delay${' '}
-                <span class="lh-metric-state">${metrics.fid.final ? '' : '(waiting for input)'}</span></span>
-            <div class="lh-metric__value">${metrics.fid.final ? `${metrics.fid.value.toFixed(2)}&nbsp;ms` : ''}</div>
+                <span class="lh-metric-state"></span></span>
+            <div class="lh-metric__value">${metrics.fid.value.toFixed(2)}&nbsp;ms</div>
           </div>
         </div>
+        <div class="lh-metric lh-metric--${metrics.inp.pass ? 'pass':'fail'}">
+        <div class="lh-metric__innerwrap">
+          <span class="lh-metric__title">
+            Interaction to Next Paint${' '}
+              <span class="lh-metric-state">(might change)</span></span>
+          <div class="lh-metric__value">${metrics.inp.value.toFixed(2)}&nbsp;ms</div>
+        </div>
+      </div>
         <div class="lh-metric lh-metric--${metrics.cls.pass ? 'pass':'fail'}">
           <div class="lh-metric__innerwrap">
             <span class="lh-metric__title">
               Cumulative Layout Shift${' '}
-                <span class="lh-metric-state">${metrics.cls.final ? '' : '(might change)'}</span></span>
+                <span class="lh-metric-state">(might change)</span></span>
             <div class="lh-metric__value">${metrics.cls.value.toFixed(3)}&nbsp;</div>
           </div>
         </div>

@@ -140,6 +140,7 @@ export class Metric {
     const nameMap = {
       'largest_contentful_paint': 'lcp',
       'first_input_delay': 'fid',
+      'interaction_to_next_paint': 'inp',
       'cumulative_layout_shift': 'cls',
       'first_contentful_paint': 'fcp'
     };
@@ -200,6 +201,45 @@ export class FID extends Metric {
     super({
       id: 'fid',
       name: 'First Input Delay',
+      local,
+      finalized,
+      background,
+      thresholds
+    });
+  }
+
+  formatValue(value) {
+    if (!this.finalized) {
+      return 'Waiting for input…';
+    }
+
+    return this.toLocaleFixed({
+      value,
+      unit: 'millisecond'
+    });
+  }
+
+  getAssessmentIndex(value) {
+    if (!this.finalized) {
+      return;
+    }
+
+    return super.getAssessmentIndex(value);
+  }
+
+}
+
+export class INP extends Metric {
+
+  constructor({local, finalized, background}) {
+    const thresholds = {
+      good: 200,
+      poor: 500
+    };
+
+    super({
+      id: 'inp',
+      name: 'Interaction to Next Paint',
       local,
       finalized,
       background,

@@ -14,6 +14,7 @@
 // Core Web Vitals thresholds
 const LCP_THRESHOLD = 2500;
 const FID_THRESHOLD = 100;
+const INP_THRESHOLD = 200;
 const CLS_THRESHOLD = 0.1;
 
 /**
@@ -144,6 +145,9 @@ function badgeMetric(metric, value, tabid) {
     if (metric === 'fid' && value <= FID_THRESHOLD) {
       return;
     }
+    if (metric === 'inp' && value <= INP_THRESHOLD) {
+      return;
+    }
 
     switch (metric) {
       case 'lcp':
@@ -188,6 +192,20 @@ function badgeMetric(metric, value, tabid) {
           tabId: currentTab,
         });
         break;
+      case 'inp':
+          chrome.browserAction.setIcon({
+            path: '../../icons/slow128w-fid.png', // TODO: make an icon for INP
+            tabId: currentTab,
+          });
+          chrome.browserAction.setBadgeBackgroundColor({
+            color: bgColor,
+            tabId: currentTab,
+          });
+          chrome.browserAction.setBadgeText({
+            text: value.toFixed(2),
+            tabId: currentTab,
+          });
+          break;
       default:
         chrome.browserAction.setIcon({
           path: '../../icons/default128w.png',
@@ -254,6 +272,10 @@ async function animateBadges(request, tabId) {
     await wait(delay);
     if (animationsByTabId.get(tabId) !== animationId) return;
     badgeMetric('fid', request.metrics.fid.value, tabId);
+
+    await wait(delay);
+    if (animationsByTabId.get(tabId) !== animationId) return;
+    badgeMetric('inp', request.metrics.inp.value, tabId);
 
     await wait(delay);
     if (animationsByTabId.get(tabId) !== animationId) return;
