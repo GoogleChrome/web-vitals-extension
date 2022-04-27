@@ -1,5 +1,6 @@
 const optionsOverlayNode = document.getElementById('overlay');
 const optionsConsoleLoggingNode = document.getElementById('consoleLogging');
+const optionsUserTimingNode = document.getElementById('userTiming');
 const optionsPreferPhoneFieldNode = document.getElementById('preferPhoneField');
 const optionsSaveBtn = document.getElementById('save');
 const optionsStatus = document.getElementById('status');
@@ -11,6 +12,7 @@ function saveOptions() {
   chrome.storage.sync.set({
     enableOverlay: optionsOverlayNode.checked,
     debug: optionsConsoleLoggingNode.checked,
+    userTiming: optionsUserTimingNode.checked,
     preferPhoneField: optionsPreferPhoneFieldNode.checked,
   }, () => {
     // Update status to let user know options were saved.
@@ -29,10 +31,12 @@ function restoreOptions() {
   chrome.storage.sync.get({
     enableOverlay: false,
     debug: false,
+    userTiming: false,
     preferPhoneField: false,
-  }, ({enableOverlay, debug, preferPhoneField}) => {
+  }, ({enableOverlay, debug, userTiming, preferPhoneField}) => {
     optionsOverlayNode.checked = enableOverlay;
     optionsConsoleLoggingNode.checked = debug;
+    optionsUserTimingNode.checked = userTiming;
     optionsPreferPhoneFieldNode.checked = preferPhoneField;
   });
 }
