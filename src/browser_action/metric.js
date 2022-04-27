@@ -140,7 +140,7 @@ export class Metric {
     const nameMap = {
       'largest_contentful_paint': 'lcp',
       'first_input_delay': 'fid',
-      'interaction_to_next_paint': 'inp',
+      'experimental_interaction_to_next_paint': 'inp',
       'cumulative_layout_shift': 'cls',
       'first_contentful_paint': 'fcp'
     };
