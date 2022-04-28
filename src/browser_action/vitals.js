@@ -30,19 +30,19 @@
   // Registry for badge metrics
   badgeMetrics = {
     lcp: {
-      value: 0,
+      value: null,
       pass: true,
     },
     cls: {
-      value: 0,
+      value: null,
       pass: true,
     },
     fid: {
-      value: 0,
+      value: null,
       pass: true,
     },
     inp: {
-      value: 0,
+      value: null,
       pass: true,
     },
   };
@@ -263,25 +263,25 @@
               <span class="lh-metric__title">Largest Contentful Paint</span>
               ${tabLoadedInBackground ? '<span class="lh-metric__subtitle">Value inflated as tab was loaded in background</span>' : ''}
             </div>
-            <div class="lh-metric__value">${(metrics.lcp.value/1000).toFixed(2)}&nbsp;s</div>
+            <div class="lh-metric__value">${((metrics.lcp.value || 0)/1000).toFixed(2)}&nbsp;s</div>
           </div>
         </div>
         <div class="lh-metric lh-metric--${metrics.fid.pass ? 'pass':'fail'}">
           <div class="lh-metric__innerwrap">
             <span class="lh-metric__title">First Input Delay</span>
-            <div class="lh-metric__value">${metrics.fid.value.toFixed(2)}&nbsp;ms</div>
+            <div class="lh-metric__value">${(metrics.fid.value || 0).toFixed(2)}&nbsp;ms</div>
           </div>
         </div>
-        <div class="lh-metric lh-metric--${metrics.inp.pass ? 'pass':'fail'}">
-        <div class="lh-metric__innerwrap">
-          <span class="lh-metric__title">Interaction to Next Paint</span>
-          <div class="lh-metric__value">${metrics.inp.value.toFixed(2)}&nbsp;ms</div>
-        </div>
-      </div>
         <div class="lh-metric lh-metric--${metrics.cls.pass ? 'pass':'fail'}">
           <div class="lh-metric__innerwrap">
             <span class="lh-metric__title">Cumulative Layout Shift</span>
-            <div class="lh-metric__value">${metrics.cls.value.toFixed(3)}&nbsp;</div>
+            <div class="lh-metric__value">${(metrics.cls.value || 0).toFixed(3)}&nbsp;</div>
+          </div>
+        </div>
+        <div class="lh-metric lh-metric--${metrics.inp.pass ? 'pass':'fail'}">
+          <div class="lh-metric__innerwrap">
+            <span class="lh-metric__title">Interaction to Next Paint*</span>
+            <div class="lh-metric__value">${(metrics.inp.value || 0).toFixed(2)}&nbsp;ms</div>
           </div>
         </div>
       </div>

@@ -61,22 +61,18 @@ class Popup {
   initMetrics() {
     this.metrics.lcp = new LCP({
       local: this._metrics.lcp.value,
-      finalized: this._metrics.lcp.final !== false,
       background: this.background
     });
     this.metrics.fid = new FID({
       local: this._metrics.fid.value,
-      finalized: this._metrics.fid.final !== false,
-      background: this.background
-    });
-    this.metrics.inp = new INP({
-      local: this._metrics.inp.value,
-      finalized: this._metrics.inp.final !== false,
       background: this.background
     });
     this.metrics.cls = new CLS({
       local: this._metrics.cls.value,
-      finalized: this._metrics.cls.final !== false,
+      background: this.background
+    });
+    this.metrics.inp = new INP({
+      local: this._metrics.inp.value,
       background: this.background
     });
 
@@ -152,8 +148,9 @@ class Popup {
     local.style.marginLeft = metric.getRelativePosition(metric.local);
     localValue.innerText = metric.formatValue(metric.local);
     metricElement.classList.toggle(assessment, !!assessment);
+    metricElement.classList.toggle('experimental-metric', metric.experimental);
     infoElement.title = info;
-    infoElement.classList.toggle('hidden', info == '')
+    infoElement.classList.toggle('hidden', info == '');
 
     template.parentElement.appendChild(fragment);
 

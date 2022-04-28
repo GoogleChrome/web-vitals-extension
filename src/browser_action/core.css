@@ -118,7 +118,7 @@
 
 .web-vitals-chrome-extension-popup .metric {
   display: grid;
-  grid-template-areas: "metric-name metric-performance";
+  grid-template-areas: "metric-info metric-performance";
   grid-template-columns: 1fr 2fr;
   column-gap: 4.17rem;
   align-items: center;
@@ -129,10 +129,27 @@
   border-bottom: none;
 }
 
+.web-vitals-chrome-extension-popup .metric-info {
+  display: flex;
+  align-items: baseline;
+  grid-area: metric-info;
+}
+
 .web-vitals-chrome-extension-popup .metric-name {
-  grid-area: metric-name;
+  display: inline-block;
   font-size: 1.17rem;
   line-height: 1.67rem;
+  white-space: nowrap;
+}
+
+.web-vitals-chrome-extension-popup .experimental-icon {
+  display: none;
+  fill: #06f;
+  vertical-align: middle;
+  margin-inline-start: 0.2rem;
+}
+.web-vitals-chrome-extension-popup .experimental-metric .experimental-icon {
+  display: inline-block;
 }
 
 .web-vitals-chrome-extension-popup .metric-performance {
