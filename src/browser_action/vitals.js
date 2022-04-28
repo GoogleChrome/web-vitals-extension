@@ -66,7 +66,8 @@
       metrics.fid.pass = false;
     }
     if (metrics.inp.value > INP_THRESHOLD) {
-      overallScore = 'POOR';
+      // INP does not affect overall score for now
+      // overallScore = 'POOR';
       metrics.inp.pass = false;
     }
     if (metrics.cls.value > CLS_THRESHOLD) {
