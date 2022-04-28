@@ -67,7 +67,8 @@
       metrics.fid.pass = false;
     }
     if (metrics.inp.value > INP_THRESHOLD) {
-      overallScore = 'POOR';
+      // INP does not affect overall score for now
+      // overallScore = 'POOR';
       metrics.inp.pass = false;
     }
     if (metrics.cls.value > CLS_THRESHOLD) {
@@ -327,35 +328,27 @@
         <div class="lh-metric lh-metric--${metrics.lcp.pass ? 'pass':'fail'}">
           <div class="lh-metric__innerwrap">
             <div>
-              <span class="lh-metric__title">
-                Largest Contentful Paint${' '}
-                  <span class="lh-metric-state">(might change)</span></span>
-                  ${tabLoadedInBackground ? '<span class="lh-metric__subtitle">Value inflated as tab was loaded in background</span>' : ''}
+              <span class="lh-metric__title">Largest Contentful Paint</span>
+              ${tabLoadedInBackground ? '<span class="lh-metric__subtitle">Value inflated as tab was loaded in background</span>' : ''}
             </div>
             <div class="lh-metric__value">${(metrics.lcp.value/1000).toFixed(2)}&nbsp;s</div>
           </div>
         </div>
         <div class="lh-metric lh-metric--${metrics.fid.pass ? 'pass':'fail'}">
           <div class="lh-metric__innerwrap">
-            <span class="lh-metric__title">
-              First Input Delay${' '}
-                <span class="lh-metric-state"></span></span>
+            <span class="lh-metric__title">First Input Delay</span>
             <div class="lh-metric__value">${metrics.fid.value.toFixed(2)}&nbsp;ms</div>
           </div>
         </div>
         <div class="lh-metric lh-metric--${metrics.inp.pass ? 'pass':'fail'}">
         <div class="lh-metric__innerwrap">
-          <span class="lh-metric__title">
-            Interaction to Next Paint${' '}
-              <span class="lh-metric-state">(might change)</span></span>
+          <span class="lh-metric__title">Interaction to Next Paint</span>
           <div class="lh-metric__value">${metrics.inp.value.toFixed(2)}&nbsp;ms</div>
         </div>
       </div>
         <div class="lh-metric lh-metric--${metrics.cls.pass ? 'pass':'fail'}">
           <div class="lh-metric__innerwrap">
-            <span class="lh-metric__title">
-              Cumulative Layout Shift${' '}
-                <span class="lh-metric-state">(might change)</span></span>
+            <span class="lh-metric__title">Cumulative Layout Shift</span>
             <div class="lh-metric__value">${metrics.cls.value.toFixed(3)}&nbsp;</div>
           </div>
         </div>
