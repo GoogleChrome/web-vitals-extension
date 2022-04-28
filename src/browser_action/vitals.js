@@ -21,6 +21,7 @@
   // Core Web Vitals thresholds
   const LCP_THRESHOLD = 2500;
   const FID_THRESHOLD = 100;
+  const INP_THRESHOLD = 200;
   const CLS_THRESHOLD = 0.1;
 
   // CLS update frequency
@@ -30,17 +31,18 @@
   badgeMetrics = {
     lcp: {
       value: 0,
-      final: false,
       pass: true,
     },
     cls: {
       value: 0,
-      final: false,
       pass: true,
     },
     fid: {
       value: 0,
-      final: false,
+      pass: true,
+    },
+    inp: {
+      value: 0,
       pass: true,
     },
   };
@@ -62,6 +64,11 @@
     if (metrics.fid.value > FID_THRESHOLD) {
       overallScore = 'POOR';
       metrics.fid.pass = false;
+    }
+    if (metrics.inp.value > INP_THRESHOLD) {
+      // INP does not affect overall score for now
+      // overallScore = 'POOR';
+      metrics.inp.pass = false;
     }
     if (metrics.cls.value > CLS_THRESHOLD) {
       overallScore = 'POOR';
@@ -172,7 +179,6 @@
       console.log('[Web Vitals]', body.name, body.value.toFixed(2), body);
     }
     badgeMetrics[metricName].value = body.value;
-    badgeMetrics[metricName].final = body.isFinal;
     badgeMetrics.location = getURL();
     badgeMetrics.timestamp = getTimestamp();
     const passes = scoreBadgeMetrics(badgeMetrics);
@@ -200,7 +206,7 @@
  * the wait timeout.
  */
   let debouncedCLSBroadcast = () => {};
-  if (_ !== undefined) {
+  if (typeof _ !== 'undefined') {
     debouncedCLSBroadcast = _.debounce(broadcastCLS, DEBOUNCE_DELAY, {
       leading: true,
       trailing: true,
@@ -230,6 +236,9 @@
     webVitals.getFID((metric) => {
       broadcastMetricsUpdates('fid', metric);
     }, true);
+    webVitals.getINP((metric) => {
+      broadcastMetricsUpdates('inp', metric);
+    }, true);
   }
 
   /**
@@ -251,27 +260,27 @@
         <div class="lh-metric lh-metric--${metrics.lcp.pass ? 'pass':'fail'}">
           <div class="lh-metric__innerwrap">
             <div>
-              <span class="lh-metric__title">
-                Largest Contentful Paint${' '}
-                  <span class="lh-metric-state">${metrics.lcp.final ? '' : '(might change)'}</span></span>
-                  ${tabLoadedInBackground ? '<span class="lh-metric__subtitle">Value inflated as tab was loaded in background</span>' : ''}
+              <span class="lh-metric__title">Largest Contentful Paint</span>
+              ${tabLoadedInBackground ? '<span class="lh-metric__subtitle">Value inflated as tab was loaded in background</span>' : ''}
             </div>
             <div class="lh-metric__value">${(metrics.lcp.value/1000).toFixed(2)}&nbsp;s</div>
           </div>
         </div>
         <div class="lh-metric lh-metric--${metrics.fid.pass ? 'pass':'fail'}">
           <div class="lh-metric__innerwrap">
-            <span class="lh-metric__title">
-              First Input Delay${' '}
-                <span class="lh-metric-state">${metrics.fid.final ? '' : '(waiting for input)'}</span></span>
-            <div class="lh-metric__value">${metrics.fid.final ? `${metrics.fid.value.toFixed(2)}&nbsp;ms` : ''}</div>
+            <span class="lh-metric__title">First Input Delay</span>
+            <div class="lh-metric__value">${metrics.fid.value.toFixed(2)}&nbsp;ms</div>
           </div>
         </div>
+        <div class="lh-metric lh-metric--${metrics.inp.pass ? 'pass':'fail'}">
+        <div class="lh-metric__innerwrap">
+          <span class="lh-metric__title">Interaction to Next Paint</span>
+          <div class="lh-metric__value">${metrics.inp.value.toFixed(2)}&nbsp;ms</div>
+        </div>
+      </div>
         <div class="lh-metric lh-metric--${metrics.cls.pass ? 'pass':'fail'}">
           <div class="lh-metric__innerwrap">
-            <span class="lh-metric__title">
-              Cumulative Layout Shift${' '}
-                <span class="lh-metric-state">${metrics.cls.final ? '' : '(might change)'}</span></span>
+            <span class="lh-metric__title">Cumulative Layout Shift</span>
             <div class="lh-metric__value">${metrics.cls.value.toFixed(3)}&nbsp;</div>
           </div>
         </div>

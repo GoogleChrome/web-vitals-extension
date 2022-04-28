@@ -14,6 +14,7 @@
 // Core Web Vitals thresholds
 const LCP_THRESHOLD = 2500;
 const FID_THRESHOLD = 100;
+const INP_THRESHOLD = 200;
 const CLS_THRESHOLD = 0.1;
 
 /**

@@ -13,7 +13,7 @@
 
 import { loadLocalMetrics, getOptions } from './chrome.js';
 import { CrUX } from './crux.js';
-import { LCP, FID, CLS } from './metric.js';
+import { LCP, FID, INP,  CLS } from './metric.js';
 
 
 class Popup {
@@ -67,6 +67,11 @@ class Popup {
     this.metrics.fid = new FID({
       local: this._metrics.fid.value,
       finalized: this._metrics.fid.final !== false,
+      background: this.background
+    });
+    this.metrics.inp = new INP({
+      local: this._metrics.inp.value,
+      finalized: this._metrics.inp.final !== false,
       background: this.background
     });
     this.metrics.cls = new CLS({
