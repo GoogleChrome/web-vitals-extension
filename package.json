@@ -20,6 +20,6 @@
     "eslint-config-google": "^0.14.0"
   },
   "dependencies": {
-    "web-vitals": "^2.0.1"
+    "web-vitals": "^3.0.0-beta.0"
   }
 }
