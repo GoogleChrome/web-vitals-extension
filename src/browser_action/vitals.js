@@ -210,15 +210,13 @@
         // LCP has a loadTime/renderTime (startTime), but not a duration.
         // Could visualize relative to timeOrigin, or from loadTime -> renderTime.
         // Skip for now.
-      }
-      break;
-      case "CLS": {
+        break;
+      case "CLS":
         // CLS has a startTime, but not a duration.
         // Could visualize the time between rendering tasks (Commit-to-Commit).
         // Skip for now.
-      }
-      break;
-      case "INP": {
+        break;
+      case "INP":
         if (metric.entries.length > 0) {
           const inpEntry = metric.entries[0];
 
@@ -236,18 +234,17 @@
             start: inpEntry.startTime,
             end: inpEntry.processingStart,
           });
-          performance.measure(`[Web Vitals Extension] INP.processingTime (${inpEntry.name})`, {
+          performance.measure(`[Web Vitals] INP.processingTime (${inpEntry.name})`, {
             start: inpEntry.processingStart,
             end: inpEntry.processingEnd,
           });
-          performance.measure(`[Web Vitals Extension] INP.presentationDelay (${inpEntry.name})`, {
+          performance.measure(`[Web Vitals] INP.presentationDelay (${inpEntry.name})`, {
             start: inpEntry.processingEnd,
             end: adjustedPresentationTime,
           });
         }
-      }
-      break;
-      case "FID": {
+        break;
+      case "FID":
         if (metric.entries.length > 0) {
           const fidEntry = metric.entries[0]
           performance.measure(`[Web Vitals Extension] FID (${fidEntry.name})`, {
@@ -255,8 +252,6 @@
             end: fidEntry.processingStart,
           });
         }
-
-      }
     }
   }
 
