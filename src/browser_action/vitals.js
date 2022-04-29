@@ -61,18 +61,17 @@
       overallScore = 'POOR';
       metrics.lcp.pass = false;
     }
+    if (metrics.cls.value > CLS_THRESHOLD) {
+      overallScore = 'POOR';
+      metrics.cls.pass = false;
+    }
     if (metrics.fid.value > FID_THRESHOLD) {
       overallScore = 'POOR';
       metrics.fid.pass = false;
     }
     if (metrics.inp.value > INP_THRESHOLD) {
-      // INP does not affect overall score for now
-      // overallScore = 'POOR';
+      // INP does not affect overall score
       metrics.inp.pass = false;
-    }
-    if (metrics.cls.value > CLS_THRESHOLD) {
-      overallScore = 'POOR';
-      metrics.cls.pass = false;
     }
     return overallScore;
   }
@@ -266,22 +265,34 @@
             <div class="lh-metric__value">${((metrics.lcp.value || 0)/1000).toFixed(2)}&nbsp;s</div>
           </div>
         </div>
-        <div class="lh-metric lh-metric--${metrics.fid.pass ? 'pass':'fail'}">
-          <div class="lh-metric__innerwrap">
-            <span class="lh-metric__title">First Input Delay</span>
-            <div class="lh-metric__value">${(metrics.fid.value || 0).toFixed(2)}&nbsp;ms</div>
-          </div>
-        </div>
         <div class="lh-metric lh-metric--${metrics.cls.pass ? 'pass':'fail'}">
           <div class="lh-metric__innerwrap">
             <span class="lh-metric__title">Cumulative Layout Shift</span>
-            <div class="lh-metric__value">${(metrics.cls.value || 0).toFixed(3)}&nbsp;</div>
+            <div class="lh-metric__value">${(metrics.cls.value || 0).toFixed(3)}</div>
+          </div>
+        </div>
+        <div class="lh-metric lh-metric--${metrics.fid.pass ? 'pass':'fail'}">
+          <div class="lh-metric__innerwrap">
+            <span class="lh-metric__title">
+              First Input Delay
+              <span class="lh-metric-state">${metrics.fid.value === null ? '(waiting for input)' : ''}</span>
+            </span>
+            <div class="lh-metric__value">${
+              metrics.fid.value === null ? '' :
+              `${metrics.fid.value.toFixed(2)}&nbsp;ms`
+            }</div>
           </div>
         </div>
         <div class="lh-metric lh-metric--${metrics.inp.pass ? 'pass':'fail'}">
           <div class="lh-metric__innerwrap">
-            <span class="lh-metric__title">Interaction to Next Paint*</span>
-            <div class="lh-metric__value">${(metrics.inp.value || 0).toFixed(2)}&nbsp;ms</div>
+            <span class="lh-metric__title">
+              Interaction to Next Paint*
+              <span class="lh-metric-state">${metrics.inp.value === null ? '(waiting for input)' : ''}</span>
+            </span>
+            <div class="lh-metric__value">${
+              metrics.inp.value === null ? '' :
+              `${metrics.inp.value.toFixed(2)}&nbsp;ms`
+            }</div>
           </div>
         </div>
       </div>

@@ -63,12 +63,12 @@ class Popup {
       local: this._metrics.lcp.value,
       background: this.background
     });
-    this.metrics.fid = new FID({
-      local: this._metrics.fid.value,
-      background: this.background
-    });
     this.metrics.cls = new CLS({
       local: this._metrics.cls.value,
+      background: this.background
+    });
+    this.metrics.fid = new FID({
+      local: this._metrics.fid.value,
       background: this.background
     });
     this.metrics.inp = new INP({

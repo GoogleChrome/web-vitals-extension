@@ -1707,6 +1707,7 @@
 }
 
 .web-vitals-chrome-extension .lh-overlay .lh-metric-state {
+  white-space: nowrap;
   color: var(--color-informative);
 }
 
