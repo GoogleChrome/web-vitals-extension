@@ -17,6 +17,7 @@
   let overlayClosedForSession = false;
   let latestCLS = {};
   let enableLogging = localStorage.getItem('web-vitals-extension-debug')=='TRUE';
+  let enableUserTiming = localStorage.getItem('web-vitals-extension-user-timing')=='TRUE';
 
   // Core Web Vitals thresholds
   const LCP_THRESHOLD = 2500;
@@ -95,8 +96,9 @@
     chrome.storage.sync.get({
       enableOverlay: false,
       debug: false,
+      userTiming: false,
     }, ({
-      enableOverlay, debug,
+      enableOverlay, debug, userTiming,
     }) => {
       if (enableOverlay === true && overlayClosedForSession == false) {
         // Overlay
@@ -139,6 +141,13 @@
         localStorage.removeItem('web-vitals-extension-debug');
         enableLogging = false;
       }
+      if (debug) {
+        localStorage.setItem('web-vitals-extension-user-timing', 'TRUE');
+        enableUserTiming = true;
+      } else {
+        localStorage.removeItem('web-vitals-extension-user-timing');
+        enableUserTiming = false;
+      }
     });
   }
 
@@ -177,6 +186,9 @@
     if (enableLogging) {
       console.log('[Web Vitals]', body.name, body.value.toFixed(2), body);
     }
+    if (enableUserTiming) {
+      addUserTimings(body);
+    }
     badgeMetrics[metricName].value = body.value;
     badgeMetrics.location = getURL();
     badgeMetrics.timestamp = getTimestamp();
@@ -189,6 +201,57 @@
         },
         (response) => drawOverlay(badgeMetrics, response.tabId), // TODO: Once the metrics are final, cache locally.
     );
+  }
+
+  function addUserTimings(metric) {
+    switch (metric.name) {
+      case "LCP":
+        // LCP has a loadTime/renderTime (startTime), but not a duration.
+        // Could visualize relative to timeOrigin, or from loadTime -> renderTime.
+        // Skip for now.
+        break;
+      case "CLS":
+        // CLS has a startTime, but not a duration.
+        // Could visualize the time between rendering tasks (Commit-to-Commit).
+        // Skip for now.
+        break;
+      case "INP":
+        if (metric.entries.length > 0) {
+          const inpEntry = metric.entries[0];
+
+          // RenderTime is an estimate, because duration is rounded, and may get rounded keydown
+          // In rare cases it can be less than processingEnd and that breaks performance.measure().
+          // Lets make sure its at least 4ms in those cases so you can just barely see it.
+          const presentationTime = inpEntry.startTime + inpEntry.duration;
+          const adjustedPresentationTime = Math.max(inpEntry.processingEnd + 4, presentationTime);
+
+          performance.measure(`[Web Vitals] INP.duration (${inpEntry.name})`, {
+            start: inpEntry.startTime,
+            end: presentationTime,
+          });
+          performance.measure(`[Web Vitals] INP.inputDelay (${inpEntry.name})`, {
+            start: inpEntry.startTime,
+            end: inpEntry.processingStart,
+          });
+          performance.measure(`[Web Vitals] INP.processingTime (${inpEntry.name})`, {
+            start: inpEntry.processingStart,
+            end: inpEntry.processingEnd,
+          });
+          performance.measure(`[Web Vitals] INP.presentationDelay (${inpEntry.name})`, {
+            start: inpEntry.processingEnd,
+            end: adjustedPresentationTime,
+          });
+        }
+        break;
+      case "FID":
+        if (metric.entries.length > 0) {
+          const fidEntry = metric.entries[0]
+          performance.measure(`[Web Vitals Extension] FID (${fidEntry.name})`, {
+            start: fidEntry.startTime,
+            end: fidEntry.processingStart,
+          });
+        }
+    }
   }
 
   /**
