@@ -228,7 +228,7 @@
           const presentationTime = inpEntry.startTime + inpEntry.duration;
           const adjustedPresentationTime = Math.max(inpEntry.processingEnd + 4, presentationTime);
 
-          performance.measure(`[Web Vitals Extension] INP.duration (${inpEntry.name})`, {
+          performance.measure(`[Web Vitals] INP.duration (${inpEntry.name})`, {
             start: inpEntry.startTime,
             end: presentationTime,
           });
