@@ -232,7 +232,7 @@
             start: inpEntry.startTime,
             end: presentationTime,
           });
-          performance.measure(`[Web Vitals Extension] INP.inputDelay (${inpEntry.name})`, {
+          performance.measure(`[Web Vitals] INP.inputDelay (${inpEntry.name})`, {
             start: inpEntry.startTime,
             end: inpEntry.processingStart,
           });
