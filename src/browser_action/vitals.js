@@ -206,7 +206,7 @@
 
   function addUserTimings(metric) {
     switch (metric.name) {
-      case "LCP": {
+      case "LCP":
         // LCP has a loadTime/renderTime (startTime), but not a duration.
         // Could visualize relative to timeOrigin, or from loadTime -> renderTime.
         // Skip for now.
