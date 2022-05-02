@@ -158,6 +158,7 @@ export class LCP extends Metric {
       poor: 4000
     };
 
+    // TODO(rviscomi): Consider better defaults.
     local = local || 0;
 
     super({
@@ -276,6 +277,7 @@ export class CLS extends Metric {
       poor: 0.25
     };
 
+    // TODO(rviscomi): Consider better defaults.
     local = local || 0;
 
     super({
