@@ -600,6 +600,9 @@
   align-items: center;
   padding: 10px 0;
 }
+.web-vitals-chrome-extension .lh-metric--waiting .lh-metric__innerwrap {
+  grid-template-columns: var(--audit-description-padding-left) 10fr;
+}
 
 .web-vitals-chrome-extension .lh-metric__details {
   order: -1;
@@ -1707,6 +1710,7 @@
 }
 
 .web-vitals-chrome-extension .lh-overlay .lh-metric-state {
+  white-space: nowrap;
   color: var(--color-informative);
 }
 

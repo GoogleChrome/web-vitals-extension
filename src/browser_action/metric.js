@@ -1,16 +1,16 @@
 export class Metric {
 
-  constructor({id, name, local, finalized, background, thresholds}) {
+  constructor({id, name, local, background, thresholds, experimental}) {
     this.id = id;
     this.abbr = id.toUpperCase();
     this.name = name;
     this.local = local;
-    this.finalized = finalized;
     this.background = background;
     this.thresholds = thresholds;
     this.digitsOfPrecision = 3;
     // This will be replaced with field data, if available.
     this.distribution = [1/3, 1/3, 1/3];
+    this.experimental = experimental || false;
   }
 
   formatValue(value) {
@@ -152,17 +152,19 @@ export class Metric {
 
 export class LCP extends Metric {
 
-  constructor({local, finalized, background}) {
+  constructor({local, background}) {
     const thresholds = {
       good: 2500,
       poor: 4000
     };
 
+    // TODO(rviscomi): Consider better defaults.
+    local = local || 0;
+
     super({
       id: 'lcp',
       name: 'Largest Contentful Paint',
       local,
-      finalized,
       background,
       thresholds
     });
@@ -176,8 +178,8 @@ export class LCP extends Metric {
     });
   }
 
-  getAssessmentIndex(value) {
-    return super.getAssessmentIndex(value);
+  getAssessmentIndex() {
+    return super.getAssessmentIndex();
   }
 
   getInfo() {
@@ -192,7 +194,7 @@ export class LCP extends Metric {
 
 export class FID extends Metric {
 
-  constructor({local, finalized, background}) {
+  constructor({local, background}) {
     const thresholds = {
       good: 100,
       poor: 300
@@ -202,14 +204,13 @@ export class FID extends Metric {
       id: 'fid',
       name: 'First Input Delay',
       local,
-      finalized,
       background,
       thresholds
     });
   }
 
   formatValue(value) {
-    if (!this.finalized) {
+    if (value === null) {
       return 'Waiting for input…';
     }
 
@@ -219,19 +220,19 @@ export class FID extends Metric {
     });
   }
 
-  getAssessmentIndex(value) {
-    if (!this.finalized) {
+  getAssessmentIndex() {
+    if (this.local === null) {
       return;
     }
 
-    return super.getAssessmentIndex(value);
+    return super.getAssessmentIndex();
   }
 
 }
 
 export class INP extends Metric {
 
-  constructor({local, finalized, background}) {
+  constructor({local, background}) {
     const thresholds = {
       good: 200,
       poor: 500
@@ -241,14 +242,14 @@ export class INP extends Metric {
       id: 'inp',
       name: 'Interaction to Next Paint',
       local,
-      finalized,
       background,
-      thresholds
+      thresholds,
+      experimental: true
     });
   }
 
   formatValue(value) {
-    if (!this.finalized) {
+    if (value === null) {
       return 'Waiting for input…';
     }
 
@@ -258,29 +259,31 @@ export class INP extends Metric {
     });
   }
 
-  getAssessmentIndex(value) {
-    if (!this.finalized) {
+  getAssessmentIndex() {
+    if (this.local === null) {
       return;
     }
 
-    return super.getAssessmentIndex(value);
+    return super.getAssessmentIndex();
   }
 
 }
 
 export class CLS extends Metric {
 
-  constructor({local, finalized, background}) {
+  constructor({local, background}) {
     const thresholds = {
       good: 0.10,
       poor: 0.25
     };
 
+    // TODO(rviscomi): Consider better defaults.
+    local = local || 0;
+
     super({
       id: 'cls',
       name: 'Cumulative Layout Shift',
       local,
-      finalized,
       background,
       thresholds
     });
