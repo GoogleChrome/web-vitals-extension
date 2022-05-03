@@ -29,24 +29,33 @@
   const DEBOUNCE_DELAY = 500;
 
   // Registry for badge metrics
-  badgeMetrics = {
-    lcp: {
-      value: null,
-      pass: true,
-    },
-    cls: {
-      value: null,
-      pass: true,
-    },
-    fid: {
-      value: null,
-      pass: true,
-    },
-    inp: {
-      value: null,
-      pass: true,
-    },
-  };
+  const badgeMetrics = initializeMetrics();
+
+  function initializeMetrics() {
+    let metricsState = localStorage.getItem('web-vitals-extension-metrics');
+    if (metricsState) {
+      return JSON.parse(metricsState);
+    }
+
+    return {
+      lcp: {
+        value: null,
+        pass: true,
+      },
+      cls: {
+        value: null,
+        pass: true,
+      },
+      fid: {
+        value: null,
+        pass: true,
+      },
+      inp: {
+        value: null,
+        pass: true,
+      },
+    };
+  }
 
   /**
     * Very simple classifier for metrics values
@@ -86,6 +95,8 @@
   function drawOverlay(metrics, tabId) {
     let tabLoadedInBackground = false;
     const key = tabId.toString();
+
+    localStorage.setItem('web-vitals-extension-metrics', JSON.stringify(metrics));
 
     // Check if tab was loaded in background
     chrome.storage.local.get(key, (result) => {
@@ -199,7 +210,7 @@
           passesAllThresholds: passes,
           metrics: badgeMetrics,
         },
-        (response) => drawOverlay(badgeMetrics, response.tabId), // TODO: Once the metrics are final, cache locally.
+        (response) => drawOverlay(badgeMetrics, response.tabId),
     );
   }
 
