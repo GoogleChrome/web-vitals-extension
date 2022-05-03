@@ -34,9 +34,15 @@
   function initializeMetrics() {
     let metricsState = localStorage.getItem('web-vitals-extension-metrics');
     if (metricsState) {
-      return JSON.parse(metricsState);
+      metricsState = JSON.parse(metricsState);
+
+      if (metricsState.navigationStart == performance.timing.navigationStart) {
+        return metricsState;
+      }
     }
 
+    // Create a fresh state.
+    // Default all metric values to null.
     return {
       lcp: {
         value: null,
@@ -54,7 +60,11 @@
         value: null,
         pass: true,
       },
+      // This is used to distinguish between navigations.
+      // TODO: Is there a cleaner way?
+      navigationStart: performance.timing.navigationStart
     };
+
   }
 
   /**
