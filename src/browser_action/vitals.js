@@ -29,24 +29,43 @@
   const DEBOUNCE_DELAY = 500;
 
   // Registry for badge metrics
-  badgeMetrics = {
-    lcp: {
-      value: null,
-      pass: true,
-    },
-    cls: {
-      value: null,
-      pass: true,
-    },
-    fid: {
-      value: null,
-      pass: true,
-    },
-    inp: {
-      value: null,
-      pass: true,
-    },
-  };
+  const badgeMetrics = initializeMetrics();
+
+  function initializeMetrics() {
+    let metricsState = localStorage.getItem('web-vitals-extension-metrics');
+    if (metricsState) {
+      metricsState = JSON.parse(metricsState);
+
+      if (metricsState.navigationStart == performance.timing.navigationStart) {
+        return metricsState;
+      }
+    }
+
+    // Create a fresh state.
+    // Default all metric values to null.
+    return {
+      lcp: {
+        value: null,
+        pass: true,
+      },
+      cls: {
+        value: null,
+        pass: true,
+      },
+      fid: {
+        value: null,
+        pass: true,
+      },
+      inp: {
+        value: null,
+        pass: true,
+      },
+      // This is used to distinguish between navigations.
+      // TODO: Is there a cleaner way?
+      navigationStart: performance.timing.navigationStart
+    };
+
+  }
 
   /**
     * Very simple classifier for metrics values
@@ -86,6 +105,8 @@
   function drawOverlay(metrics, tabId) {
     let tabLoadedInBackground = false;
     const key = tabId.toString();
+
+    localStorage.setItem('web-vitals-extension-metrics', JSON.stringify(metrics));
 
     // Check if tab was loaded in background
     chrome.storage.local.get(key, (result) => {
@@ -199,7 +220,7 @@
           passesAllThresholds: passes,
           metrics: badgeMetrics,
         },
-        (response) => drawOverlay(badgeMetrics, response.tabId), // TODO: Once the metrics are final, cache locally.
+        (response) => drawOverlay(badgeMetrics, response.tabId),
     );
   }
 
