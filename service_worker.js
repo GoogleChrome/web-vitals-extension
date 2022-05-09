@@ -41,8 +41,9 @@ function hashCode(str) {
  * @param {Number} tabId
  */
 function getWebVitals(tabId) {
-  chrome.tabs.executeScript({
-    file: 'src/browser_action/vitals.js',
+  chrome.scripting.executeScript({
+    target: { tabId: tabId },
+    files: ['src/browser_action/vitals.js'],
   }, (result) => {
     // Catch errors such as "This page cannot be scripted due
     // to an ExtensionsSettings policy."
@@ -90,27 +91,27 @@ function badgeOverallPerf(badgeCategory, tabid) {
 
     switch (badgeCategory) {
       case 'POOR':
-        chrome.browserAction.setIcon({
+        chrome.action.setIcon({
           path: '../../icons/slow128w.png',
           tabId: currentTab,
         });
-        chrome.browserAction.setBadgeText({
+        chrome.action.setBadgeText({
           text: '',
           tabId: currentTab,
         });
         break;
       case 'GOOD':
-        chrome.browserAction.setIcon({
+        chrome.action.setIcon({
           path: '../../icons/fast128w.png',
           tabId: currentTab,
         });
         break;
       default:
-        chrome.browserAction.setIcon({
+        chrome.action.setIcon({
           path: '../../icons/default128w.png',
           tabId: currentTab,
         });
-        chrome.browserAction.setBadgeText({
+        chrome.action.setBadgeText({
           text: '',
           tabId: currentTab,
         });
@@ -148,57 +149,57 @@ function badgeMetric(metric, value, tabid) {
 
     switch (metric) {
       case 'lcp':
-        chrome.browserAction.setIcon({
+        chrome.action.setIcon({
           path: '../../icons/slow128w-lcp.png',
           tabId: currentTab,
         });
-        chrome.browserAction.setBadgeBackgroundColor({
+        chrome.action.setBadgeBackgroundColor({
           color: bgColor,
           tabId: currentTab,
         });
-        chrome.browserAction.setBadgeText({
-          text: (value/1000).toFixed(2),
+        chrome.action.setBadgeText({
+          text: (value / 1000).toFixed(2),
           tabId: currentTab,
         });
         break;
       case 'cls':
-        chrome.browserAction.setIcon({
+        chrome.action.setIcon({
           path: '../../icons/slow128w-cls.png',
           tabId: currentTab,
         });
-        chrome.browserAction.setBadgeBackgroundColor({
+        chrome.action.setBadgeBackgroundColor({
           color: bgColor,
           tabId: currentTab,
         });
-        chrome.browserAction.setBadgeText({
+        chrome.action.setBadgeText({
           text: (value).toFixed(2),
           tabId: currentTab,
         });
         break;
       case 'fid':
-        chrome.browserAction.setIcon({
+        chrome.action.setIcon({
           path: '../../icons/slow128w-fid.png',
           tabId: currentTab,
         });
-        chrome.browserAction.setBadgeBackgroundColor({
+        chrome.action.setBadgeBackgroundColor({
           color: bgColor,
           tabId: currentTab,
         });
-        chrome.browserAction.setBadgeText({
+        chrome.action.setBadgeText({
           text: value.toFixed(2),
           tabId: currentTab,
         });
         break;
       default:
-        chrome.browserAction.setIcon({
+        chrome.action.setIcon({
           path: '../../icons/default128w.png',
           tabId: currentTab,
         });
-        chrome.browserAction.setBadgeBackgroundColor({
+        chrome.action.setBadgeBackgroundColor({
           color: '',
           tabId: currentTab,
         });
-        chrome.browserAction.setBadgeText({
+        chrome.action.setBadgeText({
           text: '',
           tabId: currentTab,
         });
