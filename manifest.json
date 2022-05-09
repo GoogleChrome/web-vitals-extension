@@ -15,26 +15,20 @@
     "default_popup": "src/browser_action/popup.html"
   },
   "options_page": "src/options/options.html",
-  "host_permissions": [
-    "http://localhost/",
-    "http://*/*",
-    "https://*/*",
-    "https://www.googleapis.com/pagespeedonline/v5/runPagespeed?*"
-  ],
+  "host_permissions": ["*://*/*"],
   "permissions": ["tabs", "storage", "activeTab", "scripting"],
   "web_accessible_resources": [
     {
       "resources": [
         "src/browser_action/viewer.css",
-        "src/browser_action/web-vitals.js",
-        "/node_modules/web-vitals/dist/web-vitals.js"
+        "src/browser_action/web-vitals.js"
       ],
-      "matches": ["https://*/*", "http://*/*"]
+      "matches": ["*://*/*"]
     }
   ],
   "content_scripts": [
     {
-      "matches": ["https://*/*", "http://*/*"],
+      "matches": ["*://*/*"],
       "css": ["src/browser_action/viewer.css"],
       "js": ["src/browser_action/lodash-debounce-custom.js"]
     }
@@ -43,6 +37,6 @@
     "service_worker": "service_worker.js"
   },
   "content_security_policy": {
-    "extensions": "script-src 'self' https://www.googleapis.com; object-src 'self'"
+    "extension_pages": "default-src 'self'; connect-src https://chromeuxreport.googleapis.com;"
   }
 }
