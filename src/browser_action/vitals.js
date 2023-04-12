@@ -20,10 +20,10 @@
   let enableUserTiming = localStorage.getItem('web-vitals-extension-user-timing')=='TRUE';
 
   // Core Web Vitals thresholds
-  const LCP_THRESHOLD = 2500;
-  const FID_THRESHOLD = 100;
-  const INP_THRESHOLD = 200;
-  const CLS_THRESHOLD = 0.1;
+  const LCP_THRESHOLD = webVitals.LCPThresholds[0];
+  const FID_THRESHOLD = webVitals.FIDThresholds[0];
+  const INP_THRESHOLD = webVitals.INPThresholds[0];
+  const CLS_THRESHOLD = webVitals.CLSThresholds[0];
 
   // CLS update frequency
   const DEBOUNCE_DELAY = 500;
@@ -306,20 +306,20 @@
     if (self._hasInstalledPerfMetrics) return;
     self._hasInstalledPerfMetrics = true;
 
-    webVitals.getCLS((metric) => {
+    webVitals.onCLS((metric) => {
       // As CLS values can fire frequently in the case
       // of animations or highly-dynamic content, we
       // debounce the broadcast of the metric.
       latestCLS = metric;
       debouncedCLSBroadcast();
     }, true);
-    webVitals.getLCP((metric) => {
+    webVitals.onLCP((metric) => {
       broadcastMetricsUpdates('lcp', metric);
     }, true);
-    webVitals.getFID((metric) => {
+    webVitals.onFID((metric) => {
       broadcastMetricsUpdates('fid', metric);
     }, true);
-    webVitals.getINP((metric) => {
+    webVitals.onINP((metric) => {
       broadcastMetricsUpdates('inp', metric);
     }, true);
   }
