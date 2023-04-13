@@ -263,6 +263,10 @@
             console.table(
               [
                 {
+                  'LCP Breakdown': 'LCP',
+                  'Time (ms)': metric.value.toFixed(2),
+                },
+                {
                   'LCP Breakdown': 'timeToFirstByte',
                   'Time (ms)': metric.attribution.timeToFirstByte.toFixed(2),
                 },
