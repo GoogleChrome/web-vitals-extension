@@ -12,7 +12,8 @@
   "license": "Apache-2.0",
   "private": true,
   "scripts": {
-    "lint": "npx eslint src --fix"
+    "lint": "npx eslint src --fix",
+    "build": "npm install; cp node_modules/web-vitals/dist/web-vitals.attribution.js src/browser_action/web-vitals.js"
   },
   "devDependencies": {
     "babel-eslint": "^10.1.0",
