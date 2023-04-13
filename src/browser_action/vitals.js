@@ -327,7 +327,7 @@
             console.table(
               [
                 {
-                  'INP Breakdown': 'duration',
+                  'INP Breakdown': 'INP',
                   'Time (ms)': (presentationTime - inpEntry.startTime).toFixed(2),
                 },
                 {
