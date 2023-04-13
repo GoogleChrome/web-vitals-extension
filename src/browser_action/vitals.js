@@ -225,7 +225,7 @@
   }
 
   function addUserTimings(metric) {
-    const startTime = max(metric.attribution.navigationEntry.startTime, metric.attribution.navigationEntry.activationTime);
+    const startTime = Math.max(metric.attribution.navigationEntry.startTime, metric.attribution.navigationEntry.activationTime);
     switch (metric.name) {
       case "LCP":
         // LCP has a loadTime/renderTime (startTime), but not a duration.
