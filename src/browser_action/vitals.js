@@ -265,7 +265,7 @@
             console.table(
               [
                 {
-                  'LCP Breakdown': 'LCP',
+                  'LCP Breakdown': `LCP (${lcpEntry.element.nodeName})`,
                   'Time (ms)': metric.value.toFixed(2),
                 },
                 {
@@ -332,7 +332,7 @@
             console.table(
               [
                 {
-                  'INP Breakdown': 'INP',
+                  'INP Breakdown': `INP (${inpEntry.name})`,
                   'Time (ms)': (presentationTime - inpEntry.startTime).toFixed(2),
                 },
                 {
@@ -366,7 +366,7 @@
             console.table(
               [
                 {
-                  'FID Breakdown': 'inputDelay',
+                  'FID Breakdown': `FID (${fidEntry.name})`,
                   'Time (ms)': (metric.value).toFixed(2),
                 },
               ]
