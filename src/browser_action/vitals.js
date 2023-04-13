@@ -416,7 +416,7 @@
       // debounce the broadcast of the metric.
       latestCLS = metric;
       debouncedCLSBroadcast();
-    }, true);
+    }, { reportAllChanges: true });
     webVitals.onLCP((metric) => {
       broadcastMetricsUpdates('lcp', metric);
     }, { reportAllChanges: true });
