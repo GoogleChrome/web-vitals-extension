@@ -205,7 +205,7 @@
       return;
     }
     if (enableLogging) {
-      console.log('[Web Vitals]', body.name, body.value.toFixed(2), body);
+      console.log('[Web Vitals Extension]', body.name, body.value.toFixed(2), body);
     }
     if (enableUserTiming) {
       addUserTimings(body);
@@ -225,11 +225,28 @@
   }
 
   function addUserTimings(metric) {
+    const startTime = max(metric.attribution.navigationEntry.startTime, metric.attribution.navigationEntry.activationTime);
     switch (metric.name) {
       case "LCP":
         // LCP has a loadTime/renderTime (startTime), but not a duration.
         // Could visualize relative to timeOrigin, or from loadTime -> renderTime.
         // Skip for now.
+          performance.measure(`[Web Vitals Extension] LCP.timeToFirstByte (${lcpEntry.name})`, {
+            start: startTime,
+            duration: metric.attribution.timeToFirstByte,
+          });
+          performance.measure(`[Web Vitals Extension] LCP.resourceLoadDelay (${lcpEntry.name})`, {
+            start: startTime + metric.attribution.timeToFirstByte,
+            duration: metric.attribution.resourceLoadDelay,
+          });
+          performance.measure(`[Web Vitals Extension] LCP.resourceLoadTime (${lcpEntry.name})`, {
+            start: startTime + metric.attribution.timeToFirstByte + metric.attribution.resourceLoadDelay,
+            duration: metric.attribution.resourceLoadTime,
+          });
+          performance.measure(`[Web Vitals Extension] LCP.elmentRenderDelay (${lcpEntry.name})`, {
+            duration: metric.elementRenderDelay,
+            end: metric.value
+          });
         break;
       case "CLS":
         // CLS has a startTime, but not a duration.
@@ -237,33 +254,31 @@
         // Skip for now.
         break;
       case "INP":
-        if (metric.entries.length > 0) {
-          const inpEntry = metric.entries[0];
+        const inpEntry = metric.eventEntry;
 
-          // RenderTime is an estimate, because duration is rounded, and may get rounded keydown
-          // In rare cases it can be less than processingEnd and that breaks performance.measure().
-          // Lets make sure its at least 4ms in those cases so you can just barely see it.
-          const presentationTime = inpEntry.startTime + inpEntry.duration;
-          const adjustedPresentationTime = Math.max(inpEntry.processingEnd + 4, presentationTime);
+        // RenderTime is an estimate, because duration is rounded, and may get rounded keydown
+        // In rare cases it can be less than processingEnd and that breaks performance.measure().
+        // Lets make sure its at least 4ms in those cases so you can just barely see it.
+        const presentationTime = inpEntry.startTime + inpEntry.duration;
+        const adjustedPresentationTime = Math.max(inpEntry.processingEnd + 4, presentationTime);
 
-          performance.measure(`[Web Vitals] INP.duration (${inpEntry.name})`, {
-            start: inpEntry.startTime,
-            end: presentationTime,
-          });
-          performance.measure(`[Web Vitals] INP.inputDelay (${inpEntry.name})`, {
-            start: inpEntry.startTime,
-            end: inpEntry.processingStart,
-          });
-          performance.measure(`[Web Vitals] INP.processingTime (${inpEntry.name})`, {
-            start: inpEntry.processingStart,
-            end: inpEntry.processingEnd,
-          });
-          performance.measure(`[Web Vitals] INP.presentationDelay (${inpEntry.name})`, {
-            start: inpEntry.processingEnd,
-            end: adjustedPresentationTime,
-          });
-        }
-        break;
+        performance.measure(`[Web Vitals Extension] INP.duration (${inpEntry.name})`, {
+          start: inpEntry.startTime,
+          end: presentationTime,
+        });
+        performance.measure(`[Web Vitals Extension] INP.inputDelay (${inpEntry.name})`, {
+          start: inpEntry.startTime,
+          end: inpEntry.processingStart,
+        });
+        performance.measure(`[Web Vitals Extension] INP.processingTime (${inpEntry.name})`, {
+          start: inpEntry.processingStart,
+          end: inpEntry.processingEnd,
+        });
+        performance.measure(`[Web Vitals Extension] INP.presentationDelay (${inpEntry.name})`, {
+          start: inpEntry.processingEnd,
+          end: adjustedPresentationTime,
+        });
+      break;
       case "FID":
         if (metric.entries.length > 0) {
           const fidEntry = metric.entries[0]
