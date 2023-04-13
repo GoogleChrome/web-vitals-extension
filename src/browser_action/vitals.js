@@ -413,13 +413,13 @@
     }, true);
     webVitals.onLCP((metric) => {
       broadcastMetricsUpdates('lcp', metric);
-    }, true);
+    }, { reportAllChanges: true });
     webVitals.onFID((metric) => {
       broadcastMetricsUpdates('fid', metric);
-    }, true);
+    },  { reportAllChanges: true });
     webVitals.onINP((metric) => {
       broadcastMetricsUpdates('inp', metric);
-    }, true);
+    },  { reportAllChanges: true });
   }
 
   /**
