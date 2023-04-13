@@ -236,25 +236,27 @@
   function addUserTimings(metric, enableUserTiming, enableConsoleTables) {
     switch (metric.name) {
       case "LCP":
-        if (metric.attribution) {
+        if (metric.attribution && metric.attribution.lcpEntry && metric.attribution.navigationEntry) {
+          const lcpEntry = metric.attribution.lcpEntry;
+          const navEntry = metric.attribution.navigationEntry;
           // Set the start time to the later of the actual start time or the activationStart (for prerender) or 0
-          const startTime = Math.max(metric.attribution.navigationEntry?.startTime, metric.attribution.navigationEntry?.activationStart) || 0;
+          const startTime = Math.max(navEntry.startTime, navEntry.activationStart) || 0;
           // Add the performance marks for the Performance Panel
           if (enableUserTiming) {
               performance.measure(`[Web Vitals Extension] LCP.timeToFirstByte`, {
               start: startTime,
-              duration: metric.attribution.timeToFirstByte,
+              duration: lcpEntry.timeToFirstByte,
             });
             performance.measure(`[Web Vitals Extension] LCP.resourceLoadDelay`, {
-              start: startTime + metric.attribution.timeToFirstByte,
-              duration: metric.attribution.resourceLoadDelay,
+              start: startTime + lcpEntry.timeToFirstByte,
+              duration: lcpEntry.resourceLoadDelay,
             });
             performance.measure(`[Web Vitals Extension] LCP.resourceLoadTime`, {
-              start: startTime + metric.attribution.timeToFirstByte + metric.attribution.resourceLoadDelay,
-              duration: metric.attribution.resourceLoadTime,
+              start: startTime + lcpEntry.timeToFirstByte + lcpEntry.resourceLoadDelay,
+              duration: lcpEntry.resourceLoadTime,
             });
             performance.measure(`[Web Vitals Extension] LCP.elmentRenderDelay`, {
-              duration: metric.attribution.elementRenderDelay,
+              duration: lcpEntry.elementRenderDelay,
               end: metric.value
             });
           }
@@ -299,7 +301,7 @@
         }
         break;
       case "INP":
-        if (metric.entries.length > 0) {
+        if (metric.attribution && metric.attribution.eventEntry) {
           const inpEntry = metric.attribution.eventEntry;
 
           // RenderTime is an estimate, because duration is rounded, and may get rounded keydown
@@ -353,8 +355,8 @@
         }
         break;
       case "FID":
-        if (metric.entries.length > 0) {
-          const fidEntry = metric.entries[0]
+        if (metric.attribution && metric.attribution.eventEntry) {
+          const fidEntry = metric.attribution.eventEntry;
           if (enableUserTiming) {
             performance.measure(`[Web Vitals Extension] FID (${fidEntry.name})`, {
               start: fidEntry.startTime,
