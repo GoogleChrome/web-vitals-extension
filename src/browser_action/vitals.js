@@ -227,28 +227,29 @@
   function addUserTimings(metric) {
     switch (metric.name) {
       case "LCP":
-        if (metric.attribution) {
-          const startTime = Math.max(metric.attribution.navigationEntry?.startTime, metric.attribution.navigationEntry?.activationStart) || 0;
-          // LCP has a loadTime/renderTime (startTime), but not a duration.
-          // Could visualize relative to timeOrigin, or from loadTime -> renderTime.
-          // Skip for now.
-          performance.measure(`[Web Vitals Extension] LCP.timeToFirstByte (${metric.attribution.element})`, {
-            start: startTime,
-            duration: metric.attribution.timeToFirstByte,
-          });
-          performance.measure(`[Web Vitals Extension] LCP.resourceLoadDelay (${metric.attribution.element})`, {
-            start: startTime + metric.attribution.timeToFirstByte,
-            duration: metric.attribution.resourceLoadDelay,
-          });
-          performance.measure(`[Web Vitals Extension] LCP.resourceLoadTime (${metric.attribution.element})`, {
-            start: startTime + metric.attribution.timeToFirstByte + metric.attribution.resourceLoadDelay,
-            duration: metric.attribution.resourceLoadTime,
-          });
-          performance.measure(`[Web Vitals Extension] LCP.elmentRenderDelay (${metric.attribution.element})`, {
-            duration: metric.attribution.elementRenderDelay,
-            end: metric.value
-          });
-        }
+        console.log('LCPBreakdown:', metric.attribution, metric.value);
+        // if (metric.attribution) {
+        //   const startTime = Math.max(metric.attribution.navigationEntry?.startTime, metric.attribution.navigationEntry?.activationStart) || 0;
+        //   // LCP has a loadTime/renderTime (startTime), but not a duration.
+        //   // Could visualize relative to timeOrigin, or from loadTime -> renderTime.
+        //   // Skip for now.
+        //   performance.measure(`[Web Vitals Extension] LCP.timeToFirstByte (${metric.attribution.element})`, {
+        //     start: startTime,
+        //     duration: metric.attribution.timeToFirstByte,
+        //   });
+        //   performance.measure(`[Web Vitals Extension] LCP.resourceLoadDelay (${metric.attribution.element})`, {
+        //     start: startTime + metric.attribution.timeToFirstByte,
+        //     duration: metric.attribution.resourceLoadDelay,
+        //   });
+        //   performance.measure(`[Web Vitals Extension] LCP.resourceLoadTime (${metric.attribution.element})`, {
+        //     start: startTime + metric.attribution.timeToFirstByte + metric.attribution.resourceLoadDelay,
+        //     duration: metric.attribution.resourceLoadTime,
+        //   });
+        //   performance.measure(`[Web Vitals Extension] LCP.elmentRenderDelay (${metric.attribution.element})`, {
+        //     duration: metric.attribution.elementRenderDelay,
+        //     end: metric.value
+        //   });
+        // }
         break;
       case "CLS":
         // CLS has a startTime, but not a duration.
