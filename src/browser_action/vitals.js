@@ -291,7 +291,11 @@
       case "CLS":
         if (enableConsoleTables) {
           // Add a nice console output of all the shifts
-          console.table(metric.entries, ['entryType', 'hadRecentInput', 'value'])
+          let entries = [{'CLS Breakdown': 'CLS', 'Time (ms)': metric.value}]
+          metric.entries.map((entry) => {
+            entries.push({'CLS Breakdown': entry.entryType, 'Time (ms)': entry.value});
+          });
+          console.table(entries)
         }
         break;
       case "INP":
