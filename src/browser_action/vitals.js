@@ -300,7 +300,7 @@
         break;
       case "INP":
         if (metric.entries.length > 0) {
-          const inpEntry = metric.entries[0];
+          const inpEntry = metric.attribution.eventEntry;
 
           // RenderTime is an estimate, because duration is rounded, and may get rounded keydown
           // In rare cases it can be less than processingEnd and that breaks performance.measure().
