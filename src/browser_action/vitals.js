@@ -162,7 +162,7 @@
         localStorage.removeItem('web-vitals-extension-debug');
         enableLogging = false;
       }
-      if (debug) {
+      if (userTiming) {
         localStorage.setItem('web-vitals-extension-user-timing', 'TRUE');
         enableUserTiming = true;
       } else {
@@ -228,10 +228,9 @@
     switch (metric.name) {
       case "LCP":
         if (metric.attribution) {
+          // Set the start time to the later of the actual start time or the activationStart (for prerender) or 0
           const startTime = Math.max(metric.attribution.navigationEntry?.startTime, metric.attribution.navigationEntry?.activationStart) || 0;
-          // LCP has a loadTime/renderTime (startTime), but not a duration.
-          // Could visualize relative to timeOrigin, or from loadTime -> renderTime.
-          // Skip for now.
+          // Add the performance marks for the Performance Panel
           performance.measure(`[Web Vitals Extension] LCP.timeToFirstByte`, {
             start: startTime,
             duration: metric.attribution.timeToFirstByte,
@@ -248,6 +247,28 @@
             duration: metric.attribution.elementRenderDelay,
             end: metric.value
           });
+          // Add a nice console output
+          console.table(
+            [
+              {
+                'LCP Breakdown': 'timeToFirstByte',
+                'Time (ms)': metric.attribution.timeToFirstByte.toFixed(2),
+              },
+              {
+                'LCP Breakdown': 'resourceLoadDelay',
+                'Time (ms)': metric.attribution.resourceLoadDelay.toFixed(2),
+              },
+              {
+                'LCP Breakdown': 'resourceLoadTime',
+                'Time (ms)': metric.attribution.resourceLoadTime.toFixed(2),
+              },
+              {
+                'LCP Breakdown': 'elementRenderDelay',
+                'Time (ms)': metric.attribution.elementRenderDelay.toFixed(2),
+              }
+            ],
+            ['LCP Breakdown', 'Time (ms)']
+          )
         }
         break;
       case "CLS":
@@ -281,6 +302,28 @@
             start: inpEntry.processingEnd,
             end: adjustedPresentationTime,
           });
+          // Add a nice console output
+          console.table(
+            [
+              {
+                'INP Breakdown': 'duration',
+                'Time (ms)': (presentationTime - inpEntry.startTime).toFixed(2),
+              },
+              {
+                'INP Breakdown': 'inputDelay',
+                'Time (ms)': (inpEntry.processingStart - inpEntry.startTime).toFixed(2),
+              },
+              {
+                'INP Breakdown': 'processingTime',
+                'Time (ms)': (inpEntry.processingEnd - inpEntry.processingStart).toFixed(2),
+              },
+              {
+                'INP Breakdown': 'presentationDelay',
+                'Time (ms)': (adjustedPresentationTime - inpEntry.processingEnd).toFixed(2),
+              }
+            ],
+            ['INP Breakdown', 'Time (ms)']
+          )
         }
         break;
       case "FID":
