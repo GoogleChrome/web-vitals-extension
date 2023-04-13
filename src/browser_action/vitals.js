@@ -18,7 +18,7 @@
   let latestCLS = {};
   let enableLogging = localStorage.getItem('web-vitals-extension-debug')=='TRUE';
   let enableUserTiming = localStorage.getItem('web-vitals-extension-user-timing')=='TRUE';
-  let enableUserTimingConsole = localStorage.getItem('web-vitals-extension-user-timing-console')=='TRUE';
+  let enableConsoleTables = localStorage.getItem('web-vitals-extension-console-tables')=='TRUE';
 
   // Core Web Vitals thresholds
   const LCP_THRESHOLD = webVitals.LCPThresholds[0];
@@ -119,9 +119,9 @@
       enableOverlay: false,
       debug: false,
       userTiming: false,
-      userTimingConsole: false,
+      consoleTables: false,
     }, ({
-      enableOverlay, debug, userTiming, userTimingConsole,
+      enableOverlay, debug, userTiming, consoleTables,
     }) => {
       if (enableOverlay === true && overlayClosedForSession == false) {
         // Overlay
@@ -171,12 +171,12 @@
         localStorage.removeItem('web-vitals-extension-user-timing');
         enableUserTiming = false;
       }
-      if (userTimingConsole) {
-        localStorage.setItem('web-vitals-extension-user-timing-console', 'TRUE');
-        enableUserTimingConsole = true;
+      if (consoleTables) {
+        localStorage.setItem('web-vitals-extension-console-tables', 'TRUE');
+        enableConsoleTables = true;
       } else {
-        localStorage.removeItem('web-vitals-extension-user-timing-console');
-        enableUserTimingConsole = false;
+        localStorage.removeItem('web-vitals-extension-console-tables');
+        enableConsoleTables = false;
       }
     });
   }
@@ -216,8 +216,8 @@
     if (enableLogging) {
       console.log('[Web Vitals Extension]', body.name, body.value.toFixed(2), body);
     }
-    if (enableUserTiming || enableUserTimingConsole) {
-      addUserTimings(body, enableUserTiming, enableUserTimingConsole);
+    if (enableUserTiming || enableConsoleTables) {
+      addUserTimings(body, enableUserTiming, enableConsoleTables);
     }
     badgeMetrics[metricName].value = body.value;
     badgeMetrics.location = getURL();
@@ -233,7 +233,7 @@
     );
   }
 
-  function addUserTimings(metric, enableUserTiming, enableUserTimingConsole) {
+  function addUserTimings(metric, enableUserTiming, enableConsoleTables) {
     switch (metric.name) {
       case "LCP":
         if (metric.attribution) {
@@ -259,7 +259,7 @@
             });
           }
           // Add a nice console output
-          if (enableUserTimingConsole) {
+          if (enableConsoleTables) {
             console.table(
               [
                 {
@@ -289,7 +289,7 @@
         }
         break;
       case "CLS":
-        if (enableUserTimingConsole) {
+        if (enableConsoleTables) {
           // Add a nice console output of all the shifts
           console.table(metric.entries, ['entryType', 'hadRecentInput', 'value'])
         }
@@ -322,7 +322,7 @@
               end: adjustedPresentationTime,
             });
           }
-          if (enableUserTimingConsole) {
+          if (enableConsoleTables) {
             // Add a nice console output
             console.table(
               [
@@ -357,7 +357,7 @@
               end: fidEntry.processingStart,
             });
           }
-          if (enableUserTimingConsole) {
+          if (enableConsoleTables) {
             // Add a nice console output
             console.table(
               [
