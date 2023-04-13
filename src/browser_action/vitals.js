@@ -18,6 +18,7 @@
   let latestCLS = {};
   let enableLogging = localStorage.getItem('web-vitals-extension-debug')=='TRUE';
   let enableUserTiming = localStorage.getItem('web-vitals-extension-user-timing')=='TRUE';
+  let enableUserTimingConsole = localStorage.getItem('web-vitals-extension-user-timing-console')=='TRUE';
 
   // Core Web Vitals thresholds
   const LCP_THRESHOLD = webVitals.LCPThresholds[0];
@@ -118,8 +119,9 @@
       enableOverlay: false,
       debug: false,
       userTiming: false,
+      userTimingConsole: false,
     }, ({
-      enableOverlay, debug, userTiming,
+      enableOverlay, debug, userTiming, userTimingConsole,
     }) => {
       if (enableOverlay === true && overlayClosedForSession == false) {
         // Overlay
@@ -169,6 +171,13 @@
         localStorage.removeItem('web-vitals-extension-user-timing');
         enableUserTiming = false;
       }
+      if (userTimingConsole) {
+        localStorage.setItem('web-vitals-extension-user-timing-console', 'TRUE');
+        enableUserTimingConsole = true;
+      } else {
+        localStorage.removeItem('web-vitals-extension-user-timing-console');
+        enableUserTimingConsole = false;
+      }
     });
   }
 
@@ -207,8 +216,8 @@
     if (enableLogging) {
       console.log('[Web Vitals Extension]', body.name, body.value.toFixed(2), body);
     }
-    if (enableUserTiming) {
-      addUserTimings(body);
+    if (enableUserTiming || enableUserTimingConsole) {
+      addUserTimings(body, enableUserTiming, enableUserTimingConsole);
     }
     badgeMetrics[metricName].value = body.value;
     badgeMetrics.location = getURL();
@@ -224,57 +233,62 @@
     );
   }
 
-  function addUserTimings(metric) {
+  function addUserTimings(metric, enableUserTiming, enableUserTimingConsole) {
     switch (metric.name) {
       case "LCP":
         if (metric.attribution) {
           // Set the start time to the later of the actual start time or the activationStart (for prerender) or 0
           const startTime = Math.max(metric.attribution.navigationEntry?.startTime, metric.attribution.navigationEntry?.activationStart) || 0;
           // Add the performance marks for the Performance Panel
-          performance.measure(`[Web Vitals Extension] LCP.timeToFirstByte`, {
-            start: startTime,
-            duration: metric.attribution.timeToFirstByte,
-          });
-          performance.measure(`[Web Vitals Extension] LCP.resourceLoadDelay`, {
-            start: startTime + metric.attribution.timeToFirstByte,
-            duration: metric.attribution.resourceLoadDelay,
-          });
-          performance.measure(`[Web Vitals Extension] LCP.resourceLoadTime`, {
-            start: startTime + metric.attribution.timeToFirstByte + metric.attribution.resourceLoadDelay,
-            duration: metric.attribution.resourceLoadTime,
-          });
-          performance.measure(`[Web Vitals Extension] LCP.elmentRenderDelay`, {
-            duration: metric.attribution.elementRenderDelay,
-            end: metric.value
-          });
+          if (enableUserTiming) {
+              performance.measure(`[Web Vitals Extension] LCP.timeToFirstByte`, {
+              start: startTime,
+              duration: metric.attribution.timeToFirstByte,
+            });
+            performance.measure(`[Web Vitals Extension] LCP.resourceLoadDelay`, {
+              start: startTime + metric.attribution.timeToFirstByte,
+              duration: metric.attribution.resourceLoadDelay,
+            });
+            performance.measure(`[Web Vitals Extension] LCP.resourceLoadTime`, {
+              start: startTime + metric.attribution.timeToFirstByte + metric.attribution.resourceLoadDelay,
+              duration: metric.attribution.resourceLoadTime,
+            });
+            performance.measure(`[Web Vitals Extension] LCP.elmentRenderDelay`, {
+              duration: metric.attribution.elementRenderDelay,
+              end: metric.value
+            });
+          }
           // Add a nice console output
-          console.table(
-            [
-              {
-                'LCP Breakdown': 'timeToFirstByte',
-                'Time (ms)': metric.attribution.timeToFirstByte.toFixed(2),
-              },
-              {
-                'LCP Breakdown': 'resourceLoadDelay',
-                'Time (ms)': metric.attribution.resourceLoadDelay.toFixed(2),
-              },
-              {
-                'LCP Breakdown': 'resourceLoadTime',
-                'Time (ms)': metric.attribution.resourceLoadTime.toFixed(2),
-              },
-              {
-                'LCP Breakdown': 'elementRenderDelay',
-                'Time (ms)': metric.attribution.elementRenderDelay.toFixed(2),
-              }
-            ],
-            ['LCP Breakdown', 'Time (ms)']
-          )
+          if (enableUserTimingConsole) {
+            console.table(
+              [
+                {
+                  'LCP Breakdown': 'timeToFirstByte',
+                  'Time (ms)': metric.attribution.timeToFirstByte.toFixed(2),
+                },
+                {
+                  'LCP Breakdown': 'resourceLoadDelay',
+                  'Time (ms)': metric.attribution.resourceLoadDelay.toFixed(2),
+                },
+                {
+                  'LCP Breakdown': 'resourceLoadTime',
+                  'Time (ms)': metric.attribution.resourceLoadTime.toFixed(2),
+                },
+                {
+                  'LCP Breakdown': 'elementRenderDelay',
+                  'Time (ms)': metric.attribution.elementRenderDelay.toFixed(2),
+                }
+              ],
+              ['LCP Breakdown', 'Time (ms)']
+            )
+          }
         }
         break;
       case "CLS":
-        // CLS has a startTime, but not a duration.
-        // Could visualize the time between rendering tasks (Commit-to-Commit).
-        // Skip for now.
+        if (enableUserTimingConsole) {
+          // Add a nice console output of all the shifts
+          console.table(metric.entries, ['entryType', 'hadRecentInput', 'value'])
+        }
         break;
       case "INP":
         if (metric.entries.length > 0) {
@@ -286,53 +300,71 @@
           const presentationTime = inpEntry.startTime + inpEntry.duration;
           const adjustedPresentationTime = Math.max(inpEntry.processingEnd + 4, presentationTime);
 
-          performance.measure(`[Web Vitals Extension] INP.duration (${inpEntry.name})`, {
-            start: inpEntry.startTime,
-            end: presentationTime,
-          });
-          performance.measure(`[Web Vitals Extension] INP.inputDelay (${inpEntry.name})`, {
-            start: inpEntry.startTime,
-            end: inpEntry.processingStart,
-          });
-          performance.measure(`[Web Vitals Extension] INP.processingTime (${inpEntry.name})`, {
-            start: inpEntry.processingStart,
-            end: inpEntry.processingEnd,
-          });
-          performance.measure(`[Web Vitals Extension] INP.presentationDelay (${inpEntry.name})`, {
-            start: inpEntry.processingEnd,
-            end: adjustedPresentationTime,
-          });
-          // Add a nice console output
-          console.table(
-            [
-              {
-                'INP Breakdown': 'duration',
-                'Time (ms)': (presentationTime - inpEntry.startTime).toFixed(2),
-              },
-              {
-                'INP Breakdown': 'inputDelay',
-                'Time (ms)': (inpEntry.processingStart - inpEntry.startTime).toFixed(2),
-              },
-              {
-                'INP Breakdown': 'processingTime',
-                'Time (ms)': (inpEntry.processingEnd - inpEntry.processingStart).toFixed(2),
-              },
-              {
-                'INP Breakdown': 'presentationDelay',
-                'Time (ms)': (adjustedPresentationTime - inpEntry.processingEnd).toFixed(2),
-              }
-            ],
-            ['INP Breakdown', 'Time (ms)']
-          )
+          if (enableUserTiming) {
+            performance.measure(`[Web Vitals Extension] INP.duration (${inpEntry.name})`, {
+              start: inpEntry.startTime,
+              end: presentationTime,
+            });
+            performance.measure(`[Web Vitals Extension] INP.inputDelay (${inpEntry.name})`, {
+              start: inpEntry.startTime,
+              end: inpEntry.processingStart,
+            });
+            performance.measure(`[Web Vitals Extension] INP.processingTime (${inpEntry.name})`, {
+              start: inpEntry.processingStart,
+              end: inpEntry.processingEnd,
+            });
+            performance.measure(`[Web Vitals Extension] INP.presentationDelay (${inpEntry.name})`, {
+              start: inpEntry.processingEnd,
+              end: adjustedPresentationTime,
+            });
+          }
+          if (enableUserTimingConsole) {
+            // Add a nice console output
+            console.table(
+              [
+                {
+                  'INP Breakdown': 'duration',
+                  'Time (ms)': (presentationTime - inpEntry.startTime).toFixed(2),
+                },
+                {
+                  'INP Breakdown': 'inputDelay',
+                  'Time (ms)': (inpEntry.processingStart - inpEntry.startTime).toFixed(2),
+                },
+                {
+                  'INP Breakdown': 'processingTime',
+                  'Time (ms)': (inpEntry.processingEnd - inpEntry.processingStart).toFixed(2),
+                },
+                {
+                  'INP Breakdown': 'presentationDelay',
+                  'Time (ms)': (adjustedPresentationTime - inpEntry.processingEnd).toFixed(2),
+                }
+              ],
+              ['INP Breakdown', 'Time (ms)']
+            )
+          }
         }
         break;
       case "FID":
         if (metric.entries.length > 0) {
           const fidEntry = metric.entries[0]
-          performance.measure(`[Web Vitals Extension] FID (${fidEntry.name})`, {
-            start: fidEntry.startTime,
-            end: fidEntry.processingStart,
-          });
+          if (enableUserTiming) {
+            performance.measure(`[Web Vitals Extension] FID (${fidEntry.name})`, {
+              start: fidEntry.startTime,
+              end: fidEntry.processingStart,
+            });
+          }
+          if (enableUserTimingConsole) {
+            // Add a nice console output
+            console.table(
+              [
+                {
+                  'FID Breakdown': 'inputDelay',
+                  'Time (ms)': (metric.value).toFixed(2),
+                },
+              ],
+              ['FID Breakdown', 'Time (ms)']
+            )
+          }
         }
     }
   }
