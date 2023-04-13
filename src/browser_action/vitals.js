@@ -245,7 +245,7 @@
             duration: metric.attribution.resourceLoadTime,
           });
           performance.measure(`[Web Vitals Extension] LCP.elmentRenderDelay (${metric.attribution.element})`, {
-            duration: metric.elementRenderDelay,
+            duration: metric.attribution.elementRenderDelay,
             end: metric.value
           });
         }
