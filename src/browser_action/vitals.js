@@ -225,28 +225,28 @@
   }
 
   function addUserTimings(metric) {
-    const startTime = Math.max(metric.attribution.navigationEntry.startTime, metric.attribution.navigationEntry.activationTime);
     switch (metric.name) {
       case "LCP":
+        const startTime = Math.max(metric.attribution.navigationEntry.startTime, metric.attribution.navigationEntry.activationTime);
         // LCP has a loadTime/renderTime (startTime), but not a duration.
         // Could visualize relative to timeOrigin, or from loadTime -> renderTime.
         // Skip for now.
-          performance.measure(`[Web Vitals Extension] LCP.timeToFirstByte (${lcpEntry.name})`, {
-            start: startTime,
-            duration: metric.attribution.timeToFirstByte,
-          });
-          performance.measure(`[Web Vitals Extension] LCP.resourceLoadDelay (${lcpEntry.name})`, {
-            start: startTime + metric.attribution.timeToFirstByte,
-            duration: metric.attribution.resourceLoadDelay,
-          });
-          performance.measure(`[Web Vitals Extension] LCP.resourceLoadTime (${lcpEntry.name})`, {
-            start: startTime + metric.attribution.timeToFirstByte + metric.attribution.resourceLoadDelay,
-            duration: metric.attribution.resourceLoadTime,
-          });
-          performance.measure(`[Web Vitals Extension] LCP.elmentRenderDelay (${lcpEntry.name})`, {
-            duration: metric.elementRenderDelay,
-            end: metric.value
-          });
+        performance.measure(`[Web Vitals Extension] LCP.timeToFirstByte (${metric.attribution.element})`, {
+          start: startTime,
+          duration: metric.attribution.timeToFirstByte,
+        });
+        performance.measure(`[Web Vitals Extension] LCP.resourceLoadDelay (${metric.attribution.element})`, {
+          start: startTime + metric.attribution.timeToFirstByte,
+          duration: metric.attribution.resourceLoadDelay,
+        });
+        performance.measure(`[Web Vitals Extension] LCP.resourceLoadTime (${metric.attribution.element})`, {
+          start: startTime + metric.attribution.timeToFirstByte + metric.attribution.resourceLoadDelay,
+          duration: metric.attribution.resourceLoadTime,
+        });
+        performance.measure(`[Web Vitals Extension] LCP.elmentRenderDelay (${metric.attribution.element})`, {
+          duration: metric.elementRenderDelay,
+          end: metric.value
+        });
         break;
       case "CLS":
         // CLS has a startTime, but not a duration.
@@ -254,7 +254,7 @@
         // Skip for now.
         break;
       case "INP":
-        const inpEntry = metric.eventEntry;
+        const inpEntry = metric.entries[0]
 
         // RenderTime is an estimate, because duration is rounded, and may get rounded keydown
         // In rare cases it can be less than processingEnd and that breaks performance.measure().
