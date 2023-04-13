@@ -280,7 +280,7 @@
             end: adjustedPresentationTime,
           });
         }
-      break;
+        break;
       case "FID":
         if (metric.entries.length > 0) {
           const fidEntry = metric.entries[0]
