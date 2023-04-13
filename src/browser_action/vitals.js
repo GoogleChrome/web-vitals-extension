@@ -284,8 +284,7 @@
                   'LCP Breakdown': 'elementRenderDelay',
                   'Time (ms)': metric.attribution.elementRenderDelay.toFixed(2),
                 }
-              ],
-              ['LCP Breakdown', 'Time (ms)']
+              ]
             )
           }
         }
@@ -348,8 +347,7 @@
                   'INP Breakdown': 'presentationDelay',
                   'Time (ms)': (adjustedPresentationTime - inpEntry.processingEnd).toFixed(2),
                 }
-              ],
-              ['INP Breakdown', 'Time (ms)']
+              ]
             )
           }
         }
@@ -371,8 +369,7 @@
                   'FID Breakdown': 'inputDelay',
                   'Time (ms)': (metric.value).toFixed(2),
                 },
-              ],
-              ['FID Breakdown', 'Time (ms)']
+              ]
             )
           }
         }
