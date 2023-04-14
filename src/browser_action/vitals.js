@@ -237,7 +237,6 @@
     switch (metric.name) {
       case "LCP":
         if (metric.attribution && metric.attribution.lcpEntry && metric.attribution.navigationEntry) {
-          const lcpEntry = metric.attribution.lcpEntry;
           const navEntry = metric.attribution.navigationEntry;
           // Set the start time to the later of the actual start time or the activationStart (for prerender) or 0
           const startTime = Math.max(navEntry.startTime, navEntry.activationStart) || 0;
@@ -245,18 +244,18 @@
           if (enableUserTiming) {
               performance.measure(`[Web Vitals Extension] LCP.timeToFirstByte`, {
               start: startTime,
-              duration: lcpEntry.timeToFirstByte,
+              duration: metric.attribution.timeToFirstByte,
             });
             performance.measure(`[Web Vitals Extension] LCP.resourceLoadDelay`, {
-              start: startTime + lcpEntry.timeToFirstByte,
-              duration: lcpEntry.resourceLoadDelay,
+              start: startTime + metric.attribution.timeToFirstByte,
+              duration: metric.attribution.resourceLoadDelay,
             });
             performance.measure(`[Web Vitals Extension] LCP.resourceLoadTime`, {
-              start: startTime + lcpEntry.timeToFirstByte + lcpEntry.resourceLoadDelay,
-              duration: lcpEntry.resourceLoadTime,
+              start: startTime + metric.attribution.timeToFirstByte + metric.attribution.resourceLoadDelay,
+              duration: metric.attribution.resourceLoadTime,
             });
             performance.measure(`[Web Vitals Extension] LCP.elmentRenderDelay`, {
-              duration: lcpEntry.elementRenderDelay,
+              duration: metric.attribution.elementRenderDelay,
               end: metric.value
             });
           }
@@ -265,7 +264,7 @@
             console.table(
               [
                 {
-                  'LCP Breakdown': `LCP (${lcpEntry.element.nodeName})`,
+                  'LCP Breakdown': `LCP (${metric.attribution.lcpEntry.element.nodeName})`,
                   'Time (ms)': metric.value.toFixed(2),
                 },
                 {
