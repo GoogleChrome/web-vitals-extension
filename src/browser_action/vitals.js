@@ -291,9 +291,17 @@
       case "CLS":
         if (enableConsoleTables) {
           // Add a nice console output of all the shifts
-          let entries = [{'CLS breakdown': 'CLS', 'Shift': metric.value}]
+          const shiftLength = metric.entries.length;
+          let entries = [{
+            'CLS breakdown': `CLS (${shiftLength} ${shiftLength > 1 ? 'shifts' : 'shift' })`,
+            'Shift': metric.value
+          }];
           metric.entries.map((entry) => {
-            entries.push({'CLS breakdown': entry.entryType, 'Shift': entry.value});
+            const sourceLength = entry.sources.length;
+            entries.push({
+              'CLS breakdown': `${entry.entryType} (${sourceLength} ${sourceLength > 1 ? 'elements' : 'element' })`,
+              Shift: entry.value
+            });
           });
           console.table(entries)
         }
