@@ -264,24 +264,24 @@
             console.table(
               [
                 {
-                  'LCP Breakdown': `LCP (${metric.attribution.lcpEntry.element.nodeName})`,
-                  'Time (ms)': metric.value.toFixed(2),
+                  'LCP breakdown': `LCP (${metric.attribution.lcpEntry.element.nodeName})`,
+                  'Time (ms)': Math.round(metric.value, 0),
                 },
                 {
-                  'LCP Breakdown': 'timeToFirstByte',
-                  'Time (ms)': metric.attribution.timeToFirstByte.toFixed(2),
+                  'LCP breakdown': 'Time to first byte',
+                  'Time (ms)': Math.round(metric.attribution.timeToFirstByte, 0),
                 },
                 {
-                  'LCP Breakdown': 'resourceLoadDelay',
-                  'Time (ms)': metric.attribution.resourceLoadDelay.toFixed(2),
+                  'LCP breakdown': 'Resource load delay',
+                  'Time (ms)': Math.round(metric.attribution.resourceLoadDelay, 0),
                 },
                 {
-                  'LCP Breakdown': 'resourceLoadTime',
-                  'Time (ms)': metric.attribution.resourceLoadTime.toFixed(2),
+                  'LCP breakdown': 'Resource load time',
+                  'Time (ms)': Math.round(metric.attribution.resourceLoadTime, 0),
                 },
                 {
-                  'LCP Breakdown': 'elementRenderDelay',
-                  'Time (ms)': metric.attribution.elementRenderDelay.toFixed(2),
+                  'LCP breakdown': 'Element render delay',
+                  'Time (ms)': Math.round(metric.attribution.elementRenderDelay, 0),
                 }
               ]
             )
@@ -291,9 +291,9 @@
       case "CLS":
         if (enableConsoleTables) {
           // Add a nice console output of all the shifts
-          let entries = [{'CLS Breakdown': 'CLS', 'Time (ms)': metric.value}]
+          let entries = [{'CLS breakdown': 'CLS', 'Shift': metric.value}]
           metric.entries.map((entry) => {
-            entries.push({'CLS Breakdown': entry.entryType, 'Time (ms)': entry.value});
+            entries.push({'CLS breakdown': entry.entryType, 'Shift': entry.value});
           });
           console.table(entries)
         }
@@ -331,20 +331,20 @@
             console.table(
               [
                 {
-                  'INP Breakdown': `INP (${inpEntry.name})`,
-                  'Time (ms)': (presentationTime - inpEntry.startTime).toFixed(2),
+                  'INP breakdown': `INP (${inpEntry.name})`,
+                  'Time (ms)': (presentationTime - inpEntry.startTime),
                 },
                 {
-                  'INP Breakdown': 'inputDelay',
-                  'Time (ms)': (inpEntry.processingStart - inpEntry.startTime).toFixed(2),
+                  'INP breakdown': 'Input delay',
+                  'Time (ms)': (inpEntry.processingStart - inpEntry.startTime),
                 },
                 {
-                  'INP Breakdown': 'processingTime',
-                  'Time (ms)': (inpEntry.processingEnd - inpEntry.processingStart).toFixed(2),
+                  'INP breakdown': 'Processing time',
+                  'Time (ms)': (inpEntry.processingEnd - inpEntry.processingStart),
                 },
                 {
-                  'INP Breakdown': 'presentationDelay',
-                  'Time (ms)': (adjustedPresentationTime - inpEntry.processingEnd).toFixed(2),
+                  'INP breakdown': 'Presentation delay',
+                  'Time (ms)': (adjustedPresentationTime - inpEntry.processingEnd),
                 }
               ]
             )
@@ -365,8 +365,8 @@
             console.table(
               [
                 {
-                  'FID Breakdown': `FID (${fidEntry.name})`,
-                  'Time (ms)': (metric.value).toFixed(2),
+                  'FID breakdown': `FID (${fidEntry.name})`,
+                  'Time (ms)': (metric.value),
                 },
               ]
             )
