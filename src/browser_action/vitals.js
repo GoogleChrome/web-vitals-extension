@@ -293,13 +293,13 @@
           // Add a nice console output of all the shifts
           const shiftLength = metric.entries.length;
           let entries = [{
-            'CLS breakdown': `CLS (${shiftLength} ${shiftLength > 1 ? 'shifts' : 'shift' })`,
+            'CLS breakdown': `CLS (${shiftLength} ${shiftLength != 1 ? 'shifts' : 'shift' })`,
             'Shift': metric.value
           }];
           metric.entries.map((entry) => {
             const sourceLength = entry.sources.length;
             entries.push({
-              'CLS breakdown': `${entry.entryType} (${sourceLength} ${sourceLength > 1 ? 'elements' : 'element' })`,
+              'CLS breakdown': `${entry.entryType} (${sourceLength} ${sourceLength != 1 ? 'elements' : 'element' })`,
               Shift: entry.value
             });
           });
