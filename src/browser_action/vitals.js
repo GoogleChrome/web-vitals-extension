@@ -297,14 +297,14 @@
             'Shift': metric.value
           }];
           entries.push({
-            'CLS breakdown': `Largest layout shift`,
+            'CLS breakdown': `Largest layout shift element`,
             'Element': metric.attribution.largestShiftTarget,
             'Shift': metric.attribution.largestShiftValue
           });
           metric.entries.map((entry, index) => {
             entry.sources.map((source) => {
               entries.push({
-                'CLS breakdown': `Layout shift ${index}`,
+                'CLS breakdown': `Layout shift ${index} element`,
                 'Element': `${source.node.nodeName} ("${source.node.nodeValue || source.node.innerText || source.node.src}")`,
                 'Shift': entry.value
               });
