@@ -264,11 +264,11 @@
             console.table(
               [
                 {
-                  'LCP breakdown': `LCP (${metric.attribution.lcpEntry.element.nodeName})`,
+                  'LCP breakdown': `Largest Contentful Paint (<${metric.attribution.lcpEntry.element.nodeName}>)`,
                   'Time (ms)': Math.round(metric.value, 0),
                 },
                 {
-                  'LCP breakdown': 'Time to first byte',
+                  'LCP breakdown': 'Time to First Byte',
                   'Time (ms)': Math.round(metric.attribution.timeToFirstByte, 0),
                 },
                 {
@@ -293,14 +293,21 @@
           // Add a nice console output of all the shifts
           const shiftLength = metric.entries.length;
           let entries = [{
-            'CLS breakdown': `CLS (${shiftLength} ${shiftLength != 1 ? 'shifts' : 'shift' })`,
+            'CLS breakdown': `Cumulative Layout Shift (${shiftLength} ${shiftLength != 1 ? 'shifts' : 'shift' })`,
             'Shift': metric.value
           }];
-          metric.entries.map((entry) => {
-            const sourceLength = entry.sources.length;
-            entries.push({
-              'CLS breakdown': `${entry.entryType} (${sourceLength} ${sourceLength != 1 ? 'elements' : 'element' })`,
-              Shift: entry.value
+          entries.push({
+            'CLS breakdown': `Largest layout shift`,
+            'Element': metric.attribution.largestShiftTarget,
+            'Shift': metric.attribution.largestShiftValue
+          });
+          metric.entries.map((entry, index) => {
+            entry.sources.map((source) => {
+              entries.push({
+                'CLS breakdown': `Layout shift ${index}`,
+                'Element': `${source.node.nodeName} ("${source.node.nodeValue || source.node.innerText || source.node.src}")`,
+                'Shift': entry.value
+              });
             });
           });
           console.table(entries)
@@ -339,7 +346,7 @@
             console.table(
               [
                 {
-                  'INP breakdown': `INP (${inpEntry.name})`,
+                  'INP breakdown': `Interaction to Next Paint (${inpEntry.name})`,
                   'Time (ms)': (presentationTime - inpEntry.startTime),
                 },
                 {
@@ -373,7 +380,7 @@
             console.table(
               [
                 {
-                  'FID breakdown': `FID (${fidEntry.name})`,
+                  'FID breakdown': `First Input Delay (${fidEntry.name})`,
                   'Time (ms)': (metric.value),
                 },
               ]
