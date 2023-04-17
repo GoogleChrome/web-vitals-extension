@@ -264,7 +264,7 @@
             console.table(
               [
                 {
-                  'LCP breakdown': `Largest Contentful Paint (<${metric.attribution.lcpEntry.element.nodeName}>)`,
+                  'LCP breakdown': `Largest Contentful Paint (${metric.attribution.lcpEntry.element.localName || metric.attribution.lcpEntry.element.nodeName})`,
                   'Time (ms)': Math.round(metric.value, 0),
                 },
                 {
@@ -297,15 +297,15 @@
             'Shift': metric.value
           }];
           entries.push({
-            'CLS breakdown': `Largest layout shift element`,
-            'Element': metric.attribution.largestShiftTarget,
+            'CLS breakdown': `Largest layout shift element path`,
+            'Element': `${metric.attribution.largestShiftSource.node.localName || metric.attribution.largestShiftSource.node.nodeName} (${metric.attribution.largestShiftTarget})`,
             'Shift': metric.attribution.largestShiftValue
           });
           metric.entries.map((entry, index) => {
             entry.sources.map((source) => {
               entries.push({
                 'CLS breakdown': `Layout shift ${index} element`,
-                'Element': `${source.node.nodeName} ("${source.node.nodeValue || source.node.innerText || source.node.src}")`,
+                'Element': `${source.node.localName || source.node.nodeName} ("${source.node.nodeValue || source.node.innerText || source.node.src || ''}")`,
                 'Shift': entry.value
               });
             });
