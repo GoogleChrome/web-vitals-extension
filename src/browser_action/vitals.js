@@ -264,8 +264,8 @@
             console.table(
               [
                 {
-                  'LCP breakdown': `Largest Contentful Paint (${metric.attribution.lcpEntry.element.localName || metric.attribution.lcpEntry.element.nodeName})`,
-                  'Time (ms)': Math.round(metric.value, 0),
+                  'LCP breakdown': `LCP (${metric.attribution.lcpEntry.element.localName || metric.attribution.lcpEntry.element.nodeName}) - ${metric.rating}`,
+                  'Time (ms)': Math.round(metric.value, 0)
                 },
                 {
                   'LCP breakdown': 'Time to First Byte',
@@ -293,8 +293,8 @@
           // Add a nice console output of all the shifts
           const shiftLength = metric.entries.length;
           let entries = [{
-            'CLS breakdown': `Cumulative Layout Shift (${shiftLength} ${shiftLength != 1 ? 'shifts' : 'shift' })`,
-            'Shift': metric.value
+            'CLS breakdown': `CLS (${shiftLength} ${shiftLength != 1 ? 'shifts' : 'shift' }) - ${metric.rating}`,
+            'Shift': metric.value,
           }];
           entries.push({
             'CLS breakdown': `Largest layout shift element path`,
@@ -346,7 +346,7 @@
             console.table(
               [
                 {
-                  'INP breakdown': `Interaction to Next Paint (${inpEntry.name})`,
+                  'INP breakdown': `INP (${inpEntry.name}) - ${metric.rating}`,
                   'Time (ms)': (presentationTime - inpEntry.startTime),
                 },
                 {
@@ -380,8 +380,8 @@
             console.table(
               [
                 {
-                  'FID breakdown': `First Input Delay (${fidEntry.name})`,
-                  'Time (ms)': (metric.value),
+                  'FID breakdown': `FID (${fidEntry.name}) - ${metric.rating}`,
+                  'Time (ms)': metric.value,
                 },
               ]
             )
