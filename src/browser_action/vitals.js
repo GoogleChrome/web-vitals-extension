@@ -200,6 +200,15 @@
     return date.toLocaleTimeString('en-US', {hourCycle: 'h23'});
   }
 
+  /**
+   * Return a formatted string of the node with details in brackets
+   * @return {String}
+   */
+  function formatNode(node) {
+    const nodeName = node?.localName || node?.nodeName;
+    const nodeDetails = node?.nodeValue || node?.innerText || node?.src;
+    return nodeDetails ? `${nodeName} (${nodeDetails})` : nodeName;
+  }
 
   /**
      *
@@ -267,11 +276,9 @@
             console.table(
               [
                 {
-                  'LCP breakdown [Web Vitals Extension]': `LCP (${
-                    metric.attribution.lcpEntry.element.localName ||
-                    metric.attribution.lcpEntry.element.nodeName
-                  }) - ${metric.rating}`,
-                  'Time (ms)': Math.round(metric.value, 0)
+                  'LCP breakdown [Web Vitals Extension]': `LCP - ${metric.rating}`,
+                  'Time (ms)': Math.round(metric.value, 0),
+                  'Element': formatNode(metric.attribution.lcpEntry.element),
                 },
                 {
                   'LCP breakdown [Web Vitals Extension]': 'Time to First Byte',
@@ -308,12 +315,7 @@
             entry.sources.map((source) => {
               entries.push({
                 'CLS breakdown [Web Vitals Extension]': `Layout shift ${index} element`,
-                'Element': `${source.node.localName || source.node.nodeName} ("${
-                  source.node.nodeValue ||
-                  source.node.innerText ||
-                  source.node.src ||
-                  ""
-                }")`,
+                'Element': formatNode(source.node),
                 "Shift": Math.round(entry.value * 10000) / 10000,
               });
             });
@@ -354,8 +356,9 @@
             console.table(
               [
                 {
-                  'INP breakdown [Web Vitals Extension]': `INP (${inpEntry.name}) - ${metric.rating}`,
+                  'INP breakdown [Web Vitals Extension]': `INP - ${metric.rating}`,
                   'Time (ms)': (presentationTime - inpEntry.startTime),
+                  'Element': formatNode(inpEntry.target),
                 },
                 {
                   'INP breakdown [Web Vitals Extension]': 'Input delay',
@@ -388,8 +391,9 @@
             console.table(
               [
                 {
-                  'FID breakdown [Web Vitals Extension]': `FID (${fidEntry.name}) - ${metric.rating}`,
+                  'FID breakdown [Web Vitals Extension]': `FID - ${metric.rating}`,
                   'Time (ms)': metric.value,
+                  'Element': formatNode(fidEntry.target),
                 },
               ]
             )
