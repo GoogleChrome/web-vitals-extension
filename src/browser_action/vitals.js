@@ -251,7 +251,10 @@
               duration: metric.attribution.resourceLoadDelay,
             });
             performance.measure(`[Web Vitals Extension] LCP.resourceLoadTime`, {
-              start: startTime + metric.attribution.timeToFirstByte + metric.attribution.resourceLoadDelay,
+              start:
+                startTime +
+                metric.attribution.timeToFirstByte +
+                metric.attribution.resourceLoadDelay,
               duration: metric.attribution.resourceLoadTime,
             });
             performance.measure(`[Web Vitals Extension] LCP.elmentRenderDelay`, {
@@ -264,23 +267,26 @@
             console.table(
               [
                 {
-                  'LCP breakdown': `LCP (${metric.attribution.lcpEntry.element.localName || metric.attribution.lcpEntry.element.nodeName}) - ${metric.rating}`,
+                  'LCP breakdown [Web Vitals Extension]': `LCP (${
+                    metric.attribution.lcpEntry.element.localName ||
+                    metric.attribution.lcpEntry.element.nodeName
+                  }) - ${metric.rating}`,
                   'Time (ms)': Math.round(metric.value, 0)
                 },
                 {
-                  'LCP breakdown': 'Time to First Byte',
+                  'LCP breakdown [Web Vitals Extension]': 'Time to First Byte',
                   'Time (ms)': Math.round(metric.attribution.timeToFirstByte, 0),
                 },
                 {
-                  'LCP breakdown': 'Resource load delay',
+                  'LCP breakdown [Web Vitals Extension]': 'Resource load delay',
                   'Time (ms)': Math.round(metric.attribution.resourceLoadDelay, 0),
                 },
                 {
-                  'LCP breakdown': 'Resource load time',
+                  'LCP breakdown [Web Vitals Extension]': 'Resource load time',
                   'Time (ms)': Math.round(metric.attribution.resourceLoadTime, 0),
                 },
                 {
-                  'LCP breakdown': 'Element render delay',
+                  'LCP breakdown [Web Vitals Extension]': 'Element render delay',
                   'Time (ms)': Math.round(metric.attribution.elementRenderDelay, 0),
                 }
               ]
@@ -293,20 +299,22 @@
           // Add a nice console output of all the shifts
           const shiftLength = metric.entries.length;
           let entries = [{
-            'CLS breakdown': `CLS (${shiftLength} ${shiftLength != 1 ? 'shifts' : 'shift' }) - ${metric.rating}`,
-            'Shift': metric.value,
+            'CLS breakdown [Web Vitals Extension]': `CLS (${shiftLength} ${
+              shiftLength != 1 ? 'shifts' : 'shift'
+            }) - ${metric.rating}`,
+            'Shift': Math.round(metric.value * 10000) / 10000,
           }];
-          entries.push({
-            'CLS breakdown': `Largest layout shift element path`,
-            'Element': `${metric.attribution.largestShiftSource.node.localName || metric.attribution.largestShiftSource.node.nodeName} (${metric.attribution.largestShiftTarget})`,
-            'Shift': metric.attribution.largestShiftValue
-          });
           metric.entries.map((entry, index) => {
             entry.sources.map((source) => {
               entries.push({
-                'CLS breakdown': `Layout shift ${index} element`,
-                'Element': `${source.node.localName || source.node.nodeName} ("${source.node.nodeValue || source.node.innerText || source.node.src || ''}")`,
-                'Shift': entry.value
+                'CLS breakdown [Web Vitals Extension]': `Layout shift ${index} element`,
+                'Element': `${source.node.localName || source.node.nodeName} ("${
+                  source.node.nodeValue ||
+                  source.node.innerText ||
+                  source.node.src ||
+                  ""
+                }")`,
+                "Shift": Math.round(entry.value * 10000) / 10000,
               });
             });
           });
@@ -346,19 +354,19 @@
             console.table(
               [
                 {
-                  'INP breakdown': `INP (${inpEntry.name}) - ${metric.rating}`,
+                  'INP breakdown [Web Vitals Extension]': `INP (${inpEntry.name}) - ${metric.rating}`,
                   'Time (ms)': (presentationTime - inpEntry.startTime),
                 },
                 {
-                  'INP breakdown': 'Input delay',
+                  'INP breakdown [Web Vitals Extension]': 'Input delay',
                   'Time (ms)': (inpEntry.processingStart - inpEntry.startTime),
                 },
                 {
-                  'INP breakdown': 'Processing time',
+                  'INP breakdown [Web Vitals Extension]': 'Processing time',
                   'Time (ms)': (inpEntry.processingEnd - inpEntry.processingStart),
                 },
                 {
-                  'INP breakdown': 'Presentation delay',
+                  'INP breakdown [Web Vitals Extension]': 'Presentation delay',
                   'Time (ms)': (adjustedPresentationTime - inpEntry.processingEnd),
                 }
               ]
@@ -380,7 +388,7 @@
             console.table(
               [
                 {
-                  'FID breakdown': `FID (${fidEntry.name}) - ${metric.rating}`,
+                  'FID breakdown [Web Vitals Extension]': `FID (${fidEntry.name}) - ${metric.rating}`,
                   'Time (ms)': metric.value,
                 },
               ]
