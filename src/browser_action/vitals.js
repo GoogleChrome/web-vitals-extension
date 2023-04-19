@@ -312,9 +312,9 @@
             'Shift': Math.round(metric.value * 10000) / 10000,
           }];
           metric.entries.map((entry, index) => {
-            entry.sources.map((source) => {
+            entry.sources.map((source, index2) => {
               entries.push({
-                'CLS breakdown [Web Vitals Extension]': `Layout shift ${index} element`,
+                'CLS breakdown [Web Vitals Extension]': `Layout shift ${index} element ${index2}`,
                 'Element': formatNode(source.node),
                 "Shift": Math.round(entry.value * 10000) / 10000,
               });
