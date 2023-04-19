@@ -1,6 +1,7 @@
 const optionsOverlayNode = document.getElementById('overlay');
 const optionsConsoleLoggingNode = document.getElementById('consoleLogging');
 const optionsUserTimingNode = document.getElementById('userTiming');
+const optionsConsoleTablesNode = document.getElementById('consoleTables');
 const optionsPreferPhoneFieldNode = document.getElementById('preferPhoneField');
 const optionsSaveBtn = document.getElementById('save');
 const optionsStatus = document.getElementById('status');
@@ -13,6 +14,7 @@ function saveOptions() {
     enableOverlay: optionsOverlayNode.checked,
     debug: optionsConsoleLoggingNode.checked,
     userTiming: optionsUserTimingNode.checked,
+    consoleTables: optionsConsoleTablesNode.checked,
     preferPhoneField: optionsPreferPhoneFieldNode.checked,
   }, () => {
     // Update status to let user know options were saved.
@@ -32,11 +34,13 @@ function restoreOptions() {
     enableOverlay: false,
     debug: false,
     userTiming: false,
+    consoleTables: false,
     preferPhoneField: false,
-  }, ({enableOverlay, debug, userTiming, preferPhoneField}) => {
+  }, ({enableOverlay, debug, userTiming, consoleTables, preferPhoneField}) => {
     optionsOverlayNode.checked = enableOverlay;
     optionsConsoleLoggingNode.checked = debug;
     optionsUserTimingNode.checked = userTiming;
+    optionsConsoleTablesNode.checked = consoleTables;
     optionsPreferPhoneFieldNode.checked = preferPhoneField;
   });
 }

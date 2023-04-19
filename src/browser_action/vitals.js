@@ -18,12 +18,13 @@
   let latestCLS = {};
   let enableLogging = localStorage.getItem('web-vitals-extension-debug')=='TRUE';
   let enableUserTiming = localStorage.getItem('web-vitals-extension-user-timing')=='TRUE';
+  let enableConsoleTables = localStorage.getItem('web-vitals-extension-console-tables')=='TRUE';
 
   // Core Web Vitals thresholds
-  const LCP_THRESHOLD = 2500;
-  const FID_THRESHOLD = 100;
-  const INP_THRESHOLD = 200;
-  const CLS_THRESHOLD = 0.1;
+  const LCP_THRESHOLD = webVitals.LCPThresholds[0];
+  const FID_THRESHOLD = webVitals.FIDThresholds[0];
+  const INP_THRESHOLD = webVitals.INPThresholds[0];
+  const CLS_THRESHOLD = webVitals.CLSThresholds[0];
 
   // CLS update frequency
   const DEBOUNCE_DELAY = 500;
@@ -118,8 +119,9 @@
       enableOverlay: false,
       debug: false,
       userTiming: false,
+      consoleTables: false,
     }, ({
-      enableOverlay, debug, userTiming,
+      enableOverlay, debug, userTiming, consoleTables,
     }) => {
       if (enableOverlay === true && overlayClosedForSession == false) {
         // Overlay
@@ -162,12 +164,19 @@
         localStorage.removeItem('web-vitals-extension-debug');
         enableLogging = false;
       }
-      if (debug) {
+      if (userTiming) {
         localStorage.setItem('web-vitals-extension-user-timing', 'TRUE');
         enableUserTiming = true;
       } else {
         localStorage.removeItem('web-vitals-extension-user-timing');
         enableUserTiming = false;
+      }
+      if (consoleTables) {
+        localStorage.setItem('web-vitals-extension-console-tables', 'TRUE');
+        enableConsoleTables = true;
+      } else {
+        localStorage.removeItem('web-vitals-extension-console-tables');
+        enableConsoleTables = false;
       }
     });
   }
@@ -191,6 +200,15 @@
     return date.toLocaleTimeString('en-US', {hourCycle: 'h23'});
   }
 
+  /**
+   * Return a formatted string of the node with details in brackets
+   * @return {String}
+   */
+  function formatNode(node) {
+    const nodeName = node?.localName || node?.nodeName;
+    const nodeDetails = node?.nodeValue || node?.innerText || node?.src;
+    return nodeDetails ? `${nodeName} (${nodeDetails})` : nodeName;
+  }
 
   /**
      *
@@ -205,10 +223,10 @@
       return;
     }
     if (enableLogging) {
-      console.log('[Web Vitals]', body.name, body.value.toFixed(2), body);
+      console.log('[Web Vitals Extension]', body.name, body.value.toFixed(2), body);
     }
-    if (enableUserTiming) {
-      addUserTimings(body);
+    if (enableUserTiming || enableConsoleTables) {
+      addUserTimings(body, enableUserTiming, enableConsoleTables);
     }
     badgeMetrics[metricName].value = body.value;
     badgeMetrics.location = getURL();
@@ -224,21 +242,90 @@
     );
   }
 
-  function addUserTimings(metric) {
+  function addUserTimings(metric, enableUserTiming, enableConsoleTables) {
     switch (metric.name) {
       case "LCP":
-        // LCP has a loadTime/renderTime (startTime), but not a duration.
-        // Could visualize relative to timeOrigin, or from loadTime -> renderTime.
-        // Skip for now.
+        if (metric.attribution && metric.attribution.lcpEntry && metric.attribution.navigationEntry) {
+          const navEntry = metric.attribution.navigationEntry;
+          // Set the start time to the later of the actual start time or the activationStart (for prerender) or 0
+          const startTime = Math.max(navEntry.startTime, navEntry.activationStart) || 0;
+          // Add the performance marks for the Performance Panel
+          if (enableUserTiming) {
+              performance.measure(`[Web Vitals Extension] LCP.timeToFirstByte`, {
+              start: startTime,
+              duration: metric.attribution.timeToFirstByte,
+            });
+            performance.measure(`[Web Vitals Extension] LCP.resourceLoadDelay`, {
+              start: startTime + metric.attribution.timeToFirstByte,
+              duration: metric.attribution.resourceLoadDelay,
+            });
+            performance.measure(`[Web Vitals Extension] LCP.resourceLoadTime`, {
+              start:
+                startTime +
+                metric.attribution.timeToFirstByte +
+                metric.attribution.resourceLoadDelay,
+              duration: metric.attribution.resourceLoadTime,
+            });
+            performance.measure(`[Web Vitals Extension] LCP.elmentRenderDelay`, {
+              duration: metric.attribution.elementRenderDelay,
+              end: metric.value
+            });
+          }
+          // Add a nice console output
+          if (enableConsoleTables) {
+            console.table(
+              [
+                {
+                  'LCP breakdown [Web Vitals Extension]': `LCP - ${metric.rating}`,
+                  'Time (ms)': Math.round(metric.value, 0),
+                  'Element': formatNode(metric.attribution.lcpEntry.element),
+                },
+                {
+                  'LCP breakdown [Web Vitals Extension]': 'Time to First Byte',
+                  'Time (ms)': Math.round(metric.attribution.timeToFirstByte, 0),
+                },
+                {
+                  'LCP breakdown [Web Vitals Extension]': 'Resource load delay',
+                  'Time (ms)': Math.round(metric.attribution.resourceLoadDelay, 0),
+                },
+                {
+                  'LCP breakdown [Web Vitals Extension]': 'Resource load time',
+                  'Time (ms)': Math.round(metric.attribution.resourceLoadTime, 0),
+                },
+                {
+                  'LCP breakdown [Web Vitals Extension]': 'Element render delay',
+                  'Time (ms)': Math.round(metric.attribution.elementRenderDelay, 0),
+                }
+              ]
+            )
+          }
+        }
         break;
       case "CLS":
-        // CLS has a startTime, but not a duration.
-        // Could visualize the time between rendering tasks (Commit-to-Commit).
-        // Skip for now.
+        if (enableConsoleTables) {
+          // Add a nice console output of all the shifts
+          const shiftLength = metric.entries.length;
+          let entries = [{
+            'CLS breakdown [Web Vitals Extension]': `CLS (${shiftLength} ${
+              shiftLength != 1 ? 'shifts' : 'shift'
+            }) - ${metric.rating}`,
+            'Shift': Math.round(metric.value * 10000) / 10000,
+          }];
+          metric.entries.map((entry, index) => {
+            entry.sources.map((source, index2) => {
+              entries.push({
+                'CLS breakdown [Web Vitals Extension]': `Layout shift ${index} element ${index2}`,
+                'Element': formatNode(source.node),
+                "Shift": Math.round(entry.value * 10000) / 10000,
+              });
+            });
+          });
+          console.table(entries)
+        }
         break;
       case "INP":
-        if (metric.entries.length > 0) {
-          const inpEntry = metric.entries[0];
+        if (metric.attribution && metric.attribution.eventEntry) {
+          const inpEntry = metric.attribution.eventEntry;
 
           // RenderTime is an estimate, because duration is rounded, and may get rounded keydown
           // In rare cases it can be less than processingEnd and that breaks performance.measure().
@@ -246,31 +333,71 @@
           const presentationTime = inpEntry.startTime + inpEntry.duration;
           const adjustedPresentationTime = Math.max(inpEntry.processingEnd + 4, presentationTime);
 
-          performance.measure(`[Web Vitals] INP.duration (${inpEntry.name})`, {
-            start: inpEntry.startTime,
-            end: presentationTime,
-          });
-          performance.measure(`[Web Vitals] INP.inputDelay (${inpEntry.name})`, {
-            start: inpEntry.startTime,
-            end: inpEntry.processingStart,
-          });
-          performance.measure(`[Web Vitals] INP.processingTime (${inpEntry.name})`, {
-            start: inpEntry.processingStart,
-            end: inpEntry.processingEnd,
-          });
-          performance.measure(`[Web Vitals] INP.presentationDelay (${inpEntry.name})`, {
-            start: inpEntry.processingEnd,
-            end: adjustedPresentationTime,
-          });
+          if (enableUserTiming) {
+            performance.measure(`[Web Vitals Extension] INP.duration (${inpEntry.name})`, {
+              start: inpEntry.startTime,
+              end: presentationTime,
+            });
+            performance.measure(`[Web Vitals Extension] INP.inputDelay (${inpEntry.name})`, {
+              start: inpEntry.startTime,
+              end: inpEntry.processingStart,
+            });
+            performance.measure(`[Web Vitals Extension] INP.processingTime (${inpEntry.name})`, {
+              start: inpEntry.processingStart,
+              end: inpEntry.processingEnd,
+            });
+            performance.measure(`[Web Vitals Extension] INP.presentationDelay (${inpEntry.name})`, {
+              start: inpEntry.processingEnd,
+              end: adjustedPresentationTime,
+            });
+          }
+          if (enableConsoleTables) {
+            // Add a nice console output
+            console.table(
+              [
+                {
+                  'INP breakdown [Web Vitals Extension]': `INP - ${metric.rating}`,
+                  'Time (ms)': (presentationTime - inpEntry.startTime),
+                  'Element': formatNode(inpEntry.target),
+                },
+                {
+                  'INP breakdown [Web Vitals Extension]': 'Input delay',
+                  'Time (ms)': (inpEntry.processingStart - inpEntry.startTime),
+                },
+                {
+                  'INP breakdown [Web Vitals Extension]': 'Processing time',
+                  'Time (ms)': (inpEntry.processingEnd - inpEntry.processingStart),
+                },
+                {
+                  'INP breakdown [Web Vitals Extension]': 'Presentation delay',
+                  'Time (ms)': (adjustedPresentationTime - inpEntry.processingEnd),
+                }
+              ]
+            )
+          }
         }
         break;
       case "FID":
-        if (metric.entries.length > 0) {
-          const fidEntry = metric.entries[0]
-          performance.measure(`[Web Vitals Extension] FID (${fidEntry.name})`, {
-            start: fidEntry.startTime,
-            end: fidEntry.processingStart,
-          });
+        if (metric.attribution && metric.attribution.eventEntry) {
+          const fidEntry = metric.attribution.eventEntry;
+          if (enableUserTiming) {
+            performance.measure(`[Web Vitals Extension] FID (${fidEntry.name})`, {
+              start: fidEntry.startTime,
+              end: fidEntry.processingStart,
+            });
+          }
+          if (enableConsoleTables) {
+            // Add a nice console output
+            console.table(
+              [
+                {
+                  'FID breakdown [Web Vitals Extension]': `FID - ${metric.rating}`,
+                  'Time (ms)': metric.value,
+                  'Element': formatNode(fidEntry.target),
+                },
+              ]
+            )
+          }
         }
     }
   }
@@ -306,22 +433,22 @@
     if (self._hasInstalledPerfMetrics) return;
     self._hasInstalledPerfMetrics = true;
 
-    webVitals.getCLS((metric) => {
+    webVitals.onCLS((metric) => {
       // As CLS values can fire frequently in the case
       // of animations or highly-dynamic content, we
       // debounce the broadcast of the metric.
       latestCLS = metric;
       debouncedCLSBroadcast();
-    }, true);
-    webVitals.getLCP((metric) => {
+    }, { reportAllChanges: true });
+    webVitals.onLCP((metric) => {
       broadcastMetricsUpdates('lcp', metric);
-    }, true);
-    webVitals.getFID((metric) => {
+    }, { reportAllChanges: true });
+    webVitals.onFID((metric) => {
       broadcastMetricsUpdates('fid', metric);
-    }, true);
-    webVitals.getINP((metric) => {
+    },  { reportAllChanges: true });
+    webVitals.onINP((metric) => {
       broadcastMetricsUpdates('inp', metric);
-    }, true);
+    },  { reportAllChanges: true });
   }
 
   /**
