@@ -18,16 +18,26 @@
   let latestCLS = {};
   let enableLogging = localStorage.getItem('web-vitals-extension-debug')=='TRUE';
   let enableUserTiming = localStorage.getItem('web-vitals-extension-user-timing')=='TRUE';
-  let enableConsoleTables = localStorage.getItem('web-vitals-extension-console-tables')=='TRUE';
 
   // Core Web Vitals thresholds
   const LCP_THRESHOLD = webVitals.LCPThresholds[0];
   const FID_THRESHOLD = webVitals.FIDThresholds[0];
   const INP_THRESHOLD = webVitals.INPThresholds[0];
   const CLS_THRESHOLD = webVitals.CLSThresholds[0];
+  const COLOR_GOOD = '#0CCE6A';
+  const COLOR_NEEDS_IMPROVEMENT = '#FFA400';
+  const COLOR_POOR = '#FF4E42';
+  const RATING_COLORS = {
+    'good': COLOR_GOOD,
+    'needs-improvement': COLOR_NEEDS_IMPROVEMENT,
+    'poor': COLOR_POOR
+  };
 
   // CLS update frequency
   const DEBOUNCE_DELAY = 500;
+
+  // Identifiable prefix for console logging
+  const LOG_PREFIX = '[Web Vitals Extension]';
 
   // Registry for badge metrics
   const badgeMetrics = initializeMetrics();
@@ -118,10 +128,9 @@
     chrome.storage.sync.get({
       enableOverlay: false,
       debug: false,
-      userTiming: false,
-      consoleTables: false,
+      userTiming: false
     }, ({
-      enableOverlay, debug, userTiming, consoleTables,
+      enableOverlay, debug, userTiming
     }) => {
       if (enableOverlay === true && overlayClosedForSession == false) {
         // Overlay
@@ -171,13 +180,6 @@
         localStorage.removeItem('web-vitals-extension-user-timing');
         enableUserTiming = false;
       }
-      if (consoleTables) {
-        localStorage.setItem('web-vitals-extension-console-tables', 'TRUE');
-        enableConsoleTables = true;
-      } else {
-        localStorage.removeItem('web-vitals-extension-console-tables');
-        enableConsoleTables = false;
-      }
     });
   }
 
@@ -201,16 +203,6 @@
   }
 
   /**
-   * Return a formatted string of the node with details in brackets
-   * @return {String}
-   */
-  function formatNode(node) {
-    const nodeName = node?.localName || node?.nodeName;
-    const nodeDetails = node?.nodeValue || node?.innerText || node?.src;
-    return nodeDetails ? `${nodeName} (${nodeDetails})` : nodeName;
-  }
-
-  /**
      *
      * Broadcasts metrics updates using chrome.runtime(), triggering
      * updates to the badge. Will also update the overlay if this option
@@ -222,183 +214,180 @@
     if (metricName === undefined || badgeMetrics === undefined) {
       return;
     }
-    if (enableLogging) {
-      console.log('[Web Vitals Extension]', body.name, body.value.toFixed(2), body);
-    }
-    if (enableUserTiming || enableConsoleTables) {
-      addUserTimings(body, enableUserTiming, enableConsoleTables);
+    if (enableUserTiming) {
+      addUserTimings(body);
     }
     badgeMetrics[metricName].value = body.value;
     badgeMetrics.location = getURL();
     badgeMetrics.timestamp = getTimestamp();
     const passes = scoreBadgeMetrics(badgeMetrics);
-    // Broadcast metrics updates for badging
-    chrome.runtime.sendMessage(
-        {
-          passesAllThresholds: passes,
-          metrics: badgeMetrics,
-        },
-        (response) => drawOverlay(badgeMetrics, response.tabId),
-    );
+    
+    // Broadcast metrics updates for badging and logging
+    chrome.runtime.sendMessage({
+      passesAllThresholds: passes,
+      metrics: badgeMetrics,
+    }, response => {
+      drawOverlay(badgeMetrics, response.tabId);
+
+      if (enableLogging) {
+        const key = response.tabId.toString();
+        chrome.storage.local.get(key, result => {
+          const tabLoadedInBackground = result[key];
+          logSummaryInfo(body, tabLoadedInBackground);
+        });
+      }
+    });
   }
 
-  function addUserTimings(metric, enableUserTiming, enableConsoleTables) {
+  async function logSummaryInfo(metric, tabLoadedInBackground) {
+    console.groupCollapsed(`${LOG_PREFIX} ${metric.name} %c${metric.value.toFixed(2)}`,
+        `color: ${RATING_COLORS[metric.rating] || 'inherit'}`);
+
+    if (metric.name == 'LCP' &&
+        metric.attribution &&
+        metric.attribution.lcpEntry &&
+        metric.attribution.navigationEntry) {
+      if (tabLoadedInBackground) {
+        console.warn('LCP inflated by tab loading in the background');
+      }
+      console.log('LCP element:', metric.attribution.lcpEntry.element);
+      console.table([{
+        'LCP sub-part': 'Time to First Byte',
+        'Time (ms)': Math.round(metric.attribution.timeToFirstByte, 0),
+      }, {
+        'LCP sub-part': 'Resource load delay',
+        'Time (ms)': Math.round(metric.attribution.resourceLoadDelay, 0),
+      }, {
+        'LCP sub-part': 'Resource load time',
+        'Time (ms)': Math.round(metric.attribution.resourceLoadTime, 0),
+      }, {
+        'LCP sub-part': 'Element render delay',
+        'Time (ms)': Math.round(metric.attribution.elementRenderDelay, 0),
+      }]);
+    }
+    
+    else if (metric.name == 'CLS' && metric.entries.length) {
+      metric.entries.forEach(entry => {
+        console.log('Layout shift:', {
+          'score': Math.round(entry.value * 10000) / 10000,
+          'elements': entry.sources.map(source => {
+            return source.node;
+          })
+        });
+      });
+    }
+    
+    else if (metric.name == 'INP' &&
+        metric.attribution &&
+        metric.attribution.eventEntry) {
+      const eventEntry = metric.attribution.eventEntry;
+
+      console.log('Interaction target:', eventEntry.target);
+      console.log(`Interaction type: %c${eventEntry.name}`, 'font-family: monospace');
+
+      // RenderTime is an estimate, because duration is rounded, and may get rounded keydown
+      // In rare cases it can be less than processingEnd and that breaks performance.measure().
+      // Lets make sure its at least 4ms in those cases so you can just barely see it.
+      const presentationTime = eventEntry.startTime + eventEntry.duration;
+      const adjustedPresentationTime = Math.max(eventEntry.processingEnd + 4, presentationTime);
+
+      console.table([{
+        'INP sub-part': 'Input delay',
+        'Time (ms)': Math.round(eventEntry.processingStart - eventEntry.startTime, 0),
+      },
+      {
+        'INP sub-part': 'Processing time',
+        'Time (ms)': Math.round(eventEntry.processingEnd - eventEntry.processingStart, 0),
+      },
+      {
+        'INP sub-part': 'Presentation delay',
+        'Time (ms)': Math.round(adjustedPresentationTime - eventEntry.processingEnd, 0),
+      }]);
+    }
+    
+    else if (metric.name == 'FID') {
+      const eventEntry = metric.attribution.eventEntry;
+      console.log('Interaction target:', eventEntry.target);
+      console.log(`Interaction type: %c${eventEntry.name}`, 'font-family: monospace');
+    }
+
+    console.log(metric);
+    console.groupEnd();
+  }
+
+  function addUserTimings(metric) {
     switch (metric.name) {
       case "LCP":
-        if (metric.attribution && metric.attribution.lcpEntry && metric.attribution.navigationEntry) {
-          const navEntry = metric.attribution.navigationEntry;
-          // Set the start time to the later of the actual start time or the activationStart (for prerender) or 0
-          const startTime = Math.max(navEntry.startTime, navEntry.activationStart) || 0;
-          // Add the performance marks for the Performance Panel
-          if (enableUserTiming) {
-              performance.measure(`[Web Vitals Extension] LCP.timeToFirstByte`, {
-              start: startTime,
-              duration: metric.attribution.timeToFirstByte,
-            });
-            performance.measure(`[Web Vitals Extension] LCP.resourceLoadDelay`, {
-              start: startTime + metric.attribution.timeToFirstByte,
-              duration: metric.attribution.resourceLoadDelay,
-            });
-            performance.measure(`[Web Vitals Extension] LCP.resourceLoadTime`, {
-              start:
-                startTime +
-                metric.attribution.timeToFirstByte +
-                metric.attribution.resourceLoadDelay,
-              duration: metric.attribution.resourceLoadTime,
-            });
-            performance.measure(`[Web Vitals Extension] LCP.elmentRenderDelay`, {
-              duration: metric.attribution.elementRenderDelay,
-              end: metric.value
-            });
-          }
-          // Add a nice console output
-          if (enableConsoleTables) {
-            console.table(
-              [
-                {
-                  'LCP breakdown [Web Vitals Extension]': `LCP - ${metric.rating}`,
-                  'Time (ms)': Math.round(metric.value, 0),
-                  'Element': formatNode(metric.attribution.lcpEntry.element),
-                },
-                {
-                  'LCP breakdown [Web Vitals Extension]': 'Time to First Byte',
-                  'Time (ms)': Math.round(metric.attribution.timeToFirstByte, 0),
-                },
-                {
-                  'LCP breakdown [Web Vitals Extension]': 'Resource load delay',
-                  'Time (ms)': Math.round(metric.attribution.resourceLoadDelay, 0),
-                },
-                {
-                  'LCP breakdown [Web Vitals Extension]': 'Resource load time',
-                  'Time (ms)': Math.round(metric.attribution.resourceLoadTime, 0),
-                },
-                {
-                  'LCP breakdown [Web Vitals Extension]': 'Element render delay',
-                  'Time (ms)': Math.round(metric.attribution.elementRenderDelay, 0),
-                }
-              ]
-            )
-          }
+        if (!(metric.attribution && metric.attribution.lcpEntry && metric.attribution.navigationEntry)) {
+          break;
         }
+
+        const navEntry = metric.attribution.navigationEntry;
+        // Set the start time to the later of the actual start time or the activationStart (for prerender) or 0
+        const startTime = Math.max(navEntry.startTime, navEntry.activationStart) || 0;
+        // Add the performance marks for the Performance Panel
+        performance.measure(`${LOG_PREFIX} LCP.timeToFirstByte`, {
+          start: startTime,
+          duration: metric.attribution.timeToFirstByte,
+        });
+        performance.measure(`${LOG_PREFIX} LCP.resourceLoadDelay`, {
+          start: startTime + metric.attribution.timeToFirstByte,
+          duration: metric.attribution.resourceLoadDelay,
+        });
+        performance.measure(`${LOG_PREFIX} LCP.resourceLoadTime`, {
+          start:
+            startTime +
+            metric.attribution.timeToFirstByte +
+            metric.attribution.resourceLoadDelay,
+          duration: metric.attribution.resourceLoadTime,
+        });
+        performance.measure(`${LOG_PREFIX} LCP.elmentRenderDelay`, {
+          duration: metric.attribution.elementRenderDelay,
+          end: metric.value
+        });
         break;
-      case "CLS":
-        if (enableConsoleTables) {
-          // Add a nice console output of all the shifts
-          const shiftLength = metric.entries.length;
-          let entries = [{
-            'CLS breakdown [Web Vitals Extension]': `CLS (${shiftLength} ${
-              shiftLength != 1 ? 'shifts' : 'shift'
-            }) - ${metric.rating}`,
-            'Shift': Math.round(metric.value * 10000) / 10000,
-          }];
-          metric.entries.map((entry, index) => {
-            entry.sources.map((source, index2) => {
-              entries.push({
-                'CLS breakdown [Web Vitals Extension]': `Layout shift ${index} element ${index2}`,
-                'Element': formatNode(source.node),
-                "Shift": Math.round(entry.value * 10000) / 10000,
-              });
-            });
-          });
-          console.table(entries)
-        }
-        break;
+
       case "INP":
-        if (metric.attribution && metric.attribution.eventEntry) {
-          const inpEntry = metric.attribution.eventEntry;
-
-          // RenderTime is an estimate, because duration is rounded, and may get rounded keydown
-          // In rare cases it can be less than processingEnd and that breaks performance.measure().
-          // Lets make sure its at least 4ms in those cases so you can just barely see it.
-          const presentationTime = inpEntry.startTime + inpEntry.duration;
-          const adjustedPresentationTime = Math.max(inpEntry.processingEnd + 4, presentationTime);
-
-          if (enableUserTiming) {
-            performance.measure(`[Web Vitals Extension] INP.duration (${inpEntry.name})`, {
-              start: inpEntry.startTime,
-              end: presentationTime,
-            });
-            performance.measure(`[Web Vitals Extension] INP.inputDelay (${inpEntry.name})`, {
-              start: inpEntry.startTime,
-              end: inpEntry.processingStart,
-            });
-            performance.measure(`[Web Vitals Extension] INP.processingTime (${inpEntry.name})`, {
-              start: inpEntry.processingStart,
-              end: inpEntry.processingEnd,
-            });
-            performance.measure(`[Web Vitals Extension] INP.presentationDelay (${inpEntry.name})`, {
-              start: inpEntry.processingEnd,
-              end: adjustedPresentationTime,
-            });
-          }
-          if (enableConsoleTables) {
-            // Add a nice console output
-            console.table(
-              [
-                {
-                  'INP breakdown [Web Vitals Extension]': `INP - ${metric.rating}`,
-                  'Time (ms)': (presentationTime - inpEntry.startTime),
-                  'Element': formatNode(inpEntry.target),
-                },
-                {
-                  'INP breakdown [Web Vitals Extension]': 'Input delay',
-                  'Time (ms)': (inpEntry.processingStart - inpEntry.startTime),
-                },
-                {
-                  'INP breakdown [Web Vitals Extension]': 'Processing time',
-                  'Time (ms)': (inpEntry.processingEnd - inpEntry.processingStart),
-                },
-                {
-                  'INP breakdown [Web Vitals Extension]': 'Presentation delay',
-                  'Time (ms)': (adjustedPresentationTime - inpEntry.processingEnd),
-                }
-              ]
-            )
-          }
+        if (!(metric.attribution && metric.attribution.eventEntry)) {
+          break;
         }
+
+        const inpEntry = metric.attribution.eventEntry;
+
+        // RenderTime is an estimate, because duration is rounded, and may get rounded keydown
+        // In rare cases it can be less than processingEnd and that breaks performance.measure().
+        // Lets make sure its at least 4ms in those cases so you can just barely see it.
+        const presentationTime = inpEntry.startTime + inpEntry.duration;
+        const adjustedPresentationTime = Math.max(inpEntry.processingEnd + 4, presentationTime);
+
+        performance.measure(`${LOG_PREFIX} INP.duration (${inpEntry.name})`, {
+          start: inpEntry.startTime,
+          end: presentationTime,
+        });
+        performance.measure(`${LOG_PREFIX} INP.inputDelay (${inpEntry.name})`, {
+          start: inpEntry.startTime,
+          end: inpEntry.processingStart,
+        });
+        performance.measure(`${LOG_PREFIX} INP.processingTime (${inpEntry.name})`, {
+          start: inpEntry.processingStart,
+          end: inpEntry.processingEnd,
+        });
+        performance.measure(`${LOG_PREFIX} INP.presentationDelay (${inpEntry.name})`, {
+          start: inpEntry.processingEnd,
+          end: adjustedPresentationTime,
+        });
         break;
+
       case "FID":
-        if (metric.attribution && metric.attribution.eventEntry) {
-          const fidEntry = metric.attribution.eventEntry;
-          if (enableUserTiming) {
-            performance.measure(`[Web Vitals Extension] FID (${fidEntry.name})`, {
-              start: fidEntry.startTime,
-              end: fidEntry.processingStart,
-            });
-          }
-          if (enableConsoleTables) {
-            // Add a nice console output
-            console.table(
-              [
-                {
-                  'FID breakdown [Web Vitals Extension]': `FID - ${metric.rating}`,
-                  'Time (ms)': metric.value,
-                  'Element': formatNode(fidEntry.target),
-                },
-              ]
-            )
-          }
+        if (!(metric.attribution && metric.attribution.eventEntry)) {
+          break;
         }
+
+        const fidEntry = metric.attribution.eventEntry;
+        performance.measure(`${LOG_PREFIX} FID (${fidEntry.name})`, {
+          start: fidEntry.startTime,
+          end: fidEntry.processingStart,
+        });
     }
   }
 
@@ -440,15 +429,18 @@
       latestCLS = metric;
       debouncedCLSBroadcast();
     }, { reportAllChanges: true });
+
     webVitals.onLCP((metric) => {
       broadcastMetricsUpdates('lcp', metric);
     }, { reportAllChanges: true });
+
     webVitals.onFID((metric) => {
       broadcastMetricsUpdates('fid', metric);
-    },  { reportAllChanges: true });
+    }, { reportAllChanges: true });
+
     webVitals.onINP((metric) => {
       broadcastMetricsUpdates('inp', metric);
-    },  { reportAllChanges: true });
+    }, { reportAllChanges: true });
   }
 
   /**

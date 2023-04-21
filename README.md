@@ -67,6 +67,27 @@ The overlay displays a Heads up display (HUD) which overlays your page. It is us
 * Check `Display HUD overlay` and click 'Save'
 * Reload the tab for the URL you wish to test. The overlay should now be present.
 
+### Console logs
+
+<img src="media/cwv-extension-console.png" width="75%">
+
+The console logging feature of the Web Vitals extension provides a diagnostic view of all supported metrics. To enable console logs:
+
+* Right-click on the Ambient badge and go to Options.
+* Check `Console logging` and click 'Save'
+* Open the Console panel in DevTools and filter for `Web Vitals`
+
+To filter out unneeded metrics, prepend a minus sign to the metric name. For example, set the filter to `Web Vitals -CLS -FID` to filter out CLS and FID diagnostic info.
+
+Diagnostic info for each metric is logged as a console group prepended by the extension name, `[Web Vitals Extension]`, meaning that you will need to click this line in order to toggle the group open and closed.
+
+The kinds of diagnostic info varies per metric. For example, the LCP info includes:
+
+* A reference to the LCP element
+* A table of [LCP sub-part metrics](https://web.dev/optimize-lcp/#:~:text=each%20of%20these-,LCP%20sub%2Dparts,-in%20more%20detail)
+* An optional warning if the tab was [loaded in the background](https://web.dev/lcp/#:~:text=your%20analytics%20service.-,Caution,-Since%20users%20can)
+* The full attribution object from [web-vitals](https://github.com/GoogleChrome/web-vitals)
+
 ## Contributing
 
 Contributions to this project are welcome in the form of pull requests or issues. See [CONTRIBUTING.md](/CONTRIBUTING.md) for further details.
