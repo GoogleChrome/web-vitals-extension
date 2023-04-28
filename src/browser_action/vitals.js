@@ -18,6 +18,7 @@
   const { onEachInteraction } = await import(chrome.runtime.getURL('src/browser_action/onEachInteraction.js'));
   let overlayClosedForSession = false;
   let latestCLS = {};
+  let latestINP = {};
   let enableLogging = localStorage.getItem('web-vitals-extension-debug')=='TRUE';
   let enableUserTiming = localStorage.getItem('web-vitals-extension-user-timing')=='TRUE';
 
@@ -278,7 +279,7 @@
       });
     }
     
-    else if ((metric.name == 'INP' || metric.name == 'Interaction') &&
+    else if ((metric.name == 'INP'|| metric.name == 'Interaction') &&
         metric.attribution &&
         metric.attribution.eventEntry) {
       const subPartString = `${metric.name} sub-part`;
@@ -435,11 +436,16 @@
 
     webVitals.onLCP(broadcastMetricsUpdates, { reportAllChanges: true });
     webVitals.onFID(broadcastMetricsUpdates, { reportAllChanges: true });
-    webVitals.onINP(broadcastMetricsUpdates, { reportAllChanges: true });
+    webVitals.onINP((metric) => {
+      latestINP = metric;
+      broadcastMetricsUpdates(metric)
+    }, { reportAllChanges: true });
 
     if (enableLogging) {
       onEachInteraction((metric) => {
-        logSummaryInfo(metric, false);
+        if (metric.attribution.eventEntry.interactionId != latestINP.attribution.eventEntry.interactionId) {
+          logSummaryInfo(metric, false);
+        }
       });
     }
   }
