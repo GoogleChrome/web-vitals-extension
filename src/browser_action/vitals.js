@@ -209,17 +209,16 @@
      * Broadcasts metrics updates using chrome.runtime(), triggering
      * updates to the badge. Will also update the overlay if this option
      * is enabled.
-     * @param {String} metricName
      * @param {Object} metric
      */
-  function broadcastMetricsUpdates(metricName, metric) {
-    if (metricName === undefined || badgeMetrics === undefined) {
+  function broadcastMetricsUpdates(metric) {
+    if (badgeMetrics === undefined) {
       return;
     }
     if (enableUserTiming) {
       addUserTimings(metric);
     }
-    badgeMetrics[metricName].value = metric.value;
+    badgeMetrics[metric.name.toLowerCase()].value = metric.value;
     badgeMetrics.location = getURL();
     badgeMetrics.timestamp = getTimestamp();
     const passes = scoreBadgeMetrics(badgeMetrics);
@@ -231,7 +230,7 @@
     }, response => {
       drawOverlay(badgeMetrics, response.tabId);
 
-      if (enableLogging && metricName != 'inp') {
+      if (enableLogging) {
         const key = response.tabId.toString();
         chrome.storage.local.get(key, result => {
           const tabLoadedInBackground = result[key];
@@ -279,32 +278,34 @@
       });
     }
     
-    else if (metric.name == 'INP' &&
+    else if ((metric.name == 'INP' || metric.name == 'Interaction') &&
         metric.attribution &&
         metric.attribution.eventEntry) {
+      const subPartString = `${metric.name} sub-part`;
       const eventEntry = metric.attribution.eventEntry;
-
       console.log('Interaction target:', eventEntry.target);
-      console.log(`Interaction type: %c${eventEntry.name}`, 'font-family: monospace');
 
-      // RenderTime is an estimate, because duration is rounded, and may get rounded keydown
-      // In rare cases it can be less than processingEnd and that breaks performance.measure().
-      // Lets make sure its at least 4ms in those cases so you can just barely see it.
-      const presentationTime = eventEntry.startTime + eventEntry.duration;
-      const adjustedPresentationTime = Math.max(eventEntry.processingEnd + 4, presentationTime);
+      for (let entry of metric.entries) {
+        console.log(`Interaction event type: %c${entry.name}`, 'font-family: monospace');
 
-      console.table([{
-        'INP sub-part': 'Input delay',
-        'Time (ms)': Math.round(eventEntry.processingStart - eventEntry.startTime, 0),
-      },
-      {
-        'INP sub-part': 'Processing time',
-        'Time (ms)': Math.round(eventEntry.processingEnd - eventEntry.processingStart, 0),
-      },
-      {
-        'INP sub-part': 'Presentation delay',
-        'Time (ms)': Math.round(adjustedPresentationTime - eventEntry.processingEnd, 0),
-      }]);
+        // RenderTime is an estimate, because duration is rounded, and may get rounded down.
+        // In rare cases it can be less than processingEnd and that breaks performance.measure().
+        // Lets make sure its at least 4ms in those cases so you can just barely see it.
+        const adjustedPresentationTime = Math.max(eventEntry.processingEnd + 4, eventEntry.startTime + eventEntry.duration);
+
+        console.table([{
+          subPartString: 'Input delay',
+          'Time (ms)': Math.round(entry.processingStart - entry.startTime, 0),
+        },
+        {
+          subPartString: 'Processing time',
+          'Time (ms)': Math.round(entry.processingEnd - entry.processingStart, 0),
+        },
+        {
+          subPartString: 'Presentation delay',
+          'Time (ms)': Math.round(adjustedPresentationTime - entry.processingEnd, 0),
+        }]);
+      }
     }
     
     else if (metric.name == 'FID') {
@@ -397,7 +398,7 @@
    * Broadcasts the latest CLS value
    */
   function broadcastCLS() {
-    broadcastMetricsUpdates('cls', latestCLS);
+    broadcastMetricsUpdates(latestCLS);
   }
 
   /**
@@ -432,17 +433,9 @@
       debouncedCLSBroadcast();
     }, { reportAllChanges: true });
 
-    webVitals.onLCP((metric) => {
-      broadcastMetricsUpdates('lcp', metric);
-    }, { reportAllChanges: true });
-
-    webVitals.onFID((metric) => {
-      broadcastMetricsUpdates('fid', metric);
-    }, { reportAllChanges: true });
-
-    webVitals.onINP((metric) => {
-      broadcastMetricsUpdates('inp', metric);
-    }, { reportAllChanges: true });
+    webVitals.onLCP(broadcastMetricsUpdates, { reportAllChanges: true });
+    webVitals.onFID(broadcastMetricsUpdates, { reportAllChanges: true });
+    webVitals.onINP(broadcastMetricsUpdates, { reportAllChanges: true });
 
     if (enableLogging) {
       onEachInteraction((metric) => {

@@ -1,14 +1,18 @@
 export function onEachInteraction(callback) {
 	const valueToRating = score => score <= 200 ? 'good' : score <= 500 ? 'needs-improvement' : 'poor';
-	let worst_inp = 0;
 	
 	const observer = new PerformanceObserver(list => {
-		for (let entry of list.getEntries()) {
-			if (!entry.interactionId) continue;
+		const interactions = {};
 
-			// entry.renderTime = entry.startTime + entry.duration;
+		for (let entry of list.getEntries().filter(entry => entry.interactionId)) {
+			interactions[entry.interactionId] = interactions[entry.interactionId] || [];
+			interactions[entry.interactionId].push(entry);
+		}
 
-			worst_inp = Math.max(entry.duration, worst_inp);
+		// Will report as a single interaction even if parts are in separate frames.
+		// Consider splitting by animation frame.
+		for (let interaction of Object.values(interactions)) {
+			const entry = interaction.reduce((prev, curr) => prev.duration >= curr.duration ? prev : curr);
 			const value = entry.duration;
 
 			callback({
@@ -19,10 +23,10 @@ export function onEachInteraction(callback) {
 					eventType: entry.name,
 					loadState: "unknown",
 				},
-				delta: worst_inp - value,
-				entries: [entry],
+				delta: 0,
+				entries: interaction,
 				id: "none",
-				name: "INP",
+				name: "Interaction",
 				navigationType: "unknown",
 				rating: valueToRating(value),
 				value,
