@@ -11,9 +11,11 @@
  limitations under the License.
 */
 
+
 (async () => {
   const src = chrome.runtime.getURL('src/browser_action/web-vitals.js');
   const webVitals = await import(src);
+  const { onEachInteraction } = await import(chrome.runtime.getURL('src/browser_action/onEachInteraction.js'));
   let overlayClosedForSession = false;
   let latestCLS = {};
   let enableLogging = localStorage.getItem('web-vitals-extension-debug')=='TRUE';
@@ -208,16 +210,16 @@
      * updates to the badge. Will also update the overlay if this option
      * is enabled.
      * @param {String} metricName
-     * @param {Object} body
+     * @param {Object} metric
      */
-  function broadcastMetricsUpdates(metricName, body) {
+  function broadcastMetricsUpdates(metricName, metric) {
     if (metricName === undefined || badgeMetrics === undefined) {
       return;
     }
     if (enableUserTiming) {
-      addUserTimings(body);
+      addUserTimings(metric);
     }
-    badgeMetrics[metricName].value = body.value;
+    badgeMetrics[metricName].value = metric.value;
     badgeMetrics.location = getURL();
     badgeMetrics.timestamp = getTimestamp();
     const passes = scoreBadgeMetrics(badgeMetrics);
@@ -229,11 +231,11 @@
     }, response => {
       drawOverlay(badgeMetrics, response.tabId);
 
-      if (enableLogging) {
+      if (enableLogging && metricName != 'inp') {
         const key = response.tabId.toString();
         chrome.storage.local.get(key, result => {
           const tabLoadedInBackground = result[key];
-          logSummaryInfo(body, tabLoadedInBackground);
+          logSummaryInfo(metric, tabLoadedInBackground);
         });
       }
     });
@@ -441,6 +443,12 @@
     webVitals.onINP((metric) => {
       broadcastMetricsUpdates('inp', metric);
     }, { reportAllChanges: true });
+
+    if (enableLogging) {
+      onEachInteraction((metric) => {
+        logSummaryInfo(metric, false);
+      });
+    }
   }
 
   /**
