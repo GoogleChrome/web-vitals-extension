@@ -11,7 +11,6 @@
  limitations under the License.
 */
 
-
 (async () => {
   const src = chrome.runtime.getURL('src/browser_action/web-vitals.js');
   const webVitals = await import(src);
