@@ -14,7 +14,7 @@
 (async () => {
   const src = chrome.runtime.getURL('src/browser_action/web-vitals.js');
   const webVitals = await import(src);
-  const { onEachInteraction } = await import(chrome.runtime.getURL('src/browser_action/onEachInteraction.js'));
+  const { onEachInteraction } = await import(chrome.runtime.getURL('src/browser_action/on-each-interaction.js'));
   let overlayClosedForSession = false;
   let latestCLS = {};
   let latestINP = {};
