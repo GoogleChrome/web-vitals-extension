@@ -17,7 +17,6 @@
   const { onEachInteraction } = await import(chrome.runtime.getURL('src/browser_action/on-each-interaction.js'));
   let overlayClosedForSession = false;
   let latestCLS = {};
-  let latestINP = {};
   let enableLogging = localStorage.getItem('web-vitals-extension-debug')=='TRUE';
   let enableUserTiming = localStorage.getItem('web-vitals-extension-user-timing')=='TRUE';
 
@@ -259,12 +258,12 @@
     }
 
     else if (metric.name == 'CLS' && metric.entries.length) {
-      metric.entries.forEach(entry => {
+      for (const entry of metric.entries) {
         console.log('Layout shift - score: ', Math.round(entry.value * 10000) / 10000);
-        entry.sources.map(source => {
+        for (const source of entry.sources) {
           console.log(source.node);
-        })
-      });
+        }
+      };
     }
 
     else if ((metric.name == 'INP'|| metric.name == 'Interaction') &&
@@ -425,7 +424,6 @@
     webVitals.onLCP(broadcastMetricsUpdates, { reportAllChanges: true });
     webVitals.onFID(broadcastMetricsUpdates, { reportAllChanges: true });
     webVitals.onINP((metric) => {
-      latestINP = metric;
       broadcastMetricsUpdates(metric)
     }, { reportAllChanges: true });
 
