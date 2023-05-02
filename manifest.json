@@ -22,7 +22,7 @@
       "resources": [
         "src/browser_action/viewer.css",
         "src/browser_action/web-vitals.js",
-        "src/browser_action/onEachInteraction.js"
+        "src/browser_action/on-each-interaction.js"
       ],
       "matches": ["*://*/*"]
     }
