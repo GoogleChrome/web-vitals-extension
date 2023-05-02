@@ -194,15 +194,6 @@
   }
 
   /**
-   * Return a short timestamp (HH:MM:SS) for current time
-   * @return {String}
-   */
-  function getTimestamp() {
-    const date = new Date();
-    return date.toLocaleTimeString('en-US', {hourCycle: 'h23'});
-  }
-
-  /**
      *
      * Broadcasts metrics updates using chrome.runtime(), triggering
      * updates to the badge. Will also update the overlay if this option
@@ -219,7 +210,7 @@
     }
     badgeMetrics[metricName].value = body.value;
     badgeMetrics.location = getURL();
-    badgeMetrics.timestamp = getTimestamp();
+    badgeMetrics.timestamp = new Date().toISOString();
     const passes = scoreBadgeMetrics(badgeMetrics);
     
     // Broadcast metrics updates for badging and logging

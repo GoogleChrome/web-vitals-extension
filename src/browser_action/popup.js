@@ -26,9 +26,11 @@ class Popup {
     }
 
     const {location, timestamp, ..._metrics} = metrics;
+    // Format as a short timestamp (HH:MM:SS).
+    const formattedTimestamp = new Date(timestamp).toLocaleTimeString('en-US', {hourCycle: 'h23'});
 
     this.location = location;
-    this.timestamp = timestamp;
+    this.timestamp = formattedTimestamp;
     this._metrics = _metrics;
     this.background = background;
     this.options = options;
