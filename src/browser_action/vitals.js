@@ -433,9 +433,7 @@
 
     if (enableLogging) {
       onEachInteraction((metric) => {
-        if (metric.attribution.eventEntry.interactionId != latestINP.attribution?.eventEntry.interactionId) {
-          logSummaryInfo(metric, false);
-        }
+        logSummaryInfo(metric, false);
       });
     }
   }
