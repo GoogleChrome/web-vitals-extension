@@ -212,7 +212,7 @@
     badgeMetrics.location = getURL();
     badgeMetrics.timestamp = new Date().toISOString();
     const passes = scoreBadgeMetrics(badgeMetrics);
-    
+
     // Broadcast metrics updates for badging and logging
     chrome.runtime.sendMessage({
       passesAllThresholds: passes,
@@ -256,18 +256,16 @@
         'Time (ms)': Math.round(metric.attribution.elementRenderDelay, 0),
       }]);
     }
-    
+
     else if (metric.name == 'CLS' && metric.entries.length) {
       metric.entries.forEach(entry => {
-        console.log('Layout shift:', {
-          'score': Math.round(entry.value * 10000) / 10000,
-          'elements': entry.sources.map(source => {
-            return source.node;
-          })
-        });
+        console.log('Layout shift - score: ', Math.round(entry.value * 10000) / 10000);
+        entry.sources.map(source => {
+          console.log(source.node);
+        })
       });
     }
-    
+
     else if (metric.name == 'INP' &&
         metric.attribution &&
         metric.attribution.eventEntry) {
@@ -295,7 +293,7 @@
         'Time (ms)': Math.round(adjustedPresentationTime - eventEntry.processingEnd, 0),
       }]);
     }
-    
+
     else if (metric.name == 'FID') {
       const eventEntry = metric.attribution.eventEntry;
       console.log('Interaction target:', eventEntry.target);
