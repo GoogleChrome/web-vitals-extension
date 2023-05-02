@@ -291,7 +291,7 @@
         // RenderTime is an estimate, because duration is rounded, and may get rounded down.
         // In rare cases it can be less than processingEnd and that breaks performance.measure().
         // Lets make sure its at least 4ms in those cases so you can just barely see it.
-        const adjustedPresentationTime = Math.max(eventEntry.processingEnd + 4, eventEntry.startTime + eventEntry.duration);
+        const adjustedPresentationTime = Math.max(entry.processingEnd + 4, entry.startTime + entry.duration);
 
         console.table([{
           subPartString: 'Input delay',
@@ -442,7 +442,7 @@
 
     if (enableLogging) {
       onEachInteraction((metric) => {
-        if (metric.attribution.eventEntry.interactionId != latestINP.attribution.eventEntry.interactionId) {
+        if (metric.attribution.eventEntry.interactionId != latestINP.attribution?.eventEntry.interactionId) {
           logSummaryInfo(metric, false);
         }
       });
