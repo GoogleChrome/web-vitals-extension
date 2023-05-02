@@ -14,8 +14,10 @@
 (async () => {
   const src = chrome.runtime.getURL('src/browser_action/web-vitals.js');
   const webVitals = await import(src);
+  const { onEachInteraction } = await import(chrome.runtime.getURL('src/browser_action/on-each-interaction.js'));
   let overlayClosedForSession = false;
   let latestCLS = {};
+  let latestINP = {};
   let enableLogging = localStorage.getItem('web-vitals-extension-debug')=='TRUE';
   let enableUserTiming = localStorage.getItem('web-vitals-extension-user-timing')=='TRUE';
 
@@ -198,21 +200,20 @@
      * Broadcasts metrics updates using chrome.runtime(), triggering
      * updates to the badge. Will also update the overlay if this option
      * is enabled.
-     * @param {String} metricName
-     * @param {Object} body
+     * @param {Object} metric
      */
-  function broadcastMetricsUpdates(metricName, body) {
-    if (metricName === undefined || badgeMetrics === undefined) {
+  function broadcastMetricsUpdates(metric) {
+    if (badgeMetrics === undefined) {
       return;
     }
     if (enableUserTiming) {
-      addUserTimings(body);
+      addUserTimings(metric);
     }
-    badgeMetrics[metricName].value = body.value;
+    badgeMetrics[metric.name.toLowerCase()].value = metric.value;
     badgeMetrics.location = getURL();
     badgeMetrics.timestamp = new Date().toISOString();
     const passes = scoreBadgeMetrics(badgeMetrics);
-    
+
     // Broadcast metrics updates for badging and logging
     chrome.runtime.sendMessage({
       passesAllThresholds: passes,
@@ -224,7 +225,7 @@
         const key = response.tabId.toString();
         chrome.storage.local.get(key, result => {
           const tabLoadedInBackground = result[key];
-          logSummaryInfo(body, tabLoadedInBackground);
+          logSummaryInfo(metric, tabLoadedInBackground);
         });
       }
     });
@@ -256,7 +257,7 @@
         'Time (ms)': Math.round(metric.attribution.elementRenderDelay, 0),
       }]);
     }
-    
+
     else if (metric.name == 'CLS' && metric.entries.length) {
       metric.entries.forEach(entry => {
         console.log('Layout shift:', {
@@ -267,35 +268,37 @@
         });
       });
     }
-    
-    else if (metric.name == 'INP' &&
+
+    else if ((metric.name == 'INP'|| metric.name == 'Interaction') &&
         metric.attribution &&
         metric.attribution.eventEntry) {
+      const subPartString = `${metric.name} sub-part`;
       const eventEntry = metric.attribution.eventEntry;
-
       console.log('Interaction target:', eventEntry.target);
-      console.log(`Interaction type: %c${eventEntry.name}`, 'font-family: monospace');
 
-      // RenderTime is an estimate, because duration is rounded, and may get rounded keydown
-      // In rare cases it can be less than processingEnd and that breaks performance.measure().
-      // Lets make sure its at least 4ms in those cases so you can just barely see it.
-      const presentationTime = eventEntry.startTime + eventEntry.duration;
-      const adjustedPresentationTime = Math.max(eventEntry.processingEnd + 4, presentationTime);
+      for (let entry of metric.entries) {
+        console.log(`Interaction event type: %c${entry.name}`, 'font-family: monospace');
 
-      console.table([{
-        'INP sub-part': 'Input delay',
-        'Time (ms)': Math.round(eventEntry.processingStart - eventEntry.startTime, 0),
-      },
-      {
-        'INP sub-part': 'Processing time',
-        'Time (ms)': Math.round(eventEntry.processingEnd - eventEntry.processingStart, 0),
-      },
-      {
-        'INP sub-part': 'Presentation delay',
-        'Time (ms)': Math.round(adjustedPresentationTime - eventEntry.processingEnd, 0),
-      }]);
+        // RenderTime is an estimate, because duration is rounded, and may get rounded down.
+        // In rare cases it can be less than processingEnd and that breaks performance.measure().
+        // Lets make sure its at least 4ms in those cases so you can just barely see it.
+        const adjustedPresentationTime = Math.max(entry.processingEnd + 4, entry.startTime + entry.duration);
+
+        console.table([{
+          subPartString: 'Input delay',
+          'Time (ms)': Math.round(entry.processingStart - entry.startTime, 0),
+        },
+        {
+          subPartString: 'Processing time',
+          'Time (ms)': Math.round(entry.processingEnd - entry.processingStart, 0),
+        },
+        {
+          subPartString: 'Presentation delay',
+          'Time (ms)': Math.round(adjustedPresentationTime - entry.processingEnd, 0),
+        }]);
+      }
     }
-    
+
     else if (metric.name == 'FID') {
       const eventEntry = metric.attribution.eventEntry;
       console.log('Interaction target:', eventEntry.target);
@@ -386,7 +389,7 @@
    * Broadcasts the latest CLS value
    */
   function broadcastCLS() {
-    broadcastMetricsUpdates('cls', latestCLS);
+    broadcastMetricsUpdates(latestCLS);
   }
 
   /**
@@ -421,17 +424,18 @@
       debouncedCLSBroadcast();
     }, { reportAllChanges: true });
 
-    webVitals.onLCP((metric) => {
-      broadcastMetricsUpdates('lcp', metric);
-    }, { reportAllChanges: true });
-
-    webVitals.onFID((metric) => {
-      broadcastMetricsUpdates('fid', metric);
-    }, { reportAllChanges: true });
-
+    webVitals.onLCP(broadcastMetricsUpdates, { reportAllChanges: true });
+    webVitals.onFID(broadcastMetricsUpdates, { reportAllChanges: true });
     webVitals.onINP((metric) => {
-      broadcastMetricsUpdates('inp', metric);
+      latestINP = metric;
+      broadcastMetricsUpdates(metric)
     }, { reportAllChanges: true });
+
+    if (enableLogging) {
+      onEachInteraction((metric) => {
+        logSummaryInfo(metric, false);
+      });
+    }
   }
 
   /**
