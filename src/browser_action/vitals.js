@@ -231,8 +231,11 @@
   }
 
   async function logSummaryInfo(metric, tabLoadedInBackground) {
-    console.groupCollapsed(`${LOG_PREFIX} ${metric.name} %c${metric.value.toFixed(2)}`,
-        `color: ${RATING_COLORS[metric.rating] || 'inherit'}`);
+    const formattedValue = metric.name === 'CLS' ? metric.value.toFixed(2) : `${metric.value.toFixed(0)} ms`;
+    console.groupCollapsed(
+      `${LOG_PREFIX} ${metric.name} %c${formattedValue} (${metric.rating})`,
+      `color: ${RATING_COLORS[metric.rating] || 'inherit'}`
+    );
 
     if (metric.name == 'LCP' &&
         metric.attribution &&

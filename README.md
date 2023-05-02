@@ -8,9 +8,12 @@ This extension measures the three [Core Web Vitals](https://web.dev/vitals) metr
 
 It supports all of the [Core Web Vitals](https://web.dev/vitals/#core-web-vitals) and leverages the [web-vitals](https://github.com/GoogleChrome/web-vitals) library under the hood to capture:
 
-* [Largest Contentful Paint](https://web.dev/lcp)
-* [Cumulative Layout Shift](https://web.dev/cls)
-* [First Input Delay](https://web.dev/fid)
+* [Largest Contentful Paint](https://web.dev/lcp/)
+* [Cumulative Layout Shift](https://web.dev/cls/)
+* [First Input Delay](https://web.dev/fid/)
+
+It also supports the newer INP metric:
+* [Interaction to Next Paint](https://web.dev/inp/)
 
 <h3 id="install">Installation Instructions</h3>
 
@@ -77,7 +80,7 @@ The console logging feature of the Web Vitals extension provides a diagnostic vi
 * Check `Console logging` and click 'Save'
 * Open the Console panel in DevTools and filter for `Web Vitals`
 
-To filter out unneeded metrics, prepend a minus sign to the metric name. For example, set the filter to `Web Vitals -CLS -FID` to filter out CLS and FID diagnostic info.
+To filter out unneeded metrics, prepend a minus sign to the metric name. For example, set the filter to `Web Vitals Extension -CLS -FID` to filter out CLS and FID diagnostic info.
 
 Diagnostic info for each metric is logged as a console group prepended by the extension name, `[Web Vitals Extension]`, meaning that you will need to click this line in order to toggle the group open and closed.
 
@@ -86,7 +89,7 @@ The kinds of diagnostic info varies per metric. For example, the LCP info includ
 * A reference to the LCP element
 * A table of [LCP sub-part metrics](https://web.dev/optimize-lcp/#:~:text=each%20of%20these-,LCP%20sub%2Dparts,-in%20more%20detail)
 * An optional warning if the tab was [loaded in the background](https://web.dev/lcp/#:~:text=your%20analytics%20service.-,Caution,-Since%20users%20can)
-* The full attribution object from [web-vitals](https://github.com/GoogleChrome/web-vitals)
+* The full attribution object from [web-vitals](https://github.com/GoogleChrome/web-vitals#attribution)
 
 ## Contributing
 
@@ -116,11 +119,12 @@ This extension reports metrics for your desktop or laptop machine. In many cases
 
 We are making available a set of guides for optimizing each of the Core Web Vitals metrics if you find your page is not passing a particular threshold:
 
-* [Optimize CLS](https://web.dev/optimize-cls)
-* [Optimize LCP](https://web.dev/optimize-lcp)
-* [Optimize FID](https://web.dev/optimize-fid)
+* [Optimize CLS](https://web.dev/optimize-cls/)
+* [Optimize LCP](https://web.dev/optimize-lcp/)
+* [Optimize FID](https://web.dev/optimize-fid/)
+* [Optimize INP](https://web.dev/optimize-inp/)
 
-Lighthouse 6.0 final will also include additional actionability audits for these metrics. They will answer questions like:
+Lighthouse also includes additional actionability audits for these metrics. They will answer questions like:
 
 * What element was identified as the Largest Contentful Paint?
 * What elements experienced a shift and contributed to Cumulative Layout Shift?
