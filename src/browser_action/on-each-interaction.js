@@ -34,16 +34,11 @@ export function onEachInteraction(callback) {
       callback({
         attribution: {
           eventEntry: entry,
-          eventTarget: '',
           eventTime: entry.startTime,
           eventType: entry.name,
-          loadState: 'unknown',
         },
-        delta: 0,
         entries: interaction,
-        id: 'none',
         name: 'Interaction',
-        navigationType: 'unknown',
         rating: valueToRating(value),
         value,
       });
