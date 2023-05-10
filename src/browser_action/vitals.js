@@ -483,7 +483,7 @@
         <div class="lh-metric lh-metric--${metrics.inp.pass ? 'pass':'fail'} lh-metric--${metrics.inp.value === null ? 'waiting' : 'ready'}">
           <div class="lh-metric__innerwrap">
             <span class="lh-metric__title">
-              Interaction to Next Paint*
+              Interaction to Next Paint
               <span class="lh-metric-state">${metrics.inp.value === null ? '(waiting for input)' : ''}</span>
             </span>
             <div class="lh-metric__value">${
