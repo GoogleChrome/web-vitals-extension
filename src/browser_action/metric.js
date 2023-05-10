@@ -140,7 +140,7 @@ export class Metric {
     const nameMap = {
       'largest_contentful_paint': 'lcp',
       'first_input_delay': 'fid',
-      'experimental_interaction_to_next_paint': 'inp',
+      'interaction_to_next_paint': 'inp',
       'cumulative_layout_shift': 'cls',
       'first_contentful_paint': 'fcp'
     };
@@ -244,7 +244,6 @@ export class INP extends Metric {
       local,
       background,
       thresholds,
-      experimental: true
     });
   }
 
