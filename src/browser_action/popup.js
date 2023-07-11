@@ -13,7 +13,7 @@
 
 import { loadLocalMetrics, getOptions } from './chrome.js';
 import { CrUX } from './crux.js';
-import { LCP, FID, INP,  CLS } from './metric.js';
+import { LCP, FID, INP, CLS, FCP, TTFB } from './metric.js';
 
 
 class Popup {
@@ -75,6 +75,14 @@ class Popup {
     });
     this.metrics.inp = new INP({
       local: this._metrics.inp.value,
+      background: this.background
+    });
+    this.metrics.fcp = new FCP({
+      local: this._metrics.fcp.value,
+      background: this.background
+    });
+    this.metrics.ttfb = new TTFB({
+      local: this._metrics.ttfb.value,
       background: this.background
     });
 
@@ -151,6 +159,8 @@ class Popup {
     localValue.innerText = metric.formatValue(metric.local);
     metricElement.classList.toggle(assessment, !!assessment);
     metricElement.classList.toggle('experimental-metric', metric.experimental);
+    metricElement.classList.toggle('core-web-vital-metric', metric.coreWebVital);
+    metricElement.classList.toggle('pending-core-web-vital-metric', metric.pendingCoreWebVital);
     infoElement.title = info;
     infoElement.classList.toggle('hidden', info == '');
 

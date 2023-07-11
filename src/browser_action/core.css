@@ -1,6 +1,6 @@
 .web-vitals-chrome-extension-popup {
   width: 560px;
-  height: 350px;
+  height: 600px;
 
   font-size: 12px;
 
@@ -112,6 +112,7 @@
 .web-vitals-chrome-extension-popup .metric-wrapper {
   padding: 0rem 1rem;
 }
+
 .web-vitals-chrome-extension-popup .metric-wrapper:hover {
   background-color: var(--color-light-grey);
 }
@@ -123,7 +124,7 @@
   column-gap: 4.17rem;
   align-items: center;
   border-bottom: 1px solid var(--color-dark-grey);
-  height: 6.67rem;
+  height: 6.2rem;
 }
 .web-vitals-chrome-extension-popup .metric-wrapper:last-child .metric {
   border-bottom: none;
@@ -142,14 +143,45 @@
   white-space: nowrap;
 }
 
+.web-vitals-chrome-extension-popup .core-web-vital-icon,
+.web-vitals-chrome-extension-popup .pending-core-web-vital-icon,
 .web-vitals-chrome-extension-popup .experimental-icon {
   display: none;
-  fill: #06f;
   vertical-align: middle;
-  margin-inline-start: 0.2rem;
+  margin-inline-start: 0.5rem;
+  fill: #06f;
 }
+
+.web-vitals-chrome-extension-popup .pending-core-web-vital-icon {
+  fill: gray;
+}
+
+.web-vitals-chrome-extension-popup #legend .core-web-vital-icon,
+.web-vitals-chrome-extension-popup #legend .pending-core-web-vital-icon,
+.web-vitals-chrome-extension-popup #legend .experimental-icon {
+  display: inline-block;
+  margin-inline-start: 0;
+  margin-inline-end: 0.5rem;
+}
+
+.web-vitals-chrome-extension-popup .core-web-vital-metric .core-web-vital-icon {
+  display: inline-block;
+}
+
+.web-vitals-chrome-extension-popup .pending-core-web-vital-metric .pending-core-web-vital-icon {
+  display: inline-block;
+}
+
 .web-vitals-chrome-extension-popup .experimental-metric .experimental-icon {
   display: inline-block;
+}
+
+
+.web-vitals-chrome-extension-popup #legend {
+  display: flex;
+  justify-content: space-between;
+  border: 1px solid var(--color-dark-grey);
+  padding: 0.5rem;
 }
 
 .web-vitals-chrome-extension-popup .metric-performance {

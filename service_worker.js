@@ -16,6 +16,8 @@ const LCP_THRESHOLD = 2500;
 const FID_THRESHOLD = 100;
 const INP_THRESHOLD = 200;
 const CLS_THRESHOLD = 0.1;
+const FCP_THRESHOLD = 1800;
+const TTFB_THRESHOLD = 800;
 
 /**
  * Hash the URL and return a numeric hash as a String to be used as the key

@@ -1,7 +1,8 @@
 import { Metric } from './metric.js';
 
 // This key only works from the Web Vitals extension.
-const CRUX_API_KEY = 'AIzaSyCZKhcAeiqGCp34891LPqVteT5kUMMq1og';
+// const CRUX_API_KEY = 'AIzaSyCZKhcAeiqGCp34891LPqVteT5kUMMq1og';
+const CRUX_API_KEY = 'AIzaSyCv_pOvZ8u1IDdoIAaLKTsfEFvWOyRLCeA';
 
 
 export class CrUX {
