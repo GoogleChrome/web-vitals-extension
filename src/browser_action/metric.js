@@ -356,7 +356,7 @@ export class TTFB extends Metric {
 
     super({
       id: 'ttfb',
-      name: 'Time To First Byte',
+      name: 'Time to First Byte',
       local,
       background,
       thresholds,
