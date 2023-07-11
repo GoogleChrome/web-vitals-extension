@@ -15,6 +15,10 @@ It supports all of the [Core Web Vitals](https://web.dev/vitals/#core-web-vitals
 It also supports the newer INP metric:
 * [Interaction to Next Paint](https://web.dev/inp/)
 
+Finally, it also supports the diagnostic metrics:
+* [Time to First Byte](https://web.dev/ttfb/)
+* [First Contentful Paint](https://web.dev/fcp/)
+
 <h3 id="install">Installation Instructions</h3>
 
 The Web Vitals Chrome Extenstion can be installed from the [Chrome Web Store](https://chrome.google.com/webstore/detail/web-vitals/ahfhijdlegdabablpippeagghigmibma).
@@ -123,6 +127,7 @@ We are making available a set of guides for optimizing each of the Core Web Vita
 * [Optimize LCP](https://web.dev/optimize-lcp/)
 * [Optimize FID](https://web.dev/optimize-fid/)
 * [Optimize INP](https://web.dev/optimize-inp/)
+* [Optimize TTFB](https://web.dev/optimize-ttfb/)
 
 Lighthouse also includes additional actionability audits for these metrics. They will answer questions like:
 

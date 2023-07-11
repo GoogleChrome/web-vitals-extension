@@ -25,6 +25,8 @@
   const FID_THRESHOLD = webVitals.FIDThresholds[0];
   const INP_THRESHOLD = webVitals.INPThresholds[0];
   const CLS_THRESHOLD = webVitals.CLSThresholds[0];
+  const FCP_THRESHOLD = webVitals.FCPThresholds[0];
+  const TTFB_THRESHOLD = webVitals.TTFBThresholds[0];
   const COLOR_GOOD = '#0CCE6A';
   const COLOR_NEEDS_IMPROVEMENT = '#FFA400';
   const COLOR_POOR = '#FF4E42';
@@ -72,6 +74,14 @@
         value: null,
         pass: true,
       },
+      fcp: {
+        value: null,
+        pass: true,
+      },
+      ttfb: {
+        value: null,
+        pass: true,
+      },
       // This is used to distinguish between navigations.
       // TODO: Is there a cleaner way?
       navigationStart: performance.timing.navigationStart
@@ -104,6 +114,14 @@
     if (metrics.inp.value > INP_THRESHOLD) {
       // INP does not affect overall score
       metrics.inp.pass = false;
+    }
+    if (metrics.fcp.value > FCP_THRESHOLD) {
+      // FCP does not affect overall score
+      metrics.fcp.pass = false;
+    }
+    if (metrics.ttfb.value > TTFB_THRESHOLD) {
+      // TTFB does not affect overall score
+      metrics.ttfb.pass = false;
     }
     return overallScore;
   }
@@ -260,6 +278,23 @@
       }]);
     }
 
+    else if (metric.name == 'FCP' &&
+        metric.attribution &&
+        metric.attribution.fcpEntry &&
+        metric.attribution.navigationEntry) {
+      if (tabLoadedInBackground) {
+        console.warn('FCP inflated by tab loading in the background');
+      }
+      console.log('FCP loadState:', metric.attribution.loadState);
+      console.table([{
+        'FCP sub-part': 'Time to First Byte',
+        'Time (ms)': Math.round(metric.attribution.timeToFirstByte, 0),
+      }, {
+        'FCP sub-part': 'FCP render delay',
+        'Time (ms)': Math.round(metric.attribution.firstByteToFCP, 0),
+      }]);
+    }
+
     else if (metric.name == 'CLS' && metric.entries.length) {
       for (const entry of metric.entries) {
         console.log('Layout shift - score: ', Math.round(entry.value * 10000) / 10000);
@@ -303,6 +338,25 @@
       const eventEntry = metric.attribution.eventEntry;
       console.log('Interaction target:', eventEntry.target);
       console.log(`Interaction type: %c${eventEntry.name}`, 'font-family: monospace');
+    }
+
+    else if (metric.name == 'TTFB' &&
+        metric.attribution &&
+        metric.attribution.navigationEntry) {
+      console.log('TTFB navigation type:', metric.navigationType);
+      console.table([{
+        'TTFB sub-part': 'Waiting time',
+        'Time (ms)': Math.round(metric.attribution.waitingTime, 0),
+      }, {
+        'TTFB sub-part': 'DNS time',
+        'Time (ms)': Math.round(metric.attribution.dnsTime, 0),
+      }, {
+        'TTFB sub-part': 'Connection time',
+        'Time (ms)': Math.round(metric.attribution.connectionTime, 0),
+      }, {
+        'TTFB sub-part': 'Request time',
+        'Time (ms)': Math.round(metric.attribution.requestTime, 0),
+      }]);
     }
 
     console.log(metric);
@@ -429,6 +483,8 @@
     webVitals.onINP((metric) => {
       broadcastMetricsUpdates(metric)
     }, { reportAllChanges: true });
+    webVitals.onFCP(broadcastMetricsUpdates, { reportAllChanges: true });
+    webVitals.onTTFB(broadcastMetricsUpdates, { reportAllChanges: true });
 
     if (enableLogging) {
       onEachInteraction((metric) => {
@@ -490,6 +546,24 @@
               metrics.inp.value === null ? '' :
               `${metrics.inp.value.toFixed(2)}&nbsp;ms`
             }</div>
+          </div>
+        </div>
+        <div class="lh-metric lh-metric--${metrics.fcp.pass ? 'pass':'fail'}">
+          <div class="lh-metric__innerwrap">
+            <div>
+              <span class="lh-metric__title">First Contentful Paint</span>
+              ${tabLoadedInBackground ? '<span class="lh-metric__subtitle">Value inflated as tab was loaded in background</span>' : ''}
+            </div>
+            <div class="lh-metric__value">${((metrics.fcp.value || 0)/1000).toFixed(2)}&nbsp;s</div>
+          </div>
+        </div>
+        <div class="lh-column">
+          <div class="lh-metric lh-metric--${metrics.ttfb.pass ? 'pass':'fail'}">
+            <div class="lh-metric__innerwrap">
+            <span class="lh-metric__title">
+              Time to First Byte
+            </span>
+            <div class="lh-metric__value">${((metrics.ttfb.value || 0)/1000).toFixed(2)}&nbsp;s</div>
           </div>
         </div>
       </div>

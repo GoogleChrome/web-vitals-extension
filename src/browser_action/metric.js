@@ -1,6 +1,6 @@
 export class Metric {
 
-  constructor({id, name, local, background, thresholds, experimental}) {
+  constructor({id, name, local, background, thresholds, experimental, coreWebVital, pendingCoreWebVital}) {
     this.id = id;
     this.abbr = id.toUpperCase();
     this.name = name;
@@ -11,6 +11,8 @@ export class Metric {
     // This will be replaced with field data, if available.
     this.distribution = [1/3, 1/3, 1/3];
     this.experimental = experimental || false;
+    this.coreWebVital = coreWebVital || false;
+    this.pendingCoreWebVital = pendingCoreWebVital || false;
   }
 
   formatValue(value) {
@@ -142,7 +144,8 @@ export class Metric {
       'first_input_delay': 'fid',
       'interaction_to_next_paint': 'inp',
       'cumulative_layout_shift': 'cls',
-      'first_contentful_paint': 'fcp'
+      'first_contentful_paint': 'fcp',
+      'experimental_time_to_first_byte': 'ttfb'
     };
 
     return nameMap[cruxName];
@@ -166,7 +169,8 @@ export class LCP extends Metric {
       name: 'Largest Contentful Paint',
       local,
       background,
-      thresholds
+      thresholds,
+      coreWebVital: true
     });
   }
 
@@ -205,7 +209,8 @@ export class FID extends Metric {
       name: 'First Input Delay',
       local,
       background,
-      thresholds
+      thresholds,
+      coreWebVital: true
     });
   }
 
@@ -244,6 +249,7 @@ export class INP extends Metric {
       local,
       background,
       thresholds,
+      pendingCoreWebVital: true
     });
   }
 
@@ -284,12 +290,90 @@ export class CLS extends Metric {
       name: 'Cumulative Layout Shift',
       local,
       background,
-      thresholds
+      thresholds,
+      coreWebVital: true
     });
   }
 
   formatValue(value) {
     return this.toLocaleFixed({value});
+  }
+
+}
+
+export class FCP extends Metric {
+
+  constructor({local, background}) {
+    const thresholds = {
+      good: 1800,
+      poor: 3000
+    };
+
+    // TODO(rviscomi): Consider better defaults.
+    local = local || 0;
+
+    super({
+      id: 'fcp',
+      name: 'First Contentful Paint',
+      local,
+      background,
+      thresholds
+    });
+  }
+
+  formatValue(value) {
+    value /= 1000;
+    return this.toLocaleFixed({
+      value,
+      unit: 'second'
+    });
+  }
+
+  getAssessmentIndex() {
+    return super.getAssessmentIndex();
+  }
+
+  getInfo() {
+    if (this.background) {
+      return 'FCP inflated by tab loading in the background';
+    }
+
+    return super.getInfo();
+  }
+
+}
+
+export class TTFB extends Metric {
+
+  constructor({local, background}) {
+    const thresholds = {
+      good: 800,
+      poor: 1800
+    };
+
+    // TODO(rviscomi): Consider better defaults.
+    local = local || 0;
+
+    super({
+      id: 'ttfb',
+      name: 'Time to First Byte',
+      local,
+      background,
+      thresholds,
+      experimental: true
+    });
+  }
+
+  formatValue(value) {
+    value /= 1000;
+    return this.toLocaleFixed({
+      value,
+      unit: 'second'
+    });
+  }
+
+  getAssessmentIndex() {
+    return super.getAssessmentIndex();
   }
 
 }
