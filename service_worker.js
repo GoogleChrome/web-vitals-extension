@@ -49,6 +49,15 @@ function getWebVitals(tabId) {
   }, (result) => {
     // Catch errors such as "This page cannot be scripted due
     // to an ExtensionsSettings policy."
+    let error = chrome.runtime.lastError;
+    if (error && error.message &&
+        !error.message.startsWith("Cannot access contents of url \"chrome") &&
+        !error.message.startsWith("Cannot access a chrome:// URL") &&
+        !error.message.startsWith("Cannot access a chrome-extension:// URL") &&
+        !error.message.startsWith("Cannot access a chrome-search:// URL")
+    ) {
+      console.error(error.message);
+    }
   });
 }
 
