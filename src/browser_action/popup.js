@@ -132,7 +132,7 @@ class Popup {
       const assessmentIndex = metric.getAssessmentIndex();
       const density = metric.getDensity(assessmentIndex, 0);
       const scope = CrUX.isOriginFallback(fieldData) ? 'origin' : 'page';
-      text += ` Your experience is similar to <strong>${density}</strong> of <span class="nowrap">real-user</span> ${formFactor.toLowerCase()} <strong>${abbr}</strong> experiences on this ${scope}.`
+      text += ` <strong>${density}</strong> of <span class="nowrap">real-user</span> ${formFactor.toLowerCase()} <strong>${abbr}</strong> experiences on this ${scope} were also rated <strong class="hovercard-local">${assessment}</strong>.`
     }
 
     hovercard.innerHTML = text;
