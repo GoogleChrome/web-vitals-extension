@@ -42,13 +42,14 @@ If you are looking for a more bleeding-edge build, you can also install the vers
 
 The Ambient Badge helps check if a page passing the Core Web Vitals thresholds.
 
-Once installed, the extension will display a disabled state badge icon until you navigate to a URL. At this point it will update the badge to green or red depending on whether the URL passes the Core Web Vitals metrics thresholds.
+Once installed, the extension will display a disabled state badge icon until you navigate to a URL. At this point it will update the badge to green, amber or red depending on whether the URL passes the Core Web Vitals metrics thresholds.
 
 The badge has a number of states:
 
-* Disabled - gray
-* Passing - green
-* One or more metrics failing - red
+* Disabled - gray square
+* Good - green circle
+* One or more metrics needs improvement - amber square
+* One or more metrics poor - red triangle
 
 If one or more metrics are failing, the badge will animate the values of these metrics.
 
