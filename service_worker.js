@@ -83,8 +83,8 @@ chrome.tabs.onActivated.addListener(({tabId, windowId}) => {
 /**
  *
  * Update the badge icon based on the overall WebVitals
- * good rate (i.e good = green icon, poor = red icon)
- * @param {String} badgeCategory - GOOD or POOR
+ * good rate (i.e good = green icon, needs improvement = amber icon, poor = red icon)
+ * @param {String} badgeCategory - GOOD, NEEDS_INPROVEMENT or POOR
  * @param {Number} tabid
  */
 function badgeOverallPerf(badgeCategory, tabid) {
@@ -283,7 +283,7 @@ async function animateBadges(request, tabId) {
   const delay = 2000;
   // First badge overall perf
   badgeOverallPerf(request.passesAllThresholds, tabId);
-  // If perf is poor, animate the sequence
+  // If perf is not good, animate the sequence
   if (request.passesAllThresholds !== 'GOOD') {
     await wait(delay);
     if (animationsByTabId.get(tabId) !== animationId) return;
