@@ -11,7 +11,7 @@ on:
 jobs:
   install:
     name: Install and test
-    runs-on: ubuntu
+    runs-on: ubuntu-latest
     steps:
     - name: Checkout branch
       uses: actions/checkout@v3
