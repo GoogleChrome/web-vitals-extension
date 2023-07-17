@@ -129,10 +129,7 @@ We are making available a set of guides for optimizing each of the Core Web Vita
 * [Optimize INP](https://web.dev/optimize-inp/)
 * [Optimize TTFB](https://web.dev/optimize-ttfb/)
 
-Lighthouse also includes additional actionability audits for these metrics. They will answer questions like:
-
-* What element was identified as the Largest Contentful Paint?
-* What elements experienced a shift and contributed to Cumulative Layout Shift?
+Lighthouse also includes additional actionability audits for these metrics.
 
 We envision users will use the extension for instant feedback on metrics (for their desktop machine) but will then go and do a Lighthouse audit for (1) a diagnostic view of how these metrics look on a median mobile device and (2) specifically what you can do to improve.
 
