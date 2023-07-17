@@ -66,27 +66,27 @@
     return {
       lcp: {
         value: null,
-        state: 'pass',
+        state: 'good',
       },
       cls: {
         value: null,
-        state: 'pass',
+        state: 'good',
       },
       fid: {
         value: null,
-        state: 'pass',
+        state: 'good',
       },
       inp: {
         value: null,
-        state: 'pass',
+        state: 'good',
       },
       fcp: {
         value: null,
-        state: 'pass',
+        state: 'good',
       },
       ttfb: {
         value: null,
-        state: 'pass',
+        state: 'good',
       },
       // This is used to distinguish between navigations.
       // TODO: Is there a cleaner way?
@@ -108,52 +108,52 @@
     if (metrics.lcp.value > LCP_GOOD_THRESHOLD) {
       if (metrics.lcp.value > LCP_POOR_THRESHOLD) {
         overallScore = 'POOR';
-        metrics.lcp.state = 'fail';
+        metrics.lcp.state = 'poor';
       } else if (overallScore === 'GOOD') {
         overallScore = 'NEEDS_IMPROVEMENT';
-        metrics.lcp.state = 'average';
+        metrics.lcp.state = 'needs-improvment';
       }
     }
     if (metrics.cls.value > CLS_GOOD_THRESHOLD) {
       if (metrics.cls.value > CLS_POOR_THRESHOLD) {
         overallScore = 'POOR';
-        metrics.cls.state = 'fail';
+        metrics.cls.state = 'poor';
       } else if (overallScore === 'GOOD') {
         overallScore = 'NEEDS_IMPROVEMENT';
-        metrics.cls.state = 'average';
+        metrics.cls.state = 'needs-improvment';
       }
     }
     if (metrics.fid.value > FID_GOOD_THRESHOLD) {
       if (metrics.fid.value > FID_POOR_THRESHOLD) {
         overallScore = 'POOR';
-        metrics.fid.state = 'fail';
+        metrics.fid.state = 'poor';
       } else if (overallScore === 'GOOD') {
         overallScore = 'NEEDS_IMPROVEMENT';
-        metrics.fid.state = 'average';
+        metrics.fid.state = 'needs-improvment';
       }
     }
     if (metrics.inp.value > INP_GOOD_THRESHOLD) {
       // INP does not affect overall score
       if (metrics.inp.value > INP_POOR_THRESHOLD) {
-        metrics.inp.state = 'fail';
+        metrics.inp.state = 'poor';
       } else {
-        metrics.inp.state = 'average';
+        metrics.inp.state = 'needs-improvment';
       }
     }
     if (metrics.fcp.value > FCP_GOOD_THRESHOLD) {
       // FCP does not affect overall score
       if (metrics.fcp.value > FCP_POOR_THRESHOLD) {
-        metrics.fcp.state = 'fail';
+        metrics.fcp.state = 'poor';
       } else {
-        metrics.fcp.state = 'average';
+        metrics.fcp.state = 'needs-improvment';
       }
     }
     if (metrics.ttfb.value > TTFB_GOOD_THRESHOLD) {
       // TTFB does not affect overall score
       if (metrics.ttfb.value > TTFB_POOR_THRESHOLD) {
-        metrics.ttfb.state = 'fail';
+        metrics.ttfb.state = 'poor';
       } else {
-        metrics.ttfb.state = 'average';
+        metrics.ttfb.state = 'needs-improvment';
       }
     }
     return overallScore;

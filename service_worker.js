@@ -83,7 +83,7 @@ chrome.tabs.onActivated.addListener(({tabId, windowId}) => {
 /**
  *
  * Update the badge icon based on the overall WebVitals
- * pass rate (i.e good = green icon, poor = red icon)
+ * good rate (i.e good = green icon, poor = red icon)
  * @param {String} badgeCategory - GOOD or POOR
  * @param {Number} tabid
  */
@@ -270,7 +270,7 @@ let globalAnimationId = 0;
 const animationsByTabId = new Map();
 
 /**
- * Animate badges between pass/fail -> each failing metric.
+ * Animate badges between good/needs-improvement/poor -> each failing metric.
  * We track each animation by tabId so that we can handle "cancellation" of the animation on new information.
  * @param {Object} request
  * @param {Number} tabId
