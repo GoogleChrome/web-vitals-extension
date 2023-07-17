@@ -83,7 +83,7 @@ chrome.tabs.onActivated.addListener(({tabId, windowId}) => {
 /**
  *
  * Update the badge icon based on the overall WebVitals
- * good rate (i.e good = green icon, needs improvement = amber icon, poor = red icon)
+ * rating (i.e good = green icon, needs improvement = amber icon, poor = red icon)
  * @param {String} badgeCategory - GOOD, NEEDS_INPROVEMENT or POOR
  * @param {Number} tabid
  */
