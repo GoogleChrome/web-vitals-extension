@@ -12,12 +12,15 @@
 */
 
 // Core Web Vitals thresholds
-const LCP_THRESHOLD = 2500;
-const FID_THRESHOLD = 100;
-const INP_THRESHOLD = 200;
-const CLS_THRESHOLD = 0.1;
-const FCP_THRESHOLD = 1800;
-const TTFB_THRESHOLD = 800;
+const LCP_GOOD_THRESHOLD = 2500;
+const FID_GOOD_THRESHOLD = 100;
+const INP_GOOD_THRESHOLD = 200;
+const CLS_GOOD_THRESHOLD = 0.1;
+const FCP_GOOD_THRESHOLD = 1800;
+const TTFB_GOOD_THRESHOLD = 800;
+const LCP_POOR_THRESHOLD = 4000;
+const FID_POOR_THRESHOLD = 200;
+const CLS_POOR_THRESHOLD = 0.25;
 
 /**
  * Hash the URL and return a numeric hash as a String to be used as the key
@@ -102,6 +105,16 @@ function badgeOverallPerf(badgeCategory, tabid) {
           tabId: currentTab,
         });
         break;
+      case 'NEEDS_IMPROVEMENT':
+        chrome.action.setIcon({
+          path: '../../icons/needs-improvement128w.png',
+          tabId: currentTab,
+        });
+        chrome.action.setBadgeText({
+          text: '',
+          tabId: currentTab,
+        });
+        break;
       case 'GOOD':
         chrome.action.setIcon({
           path: '../../icons/fast128w.png',
@@ -139,22 +152,29 @@ function badgeMetric(metric, value, tabid) {
 
     // If URL is overall failing the thresholds, only show
     // a red badge for metrics actually failing (issues/22)
-    if (metric === 'cls' && value <= CLS_THRESHOLD) {
+    if (metric === 'cls' && value <= CLS_GOOD_THRESHOLD) {
       return;
     }
-    if (metric === 'lcp' && value <= LCP_THRESHOLD) {
+    if (metric === 'lcp' && value <= LCP_GOOD_THRESHOLD) {
       return;
     }
-    if (metric === 'fid' && value <= FID_THRESHOLD) {
+    if (metric === 'fid' && value <= FID_GOOD_THRESHOLD) {
       return;
     }
 
     switch (metric) {
       case 'lcp':
-        chrome.action.setIcon({
-          path: '../../icons/slow128w-lcp.png',
-          tabId: currentTab,
-        });
+        if (value <= LCP_POOR_THRESHOLD) {
+          chrome.action.setIcon({
+            path: '../../icons/needs-improvement128w-lcp.png',
+            tabId: currentTab,
+          });
+        } else {
+          chrome.action.setIcon({
+            path: '../../icons/slow128w-lcp.png',
+            tabId: currentTab,
+          });
+        }
         chrome.action.setBadgeBackgroundColor({
           color: bgColor,
           tabId: currentTab,
@@ -165,10 +185,17 @@ function badgeMetric(metric, value, tabid) {
         });
         break;
       case 'cls':
-        chrome.action.setIcon({
-          path: '../../icons/slow128w-cls.png',
-          tabId: currentTab,
-        });
+        if (value <= CLS_POOR_THRESHOLD) {
+          chrome.action.setIcon({
+            path: '../../icons/needs-improvement128w-cls.png',
+            tabId: currentTab,
+          });
+        } else {
+          chrome.action.setIcon({
+            path: '../../icons/slow128w-cls.png',
+            tabId: currentTab,
+          });
+        }
         chrome.action.setBadgeBackgroundColor({
           color: bgColor,
           tabId: currentTab,
@@ -179,10 +206,17 @@ function badgeMetric(metric, value, tabid) {
         });
         break;
       case 'fid':
-        chrome.action.setIcon({
-          path: '../../icons/slow128w-fid.png',
-          tabId: currentTab,
-        });
+        if (value <= FID_POOR_THRESHOLD) {
+          chrome.action.setIcon({
+            path: '../../icons/needs-improvement128w-fid.png',
+            tabId: currentTab,
+          });
+        } else {
+          chrome.action.setIcon({
+            path: '../../icons/slow128w-fid.png',
+            tabId: currentTab,
+          });
+        }
         chrome.action.setBadgeBackgroundColor({
           color: bgColor,
           tabId: currentTab,
@@ -250,7 +284,7 @@ async function animateBadges(request, tabId) {
   // First badge overall perf
   badgeOverallPerf(request.passesAllThresholds, tabId);
   // If perf is poor, animate the sequence
-  if (request.passesAllThresholds === 'POOR') {
+  if (request.passesAllThresholds !== 'GOOD') {
     await wait(delay);
     if (animationsByTabId.get(tabId) !== animationId) return;
     badgeMetric('lcp', request.metrics.lcp.value, tabId);

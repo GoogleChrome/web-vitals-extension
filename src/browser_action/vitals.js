@@ -21,12 +21,18 @@
   let enableUserTiming = localStorage.getItem('web-vitals-extension-user-timing')=='TRUE';
 
   // Core Web Vitals thresholds
-  const LCP_THRESHOLD = webVitals.LCPThresholds[0];
-  const FID_THRESHOLD = webVitals.FIDThresholds[0];
-  const INP_THRESHOLD = webVitals.INPThresholds[0];
-  const CLS_THRESHOLD = webVitals.CLSThresholds[0];
-  const FCP_THRESHOLD = webVitals.FCPThresholds[0];
-  const TTFB_THRESHOLD = webVitals.TTFBThresholds[0];
+  const LCP_GOOD_THRESHOLD = webVitals.LCPThresholds[0];
+  const FID_GOOD_THRESHOLD = webVitals.FIDThresholds[0];
+  const INP_GOOD_THRESHOLD = webVitals.INPThresholds[0];
+  const CLS_GOOD_THRESHOLD = webVitals.CLSThresholds[0];
+  const FCP_GOOD_THRESHOLD = webVitals.FCPThresholds[0];
+  const TTFB_GOOD_THRESHOLD = webVitals.TTFBThresholds[0];
+  const LCP_POOR_THRESHOLD = webVitals.LCPThresholds[1];
+  const FID_POOR_THRESHOLD = webVitals.FIDThresholds[1];
+  const INP_POOR_THRESHOLD = webVitals.INPThresholds[1];
+  const CLS_POOR_THRESHOLD = webVitals.CLSThresholds[1];
+  const FCP_POOR_THRESHOLD = webVitals.FCPThresholds[1];
+  const TTFB_POOR_THRESHOLD = webVitals.TTFBThresholds[1];
   const COLOR_GOOD = '#0CCE6A';
   const COLOR_NEEDS_IMPROVEMENT = '#FFA400';
   const COLOR_POOR = '#FF4E42';
@@ -60,27 +66,27 @@
     return {
       lcp: {
         value: null,
-        pass: true,
+        state: 'pass',
       },
       cls: {
         value: null,
-        pass: true,
+        state: 'pass',
       },
       fid: {
         value: null,
-        pass: true,
+        state: 'pass',
       },
       inp: {
         value: null,
-        pass: true,
+        state: 'pass',
       },
       fcp: {
         value: null,
-        pass: true,
+        state: 'pass',
       },
       ttfb: {
         value: null,
-        pass: true,
+        state: 'pass',
       },
       // This is used to distinguish between navigations.
       // TODO: Is there a cleaner way?
@@ -99,29 +105,56 @@
     // a boolean to give us the flexibility of introducing a
     // 'NEEDS IMPROVEMENT' option here in the future.
     let overallScore = 'GOOD';
-    if (metrics.lcp.value > LCP_THRESHOLD) {
-      overallScore = 'POOR';
-      metrics.lcp.pass = false;
+    if (metrics.lcp.value > LCP_GOOD_THRESHOLD) {
+      if (metrics.lcp.value > LCP_POOR_THRESHOLD) {
+        overallScore = 'POOR';
+        metrics.lcp.state = 'fail';
+      } else if (overallScore === 'GOOD') {
+        overallScore = 'NEEDS_IMPROVEMENT';
+        metrics.lcp.state = 'average';
+      }
     }
-    if (metrics.cls.value > CLS_THRESHOLD) {
-      overallScore = 'POOR';
-      metrics.cls.pass = false;
+    if (metrics.cls.value > CLS_GOOD_THRESHOLD) {
+      if (metrics.cls.value > CLS_POOR_THRESHOLD) {
+        overallScore = 'POOR';
+        metrics.cls.state = 'fail';
+      } else if (overallScore === 'GOOD') {
+        overallScore = 'NEEDS_IMPROVEMENT';
+        metrics.cls.state = 'average';
+      }
     }
-    if (metrics.fid.value > FID_THRESHOLD) {
-      overallScore = 'POOR';
-      metrics.fid.pass = false;
+    if (metrics.fid.value > FID_GOOD_THRESHOLD) {
+      if (metrics.fid.value > FID_POOR_THRESHOLD) {
+        overallScore = 'POOR';
+        metrics.fid.state = 'fail';
+      } else if (overallScore === 'GOOD') {
+        overallScore = 'NEEDS_IMPROVEMENT';
+        metrics.fid.state = 'average';
+      }
     }
-    if (metrics.inp.value > INP_THRESHOLD) {
+    if (metrics.inp.value > INP_GOOD_THRESHOLD) {
       // INP does not affect overall score
-      metrics.inp.pass = false;
+      if (metrics.inp.value > INP_POOR_THRESHOLD) {
+        metrics.inp.state = 'fail';
+      } else {
+        metrics.inp.state = 'average';
+      }
     }
-    if (metrics.fcp.value > FCP_THRESHOLD) {
+    if (metrics.fcp.value > FCP_GOOD_THRESHOLD) {
       // FCP does not affect overall score
-      metrics.fcp.pass = false;
+      if (metrics.fcp.value > FCP_POOR_THRESHOLD) {
+        metrics.fcp.state = 'fail';
+      } else {
+        metrics.fcp.state = 'average';
+      }
     }
-    if (metrics.ttfb.value > TTFB_THRESHOLD) {
+    if (metrics.ttfb.value > TTFB_GOOD_THRESHOLD) {
       // TTFB does not affect overall score
-      metrics.ttfb.pass = false;
+      if (metrics.ttfb.value > TTFB_POOR_THRESHOLD) {
+        metrics.ttfb.state = 'fail';
+      } else {
+        metrics.ttfb.state = 'average';
+      }
     }
     return overallScore;
   }
@@ -509,7 +542,7 @@
     </div>
     <div class="lh-columns">
       <div class="lh-column">
-        <div class="lh-metric lh-metric--${metrics.lcp.pass ? 'pass':'fail'}">
+        <div class="lh-metric lh-metric--${metrics.lcp.state.toLowerCase()}">
           <div class="lh-metric__innerwrap">
             <div>
               <span class="lh-metric__title">Largest Contentful Paint</span>
@@ -518,13 +551,13 @@
             <div class="lh-metric__value">${((metrics.lcp.value || 0)/1000).toFixed(2)}&nbsp;s</div>
           </div>
         </div>
-        <div class="lh-metric lh-metric--${metrics.cls.pass ? 'pass':'fail'}">
+        <div class="lh-metric lh-metric--${metrics.cls.state.toLowerCase()}">
           <div class="lh-metric__innerwrap">
             <span class="lh-metric__title">Cumulative Layout Shift</span>
             <div class="lh-metric__value">${(metrics.cls.value || 0).toFixed(3)}</div>
           </div>
         </div>
-        <div class="lh-metric lh-metric--${metrics.fid.pass ? 'pass':'fail'} lh-metric--${metrics.fid.value === null ? 'waiting' : 'ready'}">
+        <div class="lh-metric lh-metric--${metrics.fid.state.toLowerCase()} lh-metric--${metrics.fid.value === null ? 'waiting' : 'ready'}">
           <div class="lh-metric__innerwrap">
             <span class="lh-metric__title">
               First Input Delay
@@ -536,7 +569,7 @@
             }</div>
           </div>
         </div>
-        <div class="lh-metric lh-metric--${metrics.inp.pass ? 'pass':'fail'} lh-metric--${metrics.inp.value === null ? 'waiting' : 'ready'}">
+        <div class="lh-metric lh-metric--${metrics.inp.state.toLowerCase()} lh-metric--${metrics.inp.value === null ? 'waiting' : 'ready'}">
           <div class="lh-metric__innerwrap">
             <span class="lh-metric__title">
               Interaction to Next Paint
@@ -548,7 +581,7 @@
             }</div>
           </div>
         </div>
-        <div class="lh-metric lh-metric--${metrics.fcp.pass ? 'pass':'fail'}">
+        <div class="lh-metric lh-metric--${metrics.fcp.state.toLowerCase()}">
           <div class="lh-metric__innerwrap">
             <div>
               <span class="lh-metric__title">First Contentful Paint</span>
@@ -558,7 +591,7 @@
           </div>
         </div>
         <div class="lh-column">
-          <div class="lh-metric lh-metric--${metrics.ttfb.pass ? 'pass':'fail'}">
+          <div class="lh-metric lh-metric--${metrics.ttfb.state.toLowerCase()}">
             <div class="lh-metric__innerwrap">
             <span class="lh-metric__title">
               Time to First Byte
