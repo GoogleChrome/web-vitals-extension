@@ -111,7 +111,7 @@
         metrics.lcp.state = 'poor';
       } else if (overallScore === 'GOOD') {
         overallScore = 'NEEDS_IMPROVEMENT';
-        metrics.lcp.state = 'needs-improvment';
+        metrics.lcp.state = 'needs-improvement';
       }
     }
     if (metrics.cls.value > CLS_GOOD_THRESHOLD) {
@@ -120,7 +120,7 @@
         metrics.cls.state = 'poor';
       } else if (overallScore === 'GOOD') {
         overallScore = 'NEEDS_IMPROVEMENT';
-        metrics.cls.state = 'needs-improvment';
+        metrics.cls.state = 'needs-improvement';
       }
     }
     if (metrics.fid.value > FID_GOOD_THRESHOLD) {
@@ -129,7 +129,7 @@
         metrics.fid.state = 'poor';
       } else if (overallScore === 'GOOD') {
         overallScore = 'NEEDS_IMPROVEMENT';
-        metrics.fid.state = 'needs-improvment';
+        metrics.fid.state = 'needs-improvement';
       }
     }
     if (metrics.inp.value > INP_GOOD_THRESHOLD) {
@@ -137,7 +137,7 @@
       if (metrics.inp.value > INP_POOR_THRESHOLD) {
         metrics.inp.state = 'poor';
       } else {
-        metrics.inp.state = 'needs-improvment';
+        metrics.inp.state = 'needs-improvement';
       }
     }
     if (metrics.fcp.value > FCP_GOOD_THRESHOLD) {
@@ -145,7 +145,7 @@
       if (metrics.fcp.value > FCP_POOR_THRESHOLD) {
         metrics.fcp.state = 'poor';
       } else {
-        metrics.fcp.state = 'needs-improvment';
+        metrics.fcp.state = 'needs-improvement';
       }
     }
     if (metrics.ttfb.value > TTFB_GOOD_THRESHOLD) {
@@ -153,7 +153,7 @@
       if (metrics.ttfb.value > TTFB_POOR_THRESHOLD) {
         metrics.ttfb.state = 'poor';
       } else {
-        metrics.ttfb.state = 'needs-improvment';
+        metrics.ttfb.state = 'needs-improvement';
       }
     }
     return overallScore;
