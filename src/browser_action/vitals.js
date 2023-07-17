@@ -542,7 +542,7 @@
     </div>
     <div class="lh-columns">
       <div class="lh-column">
-        <div class="lh-metric lh-metric--${metrics.lcp.state.toLowerCase()}">
+        <div class="lh-metric lh-metric--${metrics.lcp.state}">
           <div class="lh-metric__innerwrap">
             <div>
               <span class="lh-metric__title">Largest Contentful Paint</span>
@@ -551,13 +551,13 @@
             <div class="lh-metric__value">${((metrics.lcp.value || 0)/1000).toFixed(2)}&nbsp;s</div>
           </div>
         </div>
-        <div class="lh-metric lh-metric--${metrics.cls.state.toLowerCase()}">
+        <div class="lh-metric lh-metric--${metrics.cls.state}">
           <div class="lh-metric__innerwrap">
             <span class="lh-metric__title">Cumulative Layout Shift</span>
             <div class="lh-metric__value">${(metrics.cls.value || 0).toFixed(3)}</div>
           </div>
         </div>
-        <div class="lh-metric lh-metric--${metrics.fid.state.toLowerCase()} lh-metric--${metrics.fid.value === null ? 'waiting' : 'ready'}">
+        <div class="lh-metric lh-metric--${metrics.fid.state} lh-metric--${metrics.fid.value === null ? 'waiting' : 'ready'}">
           <div class="lh-metric__innerwrap">
             <span class="lh-metric__title">
               First Input Delay
@@ -569,7 +569,7 @@
             }</div>
           </div>
         </div>
-        <div class="lh-metric lh-metric--${metrics.inp.state.toLowerCase()} lh-metric--${metrics.inp.value === null ? 'waiting' : 'ready'}">
+        <div class="lh-metric lh-metric--${metrics.inp.state} lh-metric--${metrics.inp.value === null ? 'waiting' : 'ready'}">
           <div class="lh-metric__innerwrap">
             <span class="lh-metric__title">
               Interaction to Next Paint
@@ -581,7 +581,7 @@
             }</div>
           </div>
         </div>
-        <div class="lh-metric lh-metric--${metrics.fcp.state.toLowerCase()}">
+        <div class="lh-metric lh-metric--${metrics.fcp.state}">
           <div class="lh-metric__innerwrap">
             <div>
               <span class="lh-metric__title">First Contentful Paint</span>
@@ -591,7 +591,7 @@
           </div>
         </div>
         <div class="lh-column">
-          <div class="lh-metric lh-metric--${metrics.ttfb.state.toLowerCase()}">
+          <div class="lh-metric lh-metric--${metrics.ttfb.state}">
             <div class="lh-metric__innerwrap">
             <span class="lh-metric__title">
               Time to First Byte
