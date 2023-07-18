@@ -21,7 +21,7 @@ class Popup {
   constructor({metrics, background, options, error}) {
     if (error) {
       console.error(error);
-      this.setStatus('Web Vitals are unavailable for this page');
+      this.setStatus('Web Vitals are unavailable for this page.\nThis may mean extensions has been limited by the administrator for this page.');
       return;
     }
 
