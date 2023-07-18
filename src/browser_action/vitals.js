@@ -19,6 +19,7 @@
   let latestCLS = {};
   let enableLogging = localStorage.getItem('web-vitals-extension-debug')=='TRUE';
   let enableUserTiming = localStorage.getItem('web-vitals-extension-user-timing')=='TRUE';
+  let loggingURLPattern = localStorage.getItem('web-vitals-extension-url-pattern');
 
   // Core Web Vitals thresholds
   const LCP_THRESHOLD = webVitals.LCPThresholds[0];
@@ -147,9 +148,10 @@
     chrome.storage.sync.get({
       enableOverlay: false,
       debug: false,
-      userTiming: false
+      userTiming: false,
+      loggingURLPattern: ''
     }, ({
-      enableOverlay, debug, userTiming
+      enableOverlay, debug, userTiming, loggingURLPattern
     }) => {
       if (enableOverlay === true && overlayClosedForSession == false) {
         // Overlay
@@ -198,6 +200,11 @@
       } else {
         localStorage.removeItem('web-vitals-extension-user-timing');
         enableUserTiming = false;
+      }
+      if (loggingURLPattern != '') {
+        localStorage.setItem('web-vitals-extension-url-pattern', loggingURLPattern);
+      } else {
+        localStorage.removeItem('web-vitals-extension-url-pattern');
       }
     });
   }
@@ -249,6 +256,20 @@
   }
 
   async function logSummaryInfo(metric, tabLoadedInBackground) {
+    // If we have a url pattern set in options, then only log if it matches
+    if (loggingURLPattern) {
+      const location = getURL();
+      //Wrap in a try in case of a bad regex
+      try {
+        if (!(location.url.match(loggingURLPattern))) {
+          return;
+        }
+      } catch (err) {
+        console.log(`${LOG_PREFIX} ${err}`);
+        return;
+      }
+    }
+
     const formattedValue = metric.name === 'CLS' ? metric.value.toFixed(2) : `${metric.value.toFixed(0)} ms`;
     console.groupCollapsed(
       `${LOG_PREFIX} ${metric.name} %c${formattedValue} (${metric.rating})`,
@@ -364,6 +385,20 @@
   }
 
   function addUserTimings(metric) {
+    // If we have a url pattern set in options, then only log if it matches
+    if (loggingURLPattern) {
+      const location = getURL();
+      //Wrap in a try in case of a bad regex
+      try {
+        if (!(location.url.match(loggingURLPattern))) {
+          return;
+        }
+      } catch (err) {
+        console.log(`${LOG_PREFIX} ${err}`);
+        return;
+      }
+    }
+
     switch (metric.name) {
       case "LCP":
         if (!(metric.attribution && metric.attribution.lcpEntry && metric.attribution.navigationEntry)) {

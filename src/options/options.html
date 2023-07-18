@@ -18,6 +18,11 @@
                     Display HUD overlay
                 </label>
                 <br/>
+                <label for="preferPhoneField">
+                    <input type="checkbox" id="preferPhoneField">
+                    Compare local experiences to phone field data
+                </label>
+                <br/>
                 <label for="consoleLogging">
                     <input type="checkbox" id="consoleLogging">
                     Console logging
@@ -25,13 +30,13 @@
                 <br/>
                 <label for="userTiming">
                     <input type="checkbox" id="userTiming">
-                    User Timings (for DevTools Performance Panel recordings).
+                    User Timings (for DevTools Performance Panel recordings)
                 </label>
                 <br/>
-                <label for="preferPhoneField">
-                    <input type="checkbox" id="preferPhoneField">
-                    Compare local experiences to phone field data
-                </label>
+                <label for="loggingURLPattern">
+                  Optionally limit Console and User Timing loggings to URLs matching this pattern:
+                  <input type="text" size=50 id="loggingURLPattern" placeholder="(example.com|127.0.0.1)">
+              </label>
                 <div id="status"></div>
                 <button id="save">Save</button>
                 </div>

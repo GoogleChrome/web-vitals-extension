@@ -1,5 +1,6 @@
 const optionsOverlayNode = document.getElementById('overlay');
 const optionsConsoleLoggingNode = document.getElementById('consoleLogging');
+const optionsloggingURLPatternNode = document.getElementById('loggingURLPattern');
 const optionsUserTimingNode = document.getElementById('userTiming');
 const optionsPreferPhoneFieldNode = document.getElementById('preferPhoneField');
 const optionsSaveBtn = document.getElementById('save');
@@ -14,6 +15,7 @@ function saveOptions() {
     debug: optionsConsoleLoggingNode.checked,
     userTiming: optionsUserTimingNode.checked,
     preferPhoneField: optionsPreferPhoneFieldNode.checked,
+    loggingURLPattern: optionsloggingURLPatternNode.value,
   }, () => {
     // Update status to let user know options were saved.
     optionsStatus.textContent = 'Options saved.';
@@ -33,11 +35,13 @@ function restoreOptions() {
     debug: false,
     userTiming: false,
     preferPhoneField: false,
-  }, ({enableOverlay, debug, userTiming, preferPhoneField}) => {
+    loggingURLPattern: ''
+  }, ({enableOverlay, debug, userTiming, preferPhoneField, loggingURLPattern}) => {
     optionsOverlayNode.checked = enableOverlay;
     optionsConsoleLoggingNode.checked = debug;
     optionsUserTimingNode.checked = userTiming;
     optionsPreferPhoneFieldNode.checked = preferPhoneField;
+    optionsloggingURLPatternNode.value = loggingURLPattern;
   });
 }
 document.addEventListener('DOMContentLoaded', restoreOptions);

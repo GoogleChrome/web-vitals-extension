@@ -95,6 +95,17 @@ The kinds of diagnostic info varies per metric. For example, the LCP info includ
 * An optional warning if the tab was [loaded in the background](https://web.dev/lcp/#:~:text=your%20analytics%20service.-,Caution,-Since%20users%20can)
 * The full attribution object from [web-vitals](https://github.com/GoogleChrome/web-vitals#attribution)
 
+### User Timings
+
+For some metrics (LCP, FID, and INP) the breakdowns can be saved to User Timing marks, using `performance.measure` which are then [viewable in DevTools Performance traces](https://developer.chrome.com/docs/devtools/performance-insights/#timings).
+
+For the other metrics, Chrome DevTools normally provides sufficient information so additional breakdowns are not necessary.
+
+### Restricting logging to certain URLs
+
+Forn the [Console logging](#console-logs), and [User Timings](#user-timings), you may only be interested in this level of detail for the sites you actively develop on. In the options screen you can optionally limit the URLs that these extra loggins are enabled for to URLs that match a regex pattern. For example, `(example.com|localhost)`. Leaving this field blank means these will be enabled for all URLs.
+
+
 ## Contributing
 
 Contributions to this project are welcome in the form of pull requests or issues. See [CONTRIBUTING.md](/CONTRIBUTING.md) for further details.
