@@ -37,6 +37,11 @@ function hashCode(str) {
   return hash.toString();
 }
 
+function setExtensionErrorMessage(tab, errorMsg) {
+  const key = hashCode(tab.url);
+  chrome.storage.local.set({[key]: errorMsg});
+}
+
 /**
  * Call vitals.js to begin collecting local WebVitals metrics.
  * This will cause the content script to emit an event that kicks off the badging flow.
@@ -49,6 +54,16 @@ function getWebVitals(tabId) {
   }, (result) => {
     // Catch errors such as "This page cannot be scripted due
     // to an ExtensionsSettings policy."
+    let error = chrome.runtime.lastError;
+    if (error && error.message &&
+        !error.message.startsWith("Cannot access contents of url \"chrome") &&
+        !error.message.startsWith("Cannot access a chrome:// URL") &&
+        !error.message.startsWith("Cannot access a chrome-extension:// URL") &&
+        !error.message.startsWith("Cannot access a chrome-search:// URL")
+    ) {
+      console.error(error.message);
+      chrome.tabs.get(tabId, (tab) => setExtensionErrorMessage(tab, error.message));
+    }
   });
 }
 
