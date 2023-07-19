@@ -103,7 +103,7 @@ For the other metrics, Chrome DevTools normally provides sufficient information 
 
 ### Restricting logging to certain URLs
 
-Forn the [Console logging](#console-logs), and [User Timings](#user-timings), you may only be interested in this level of detail for the sites you actively develop on. In the options screen you can optionally limit the URLs that these extra loggins are enabled for to URLs that match a regex pattern. For example, `(example.com|localhost)`. Leaving this field blank means these will be enabled for all URLs.
+Forn the [Console logging](#console-logs), and [User Timings](#user-timings), you may only be interested in this level of detail for the sites you actively develop on. In the options screen you can optionally limit the URLs that these extra loggins are enabled for to URLs that match a regex pattern. For example, `(example\.com|localhost)`. Leaving this field blank means these will be enabled for all URLs.
 
 
 ## Contributing
