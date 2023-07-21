@@ -19,7 +19,15 @@ const CLS_THRESHOLD = 0.1;
 const FCP_THRESHOLD = 1800;
 const TTFB_THRESHOLD = 800;
 
-let optionsNoBadgeAnimation = false;
+// Get the optionsNoBadgeAnimation value
+// Actual default is false but lets set to true
+// initially in get sync storage is slow
+let optionsNoBadgeAnimation = true;
+chrome.storage.sync.get({
+  optionsNoBadgeAnimation: false
+}, ({noBadgeAnimation}) => {
+  optionsNoBadgeAnimation = noBadgeAnimation;
+});
 
 /**
  * Hash the URL and return a numeric hash as a String to be used as the key
@@ -304,7 +312,7 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
 // Listen for changes to noBadgeAnimation option
 function logStorageChange(changes, area) {
   if (area === 'sync' && 'noBadgeAnimation' in changes) {
-    optionsNoBadgeAnimation = changes['noBadgeAnimation'].newValue;
+    optionsNoBadgeAnimation = changes.noBadgeAnimation.newValue;
   }
 }
 chrome.storage.onChanged.addListener(logStorageChange);
