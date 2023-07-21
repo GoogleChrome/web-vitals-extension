@@ -269,6 +269,7 @@ async function animateBadges(request, tabId) {
     // animating immediately until a status change or page reload to avoid
     // having to check continually. This is similar to HUD and console.logs
     // not appearing immediately.
+    if (optionsNoBadgeAnimation) {
       return;
     }
 
