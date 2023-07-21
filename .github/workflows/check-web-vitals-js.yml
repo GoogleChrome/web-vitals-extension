@@ -1,0 +1,23 @@
+name: Test Web Vitals script matches node
+on:
+  workflow_dispatch:
+  pull_request:
+    paths:
+      - 'package.json'
+      - 'package-lock.json'
+  push:
+    branches:
+      - main
+jobs:
+  install:
+    name: Install and test
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout branch
+      uses: actions/checkout@v3
+    - name: Setup Node.js for use with actions
+      uses: actions/setup-node@v3
+    - name: Install dependencies
+      run: npm install
+    - name: Check web-vitals matches
+      run: diff node_modules/web-vitals/dist/web-vitals.attribution.js src/browser_action/web-vitals.js

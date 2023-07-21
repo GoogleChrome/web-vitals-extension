@@ -22,6 +22,16 @@ const LCP_POOR_THRESHOLD = 4000;
 const FID_POOR_THRESHOLD = 300;
 const CLS_POOR_THRESHOLD = 0.25;
 
+// Get the optionsNoBadgeAnimation value
+// Actual default is false but lets set to true initially in case sync storage
+// is slow so users don't experience any animation initially.
+let optionsNoBadgeAnimation = true;
+chrome.storage.sync.get({
+  optionsNoBadgeAnimation: false
+}, ({noBadgeAnimation}) => {
+  optionsNoBadgeAnimation = noBadgeAnimation;
+});
+
 /**
  * Hash the URL and return a numeric hash as a String to be used as the key
  * @param {String} str
@@ -269,6 +279,7 @@ let globalAnimationId = 0;
 /** @type {Map<number, number>} */
 const animationsByTabId = new Map();
 
+
 /**
  * Animate badges between good/needs-improvement/poor -> each failing metric.
  * We track each animation by tabId so that we can handle "cancellation" of the animation on new information.
@@ -285,6 +296,16 @@ async function animateBadges(request, tabId) {
   badgeOverallPerf(request.passesAllThresholds, tabId);
   // If perf is not good, animate the sequence
   if (request.passesAllThresholds !== 'GOOD') {
+
+    // However, if user has turned this off, then leave it off.
+    // Note: if optionsNoBadgeAnimation is flipped, it won't start (or stop)
+    // animating immediately until a status change or page reload to avoid
+    // having to check continually. This is similar to HUD and console.logs
+    // not appearing immediately.
+    if (optionsNoBadgeAnimation) {
+      return;
+    }
+
     await wait(delay);
     if (animationsByTabId.get(tabId) !== animationId) return;
     badgeMetric('lcp', request.metrics.lcp.value, tabId);
@@ -321,3 +342,11 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
     sendResponse({tabId: sender.tab.id});
   }
 });
+
+// Listen for changes to noBadgeAnimation option
+function logStorageChange(changes, area) {
+  if (area === 'sync' && 'noBadgeAnimation' in changes) {
+    optionsNoBadgeAnimation = changes.noBadgeAnimation.newValue;
+  }
+}
+chrome.storage.onChanged.addListener(logStorageChange);

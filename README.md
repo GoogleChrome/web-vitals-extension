@@ -42,15 +42,16 @@ If you are looking for a more bleeding-edge build, you can also install the vers
 
 The Ambient Badge helps check if a page passing the Core Web Vitals thresholds.
 
-Once installed, the extension will display a disabled state badge icon until you navigate to a URL. At this point it will update the badge to green or red depending on whether the URL passes the Core Web Vitals metrics thresholds.
+Once installed, the extension will display a disabled state badge icon until you navigate to a URL. At this point it will update the badge to green, amber or red depending on whether the URL passes the Core Web Vitals metrics thresholds.
 
 The badge has a number of states:
 
-* Disabled - gray
-* Passing - green
-* One or more metrics failing - red
+* Disabled - gray square
+* Good - green circle
+* One or more metrics needs improvement - amber square
+* One or more metrics poor - red triangle
 
-If one or more metrics are failing, the badge will animate the values of these metrics.
+If one or more metrics are failing, the badge will animate the values of these metrics (this animation can be turned off in the options screen).
 
 ### Detailed drill-down
 
@@ -129,10 +130,7 @@ We are making available a set of guides for optimizing each of the Core Web Vita
 * [Optimize INP](https://web.dev/optimize-inp/)
 * [Optimize TTFB](https://web.dev/optimize-ttfb/)
 
-Lighthouse also includes additional actionability audits for these metrics. They will answer questions like:
-
-* What element was identified as the Largest Contentful Paint?
-* What elements experienced a shift and contributed to Cumulative Layout Shift?
+Lighthouse also includes additional actionability audits for these metrics.
 
 We envision users will use the extension for instant feedback on metrics (for their desktop machine) but will then go and do a Lighthouse audit for (1) a diagnostic view of how these metrics look on a median mobile device and (2) specifically what you can do to improve.
 
