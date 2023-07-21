@@ -51,7 +51,7 @@ The badge has a number of states:
 * One or more metrics needs improvement - amber square
 * One or more metrics poor - red triangle
 
-If one or more metrics are failing, the badge will animate the values of these metrics.
+If one or more metrics are failing, the badge will animate the values of these metrics (this animation can be turned off in the options screen).
 
 ### Detailed drill-down
 
