@@ -20,8 +20,8 @@ const FCP_THRESHOLD = 1800;
 const TTFB_THRESHOLD = 800;
 
 // Get the optionsNoBadgeAnimation value
-// Actual default is false but lets set to true
-// initially in get sync storage is slow
+// Actual default is false but lets set to true initially in case sync storage
+// is slow so users don't experience any animation initially.
 let optionsNoBadgeAnimation = true;
 chrome.storage.sync.get({
   optionsNoBadgeAnimation: false
@@ -265,10 +265,10 @@ async function animateBadges(request, tabId) {
   if (request.passesAllThresholds === 'POOR') {
 
     // However, if user has turned this off, then leave it off.
-    // Note, we don't call animateBadges again so need a new metric event or a
-    // page refresh to re-enable this but better than checking continually,
-    // when unlikely to change in most cases.
-    if (optionsNoBadgeAnimation) {
+    // Note: if optionsNoBadgeAnimation is flipped, it won't start (or stop)
+    // animating immediately until a status change or page reload to avoid
+    // having to check continually. This is similar to HUD and console.logs
+    // not appearing immediately.
       return;
     }
 
