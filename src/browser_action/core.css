@@ -409,6 +409,11 @@
   text-overflow: ellipsis;
 }
 
+.web-vitals-chrome-extension-popup #footer-wrapper {
+  display:flex;
+  justify-content:space-between;
+}
+
 .web-vitals-chrome-extension-popup #device-icon-desktop,
 .web-vitals-chrome-extension-popup #device-icon-phone {
   display: none;
@@ -426,6 +431,10 @@
   vertical-align: middle;
 }
 
-.web-vitals-chrome-extension-popup #timestamp:not(:empty):after {
-  content: ' \2219';
+.web-vitals-chrome-extension-popup #settings-link a svg {
+  color: black;
+}
+
+.web-vitals-chrome-extension-popup #settings-link a:hover svg {
+  color: blue;
 }
