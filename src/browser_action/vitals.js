@@ -152,15 +152,15 @@
       enableOverlay, debug, userTiming
     }) => {
       if (enableOverlay === true && overlayClosedForSession == false) {
-        // Overlay
         let overlayElement = document.getElementById('web-vitals-extension-overlay');
         if (overlayElement === null) {
+          // Overlay
           overlayElement = document.createElement('div');
           overlayElement.id = 'web-vitals-extension-overlay';
           overlayElement.classList.add('web-vitals-chrome-extension');
-          overlayElement.innerHTML = buildOverlayTemplate(metrics, tabLoadedInBackground);
           document.body.appendChild(overlayElement);
 
+          // Overlay close button
           overlayClose = document.createElement('button');
           overlayClose.innerText = 'Close';
           overlayClose.id = 'web-vitals-close';
@@ -170,10 +170,11 @@
             overlayClose.remove();
             overlayClosedForSession = true;
           });
+
           document.body.appendChild(overlayClose);
-        } else {
-          overlayElement.innerHTML = buildOverlayTemplate(metrics, tabLoadedInBackground);
         }
+
+        overlayElement.innerHTML = buildOverlayTemplate(metrics, tabLoadedInBackground);
       }
 
       if (debug) {
