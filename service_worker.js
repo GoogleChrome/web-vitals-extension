@@ -54,7 +54,7 @@ function getWebVitals(tabId) {
   }, (result) => {
     // Catch errors such as "This page cannot be scripted due
     // to an ExtensionsSettings policy."
-    let error = chrome.runtime.lastError;
+    const error = chrome.runtime.lastError;
     if (error && error.message) {
       console.log(error.message);
       chrome.tabs.get(tabId, (tab) => setExtensionErrorMessage(tab, error.message));
