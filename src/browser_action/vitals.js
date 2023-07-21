@@ -160,13 +160,7 @@
           overlayElement.classList.add('web-vitals-chrome-extension');
           overlayElement.innerHTML = buildOverlayTemplate(metrics, tabLoadedInBackground);
           document.body.appendChild(overlayElement);
-        } else {
-          overlayElement.innerHTML = buildOverlayTemplate(metrics, tabLoadedInBackground);
-        }
 
-        // Overlay close button
-        let overlayClose = document.getElementById('web-vitals-close');
-        if (overlayClose === null) {
           overlayClose = document.createElement('button');
           overlayClose.innerText = 'Close';
           overlayClose.id = 'web-vitals-close';
@@ -177,8 +171,11 @@
             overlayClosedForSession = true;
           });
           document.body.appendChild(overlayClose);
+        } else {
+          overlayElement.innerHTML = buildOverlayTemplate(metrics, tabLoadedInBackground);
         }
       }
+
       if (debug) {
         localStorage.setItem('web-vitals-extension-debug', 'TRUE');
         enableLogging = true;
