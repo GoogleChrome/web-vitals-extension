@@ -30,9 +30,9 @@ export function loadLocalMetrics() {
 
         chrome.storage.local.get(key, result => {
           if (result[key] !== undefined) {
-            if (typeof(result[key]) === 'string') {
+            if (result[key].type && result[key].type === 'error') {
               // It's an error message, not a metrics object
-              resolve({error: result[key]});
+              resolve({error: result[key].message});
             } else {
               resolve({
                 metrics: result[key],
