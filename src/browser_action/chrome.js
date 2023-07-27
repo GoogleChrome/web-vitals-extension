@@ -48,3 +48,12 @@ export function getOptions() {
     chrome.storage.sync.get({preferPhoneField: false}, resolve);
   });
 }
+
+export function getURL() {
+  return new Promise(resolve => {
+    chrome.tabs.query({active: true, lastFocusedWindow: true}, tabs => {
+      let url = tabs[0].url;
+      resolve(url);
+    });
+  });
+}
