@@ -49,11 +49,13 @@ function hashCode(str) {
 
 function setExtensionErrorMessage(tab, errorMsg) {
   const key = hashCode(tab.url);
-  chrome.storage.local.set({[key]: {
-    type: 'error',
-    message: errorMsg,
-    timestamp: new Date().toISOString()
-  }})
+  chrome.storage.local.set({
+    [key]: {
+      type: 'error',
+      message: errorMsg,
+      timestamp: new Date().toISOString()
+    }
+  })
 }
 
 /**
