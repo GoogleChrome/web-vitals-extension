@@ -340,7 +340,7 @@ async function clearOldCache() {
           console.log('Removing', hash, results[hash]);
           chrome.storage.local.remove([hash]);
         }
-      } else if (results[hash] === true || results[hash] === false) {
+      } else if (typeof results[hash] === 'boolean') {
         // If it's a tab background status, clear that separately
         clearOldCacheBackground(hash);
       }
