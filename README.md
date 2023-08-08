@@ -12,7 +12,7 @@ It supports all of the [Core Web Vitals](https://web.dev/vitals/#core-web-vitals
 * [Cumulative Layout Shift](https://web.dev/cls/)
 * [First Input Delay](https://web.dev/fid/)
 
-It also supports the newer INP metric:
+It also supports the pending INP metric:
 * [Interaction to Next Paint](https://web.dev/inp/)
 
 Finally, it also supports the diagnostic metrics:
@@ -57,9 +57,9 @@ If one or more metrics are failing, the badge will animate the values of these m
 
 <img src="media/cwv-extension-drilldown-2.png" width="75%">
 
-Clicking the Ambient badge icon will allow you to drill in to the individual metric values. In this mode, the extension will also say if a metric value `might change` or requires a user action.
+Clicking the Ambient badge icon will allow you to drill in to the individual metric values. In this mode, the extension will also say if a metric requires a user action.
 
-For example, First Input Delay requires a real interaction (e.g click/tap) with the page and will be in a `waiting for input` state until this is the case. We recommend consulting the web.dev documentation for [LCP](https://web.dev/lcp), [CLS](https://web.dev/cls) and [FID](https://web.dev/fid) to get an understanding of when metric values settle.
+For example, Interaction to Next Paint requires a real interaction (e.g click/tap) with the page and will be in a `Waiting for input...` state until this is the case. We recommend consulting the web.dev documentation for [LCP](https://web.dev/lcp/), [CLS](https://web.dev/cls/), [FID](https://web.dev/fid/), and [INP](https://web.dev/inp/) to get an understanding of when metric values settle.
 
 As of version 1.0.0, the popup combines your local Core Web Vitals experiences with real-user data from the field via the [Chrome UX Report](https://developers.google.com/web/tools/chrome-user-experience-report) (CrUX) [API](https://developers.google.com/web/tools/chrome-user-experience-report/api/reference). This integration gives you contextual insights to help you understand how similar your individual experiences are to other desktop users on the same page. We've also added a new option to "Compare local experiences to phone field data" instead, if needed. Note that CrUX data may not be available for some pages, in which case we try to load field data for the origin as a whole.
 
@@ -95,6 +95,13 @@ The kinds of diagnostic info varies per metric. For example, the LCP info includ
 * A table of [LCP sub-part metrics](https://web.dev/optimize-lcp/#:~:text=each%20of%20these-,LCP%20sub%2Dparts,-in%20more%20detail)
 * An optional warning if the tab was [loaded in the background](https://web.dev/lcp/#:~:text=your%20analytics%20service.-,Caution,-Since%20users%20can)
 * The full attribution object from [web-vitals](https://github.com/GoogleChrome/web-vitals#attribution)
+
+
+### User Timings
+
+For some metrics (LCP, FID, and INP) the breakdowns can be saved to User Timing marks, using `performance.measure` which are then [viewable in DevTools Performance traces](https://developer.chrome.com/docs/devtools/performance-insights/#timings).
+
+For the other metrics, Chrome DevTools normally provides sufficient information so additional breakdowns are not necessary.
 
 ## Contributing
 
