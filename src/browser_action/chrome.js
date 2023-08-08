@@ -30,10 +30,15 @@ export function loadLocalMetrics() {
 
         chrome.storage.local.get(key, result => {
           if (result[key] !== undefined) {
-            resolve({
-              metrics: result[key],
-              background: tabLoadedInBackground
-            });
+            if (result[key].type && result[key].type === 'error') {
+              // It's an error message, not a metrics object
+              resolve({error: result[key].message});
+            } else {
+              resolve({
+                metrics: result[key],
+                background: tabLoadedInBackground
+              });
+            }
           } else {
             resolve({error: `Storage empty for key ${key}: ${result}`});
           }
@@ -46,5 +51,14 @@ export function loadLocalMetrics() {
 export function getOptions() {
   return new Promise(resolve => {
     chrome.storage.sync.get({preferPhoneField: false}, resolve);
+  });
+}
+
+export function getURL() {
+  return new Promise(resolve => {
+    chrome.tabs.query({active: true, lastFocusedWindow: true}, tabs => {
+      let url = tabs[0].url;
+      resolve(url);
+    });
   });
 }

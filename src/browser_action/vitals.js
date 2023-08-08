@@ -202,16 +202,6 @@
   }
 
   /**
- * Return a short (host) and full URL for the measured page
- * @return {Object}
- */
-  function getURL() {
-    const url = document.location.href;
-    const shortURL = document.location.origin;
-    return {shortURL, url};
-  }
-
-  /**
      *
      * Broadcasts metrics updates using chrome.runtime(), triggering
      * updates to the badge. Will also update the overlay if this option
@@ -226,7 +216,6 @@
       addUserTimings(metric);
     }
     badgeMetrics[metric.name.toLowerCase()].value = metric.value;
-    badgeMetrics.location = getURL();
     badgeMetrics.timestamp = new Date().toISOString();
     const passes = scoreBadgeMetrics(badgeMetrics);
 
