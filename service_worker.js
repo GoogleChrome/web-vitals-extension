@@ -47,6 +47,17 @@ function hashCode(str) {
   return hash.toString();
 }
 
+function setExtensionErrorMessage(tab, errorMsg) {
+  const key = hashCode(tab.url);
+  chrome.storage.local.set({
+    [key]: {
+      type: 'error',
+      message: errorMsg,
+      timestamp: new Date().toISOString()
+    }
+  })
+}
+
 /**
  * Call vitals.js to begin collecting local WebVitals metrics.
  * This will cause the content script to emit an event that kicks off the badging flow.
@@ -59,6 +70,11 @@ function getWebVitals(tabId) {
   }, (result) => {
     // Catch errors such as "This page cannot be scripted due
     // to an ExtensionsSettings policy."
+    const error = chrome.runtime.lastError;
+    if (error && error.message) {
+      console.log(error.message);
+      chrome.tabs.get(tabId, (tab) => setExtensionErrorMessage(tab, error.message));
+    }
   });
 }
 

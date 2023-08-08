@@ -30,10 +30,15 @@ export function loadLocalMetrics() {
 
         chrome.storage.local.get(key, result => {
           if (result[key] !== undefined) {
-            resolve({
-              metrics: result[key],
-              background: tabLoadedInBackground
-            });
+            if (result[key].type && result[key].type === 'error') {
+              // It's an error message, not a metrics object
+              resolve({error: result[key].message});
+            } else {
+              resolve({
+                metrics: result[key],
+                background: tabLoadedInBackground
+              });
+            }
           } else {
             resolve({error: `Storage empty for key ${key}: ${result}`});
           }

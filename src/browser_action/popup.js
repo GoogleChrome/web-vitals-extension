@@ -20,8 +20,8 @@ class Popup {
 
   constructor({metrics, background, options, error}) {
     if (error) {
-      console.error(error);
-      this.setStatus('Web Vitals are unavailable for this page');
+      console.log(error);
+      this.setStatus('Web Vitals are unavailable for this page.\n' + error);
       return;
     }
 
