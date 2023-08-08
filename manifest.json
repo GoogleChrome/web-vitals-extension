@@ -1,6 +1,6 @@
 {
   "name": "Web Vitals",
-  "version": "1.3.0",
+  "version": "1.4.0",
   "manifest_version": 3,
   "description": "Measure metrics for a healthy site",
   "homepage_url": "https://web.dev/vitals/",
