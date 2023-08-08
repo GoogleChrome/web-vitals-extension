@@ -11,30 +11,29 @@
  limitations under the License.
 */
 
-import { loadLocalMetrics, getOptions } from './chrome.js';
+import { loadLocalMetrics, getOptions, getURL } from './chrome.js';
 import { CrUX } from './crux.js';
 import { LCP, FID, INP, CLS, FCP, TTFB } from './metric.js';
 
-
 class Popup {
 
-  constructor({metrics, background, options, error}) {
+  constructor({metrics, background, options, url, error}) {
     if (error) {
       console.log(error);
       this.setStatus('Web Vitals are unavailable for this page.\n' + error);
       return;
     }
 
-    const {location, timestamp, ..._metrics} = metrics;
+    const {timestamp, ..._metrics} = metrics;
     // Format as a short timestamp (HH:MM:SS).
     const formattedTimestamp = new Date(timestamp).toLocaleTimeString('en-US', {hourCycle: 'h23'});
 
-    this.location = location;
     this.timestamp = formattedTimestamp;
     this._metrics = _metrics;
     this.background = background;
     this.options = options;
     this.metrics = {};
+    this.url = url;
 
     this.init();
   }
@@ -52,7 +51,7 @@ class Popup {
   }
 
   initPage() {
-    this.setPage(this.location.url);
+    this.setPage(this.url);
   }
 
   initTimestamp() {
@@ -91,7 +90,7 @@ class Popup {
 
   initFieldData() {
     const formFactor = this.options.preferPhoneField ? CrUX.FormFactor.PHONE : CrUX.FormFactor.DESKTOP;
-    CrUX.load(this.location.url, formFactor).then(fieldData => {
+    CrUX.load(this.url, formFactor).then(fieldData => {
       console.log('CrUX data', fieldData);
       this.renderFieldData(fieldData, formFactor);
     }).catch(e => {
@@ -238,6 +237,6 @@ class Popup {
 
 }
 
-Promise.all([loadLocalMetrics(), getOptions()]).then(([localMetrics, options]) => {
-  window.popup = new Popup({...localMetrics, options});
+Promise.all([loadLocalMetrics(), getOptions(), getURL()]).then(([localMetrics, options, url]) => {
+  window.popup = new Popup({...localMetrics, options, url});
 });
