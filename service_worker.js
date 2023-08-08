@@ -21,6 +21,7 @@ const TTFB_GOOD_THRESHOLD = 800;
 const LCP_POOR_THRESHOLD = 4000;
 const FID_POOR_THRESHOLD = 300;
 const CLS_POOR_THRESHOLD = 0.25;
+const ONE_DAY_MS = 24 * 60 * 60 * 1000;
 
 // Get the optionsNoBadgeAnimation value
 // Actual default is false but lets set to true initially in case sync storage
@@ -50,6 +51,17 @@ function hashCode(str) {
   return hash.toString();
 }
 
+function setExtensionErrorMessage(tab, errorMsg) {
+  const key = hashCode(tab.url);
+  chrome.storage.local.set({
+    [key]: {
+      type: 'error',
+      message: errorMsg,
+      timestamp: new Date().toISOString()
+    }
+  })
+}
+
 /**
  * Call vitals.js to begin collecting local WebVitals metrics.
  * This will cause the content script to emit an event that kicks off the badging flow.
@@ -62,6 +74,11 @@ function getWebVitals(tabId) {
   }, (result) => {
     // Catch errors such as "This page cannot be scripted due
     // to an ExtensionsSettings policy."
+    const error = chrome.runtime.lastError;
+    if (error && error.message) {
+      console.log(error.message);
+      chrome.tabs.get(tabId, (tab) => setExtensionErrorMessage(tab, error.message));
+    }
   });
 }
 
@@ -268,10 +285,13 @@ function wait(ms) {
  * @param {number} tabId
  * @return {Promise<boolean>}
  */
-function doesTabExist(tabId) {
-  return new Promise((resolve) => {
-    chrome.tabs.get(tabId, () => resolve(!chrome.runtime.lastError));
-  });
+async function doesTabExist(tabId) {
+  try {
+    await chrome.tabs.get(tabId);
+    return true;
+  } catch (_) {
+    return false;
+  }
 }
 
 /** @type {number} */
@@ -350,3 +370,35 @@ function logStorageChange(changes, area) {
   }
 }
 chrome.storage.onChanged.addListener(logStorageChange);
+
+
+async function clearOldCacheBackground(tabId) {
+  if (!(await doesTabExist(tabId))) {
+    chrome.storage.local.remove([tabId]);
+  };
+}
+
+async function clearOldCache() {
+  const now = Date.now();
+  chrome.storage.local.get(null, results => {
+    for (let hash in results) {
+      if (results[hash].timestamp) {
+        // If it's a timestamp, check if still valid
+        const timestamp = new Date(results[hash].timestamp).getTime();
+        if (now - timestamp > ONE_DAY_MS ) {
+          console.log('Removing', hash, results[hash]);
+          chrome.storage.local.remove([hash]);
+        }
+      } else if (typeof results[hash] === 'boolean') {
+        // If it's a tab background status, clear that separately
+        clearOldCacheBackground(hash);
+      }
+    }
+  });
+
+}
+
+self.addEventListener('activate', _ => {
+  clearOldCache();
+});
+

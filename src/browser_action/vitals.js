@@ -185,22 +185,16 @@
       enableOverlay, debug, userTiming
     }) => {
       if (enableOverlay === true && overlayClosedForSession == false) {
-        // Overlay
-        const overlayElement = document.getElementById('web-vitals-extension-overlay');
+        let overlayElement = document.getElementById('web-vitals-extension-overlay');
         if (overlayElement === null) {
-          const overlayElement = document.createElement('div');
+          // Overlay
+          overlayElement = document.createElement('div');
           overlayElement.id = 'web-vitals-extension-overlay';
           overlayElement.classList.add('web-vitals-chrome-extension');
-          overlayElement.innerHTML = buildOverlayTemplate(metrics, tabLoadedInBackground);
           document.body.appendChild(overlayElement);
-        } else {
-          overlayElement.innerHTML = buildOverlayTemplate(metrics, tabLoadedInBackground);
-        }
 
-        // Overlay close button
-        const overlayClose = document.getElementById('web-vitals-close');
-        if (overlayClose === null) {
-          const overlayClose = document.createElement('button');
+          // Overlay close button
+          overlayClose = document.createElement('button');
           overlayClose.innerText = 'Close';
           overlayClose.id = 'web-vitals-close';
           overlayClose.className = 'lh-overlay-close';
@@ -209,15 +203,13 @@
             overlayClose.remove();
             overlayClosedForSession = true;
           });
+
           document.body.appendChild(overlayClose);
-        } else {
-          overlayClose.addEventListener('click', () => {
-            overlayElement.remove();
-            overlayClose.remove();
-            overlayClosedForSession = true;
-          });
         }
+
+        overlayElement.innerHTML = buildOverlayTemplate(metrics, tabLoadedInBackground);
       }
+
       if (debug) {
         localStorage.setItem('web-vitals-extension-debug', 'TRUE');
         enableLogging = true;
@@ -236,16 +228,6 @@
   }
 
   /**
- * Return a short (host) and full URL for the measured page
- * @return {Object}
- */
-  function getURL() {
-    const url = document.location.href;
-    const shortURL = document.location.origin;
-    return {shortURL, url};
-  }
-
-  /**
      *
      * Broadcasts metrics updates using chrome.runtime(), triggering
      * updates to the badge. Will also update the overlay if this option
@@ -260,7 +242,6 @@
       addUserTimings(metric);
     }
     badgeMetrics[metric.name.toLowerCase()].value = metric.value;
-    badgeMetrics.location = getURL();
     badgeMetrics.timestamp = new Date().toISOString();
     const passes = scoreBadgeMetrics(badgeMetrics);
 
