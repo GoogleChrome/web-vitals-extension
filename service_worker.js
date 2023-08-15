@@ -25,7 +25,7 @@ const ONE_DAY_MS = 24 * 60 * 60 * 1000;
 // is slow so users don't experience any animation initially.
 let optionsNoBadgeAnimation = true;
 chrome.storage.sync.get({
-  optionsNoBadgeAnimation: false
+  noBadgeAnimation: false
 }, ({noBadgeAnimation}) => {
   optionsNoBadgeAnimation = noBadgeAnimation;
 });
