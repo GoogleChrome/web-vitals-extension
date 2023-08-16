@@ -19,6 +19,7 @@
   let latestCLS = {};
   let enableLogging = localStorage.getItem('web-vitals-extension-debug')=='TRUE';
   let enableUserTiming = localStorage.getItem('web-vitals-extension-user-timing')=='TRUE';
+  let longAnimationFrames = [];
 
   // Core Web Vitals thresholds
   const LCP_THRESHOLD = webVitals.LCPThresholds[0];
@@ -232,7 +233,7 @@
   async function logSummaryInfo(metric, tabLoadedInBackground) {
     const formattedValue = metric.name === 'CLS' ? metric.value.toFixed(2) : `${metric.value.toFixed(0)} ms`;
     console.groupCollapsed(
-      `${LOG_PREFIX} ${metric.name} %c${formattedValue} (${metric.rating})`,
+      `${LOG_PREFIX} ${metric.name} %c${formattedValue} (${metric.rating}) ${metric.attribution?.longAnimationFrames?.length ? '🔴' : ''}`,
       `color: ${RATING_COLORS[metric.rating] || 'inherit'}`
     );
 
@@ -288,7 +289,6 @@
     else if ((metric.name == 'INP'|| metric.name == 'Interaction') &&
         metric.attribution &&
         metric.attribution.eventEntry) {
-      const subPartString = `${metric.name} sub-part`;
       const eventEntry = metric.attribution.eventEntry;
       console.log('Interaction target:', eventEntry.target);
 
@@ -312,6 +312,10 @@
           subPartString: 'Presentation delay',
           'Time (ms)': Math.round(adjustedPresentationTime - entry.processingEnd, 0),
         }]);
+      }
+
+      if (metric.attribution.longAnimationFrames?.length) {
+        console.log('Long animation frames:', metric.attribution.longAnimationFrames);
       }
     }
 
@@ -451,6 +455,16 @@
     if (self._hasInstalledPerfMetrics) return;
     self._hasInstalledPerfMetrics = true;
 
+    // Monitor LoAFs
+    if (PerformanceObserver.supportedEntryTypes.includes('long-animation-frame')) {
+      new PerformanceObserver(entries => {
+        longAnimationFrames = longAnimationFrames.concat(entries.getEntries());
+      }).observe({
+        type: 'long-animation-frame',
+        buffered: true
+      });
+    }
+
     webVitals.onCLS((metric) => {
       // As CLS values can fire frequently in the case
       // of animations or highly-dynamic content, we
@@ -460,8 +474,12 @@
     }, { reportAllChanges: true });
 
     webVitals.onLCP(broadcastMetricsUpdates, { reportAllChanges: true });
-    webVitals.onFID(broadcastMetricsUpdates, { reportAllChanges: true });
+    webVitals.onFID((metric) => {
+      metric = addLoafAttribution(metric);
+      broadcastMetricsUpdates(metric);
+    }, { reportAllChanges: true });
     webVitals.onINP((metric) => {
+      metric = addLoafAttribution(metric);
       broadcastMetricsUpdates(metric)
     }, { reportAllChanges: true });
     webVitals.onFCP(broadcastMetricsUpdates, { reportAllChanges: true });
@@ -469,9 +487,20 @@
 
     if (enableLogging) {
       onEachInteraction((metric) => {
+        metric = addLoafAttribution(metric);
         logSummaryInfo(metric, false);
       });
     }
+  }
+
+  function addLoafAttribution(metric) {
+    const entry = metric.attribution.eventEntry;
+    const loafs = longAnimationFrames.filter((loaf) => {
+      return entry.startTime < (loaf.startTime + loaf.duration) && loaf.startTime < (entry.startTime + entry.duration);
+    });
+
+    metric.attribution.longAnimationFrames = loafs;
+    return metric;
   }
 
   /**
