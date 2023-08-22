@@ -19,7 +19,6 @@
   let latestCLS = {};
   let enableLogging = localStorage.getItem('web-vitals-extension-debug')=='TRUE';
   let enableUserTiming = localStorage.getItem('web-vitals-extension-user-timing')=='TRUE';
-  let tabLoadedInBackground;
 
   // Core Web Vitals thresholds
   const LCP_THRESHOLD = webVitals.LCPThresholds[0];
@@ -136,9 +135,16 @@
      * @param {Object} metrics
      * @param {Number} tabId
      */
-  function drawOverlay(metrics) {
+  function drawOverlay(metrics, tabId) {
+    let tabLoadedInBackground = false;
+    const key = tabId.toString();
 
     localStorage.setItem('web-vitals-extension-metrics', JSON.stringify(metrics));
+
+    // Check if tab was loaded in background
+    chrome.storage.local.get(key, (result) => {
+      tabLoadedInBackground = result[key];
+    });
 
     // Check for preferences set in options
     chrome.storage.sync.get({
@@ -171,7 +177,7 @@
           document.body.appendChild(overlayClose);
         }
 
-        overlayElement.innerHTML = buildOverlayTemplate(metrics);
+        overlayElement.innerHTML = buildOverlayTemplate(metrics, tabLoadedInBackground);
       }
 
       if (debug) {
@@ -214,31 +220,29 @@
       metrics: badgeMetrics,
       metric: metric,
     });
-
-    drawOverlay(badgeMetrics);
-
-    if (enableLogging) {
-      logSummaryInfo(metric);
-    }
   }
 
   // Listed to the message response containing the tab id
-  // to set the tabLoadedInBackground value. Only need to
-  // set this the first time.
-  port.onMessage.addListener((request) => {
-    if (request.tabId === undefined) {
+  // to update the overlay and log
+  port.onMessage.addListener((response) => {
+    if (response.tabId === undefined) {
       return;
     }
+    drawOverlay(badgeMetrics, response.tabId);
 
-    const key = request.tabId.toString();
-    if (tabLoadedInBackground === undefined) {
+    if (response.metric === undefined) {
+      return;
+    }
+    if (enableLogging) {
+      const key = response.tabId.toString();
       chrome.storage.local.get(key, result => {
-        tabLoadedInBackground = result[key];
+        const tabLoadedInBackground = result[key];
+        logSummaryInfo(response.metric, tabLoadedInBackground);
       });
     }
   });
 
-  async function logSummaryInfo(metric) {
+  async function logSummaryInfo(metric, tabLoadedInBackground) {
     const formattedValue = metric.name === 'CLS' ? metric.value.toFixed(2) : `${metric.value.toFixed(0)} ms`;
     console.groupCollapsed(
       `${LOG_PREFIX} ${metric.name} %c${formattedValue} (${metric.rating})`,
@@ -486,9 +490,10 @@
   /**
  * Build a template of metrics
  * @param {Object} metrics The metrics
+ * @param {Boolean} tabLoadedInBackground
  * @return {String} a populated template of metrics
  */
-  function buildOverlayTemplate(metrics) {
+  function buildOverlayTemplate(metrics, tabLoadedInBackground) {
     return `
     <div id="lh-overlay-container" class="lh-unset lh-root lh-vars dark" style="display: block;">
     <div class="lh-overlay">
