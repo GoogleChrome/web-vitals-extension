@@ -315,19 +315,21 @@ async function animateBadges(request, tabId) {
 }
 
 // message from content script
-chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
-  if (request.passesAllThresholds !== undefined) {
-    // e.g passesAllThresholds === 'GOOD' => green badge
-    animateBadges(request, sender.tab.id);
-    // Store latest metrics locally only.
-    // The popup will load the metric values from this storage.
-    if (sender.tab.url) {
-      const key = hashCode(sender.tab.url);
-      chrome.storage.local.set({[key]: request.metrics});
+chrome.runtime.onConnect.addListener((port) => {
+  port.onMessage.addListener((request) => {
+    if (request.passesAllThresholds !== undefined) {
+      // e.g passesAllThresholds === 'GOOD' => green badge
+      animateBadges(request, port.sender.tab.id);
+      // Store latest metrics locally only.
+      // The popup will load the metric values from this storage.
+      if (port.sender.tab.url) {
+        const key = hashCode(port.sender.tab.url);
+        chrome.storage.local.set({[key]: request.metrics});
+      }
+      // send TabId to content script
+      port.postMessage({tabId: port.sender.tab.id});
     }
-    // send TabId to content script
-    sendResponse({tabId: sender.tab.id});
-  }
+  });
 });
 
 // Listen for changes to noBadgeAnimation option

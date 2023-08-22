@@ -45,6 +45,20 @@
   // Registry for badge metrics
   const badgeMetrics = initializeMetrics();
 
+  // Set up extension message port with the service worker
+  let port = chrome.runtime.connect();
+  port.onMessage.addListener((response) => {
+    drawOverlay(badgeMetrics, response.tabId);
+
+    if (enableLogging) {
+      const key = response.tabId.toString();
+      chrome.storage.local.get(key, result => {
+        const tabLoadedInBackground = result[key];
+        logSummaryInfo(metric, tabLoadedInBackground);
+      });
+    }
+  });
+
   function initializeMetrics() {
     let metricsState = localStorage.getItem('web-vitals-extension-metrics');
     if (metricsState) {
@@ -213,19 +227,9 @@
     const passes = scoreBadgeMetrics(badgeMetrics);
 
     // Broadcast metrics updates for badging and logging
-    chrome.runtime.sendMessage({
+    port.postMessage({
       passesAllThresholds: passes,
       metrics: badgeMetrics,
-    }, response => {
-      drawOverlay(badgeMetrics, response.tabId);
-
-      if (enableLogging) {
-        const key = response.tabId.toString();
-        chrome.storage.local.get(key, result => {
-          const tabLoadedInBackground = result[key];
-          logSummaryInfo(metric, tabLoadedInBackground);
-        });
-      }
     });
   }
 
