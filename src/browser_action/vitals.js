@@ -208,16 +208,21 @@
     badgeMetrics.timestamp = new Date().toISOString();
     const passes = scoreBadgeMetrics(badgeMetrics);
 
-    // Broadcast metrics updates for badging and logging
+    // Broadcast metrics updates for badging
     port.postMessage({
       passesAllThresholds: passes,
       metrics: badgeMetrics,
-      metric: metric,
     });
+
+    drawOverlay(badgeMetrics);
+
+    if (enableLogging) {
+      logSummaryInfo(metric);
+    }
   }
 
   // Listed to the message response containing the tab id
-  // to update the overlay and log
+  // to set the tabLoadedInBackground.
   port.onMessage.addListener((response) => {
     if (response.tabId === undefined) {
       return;
@@ -229,15 +234,6 @@
       chrome.storage.local.get(key, result => {
         tabLoadedInBackground = result[key];
       });
-    }
-
-    drawOverlay(badgeMetrics);
-
-    if (response.metric === undefined) {
-      return;
-    }
-    if (enableLogging) {
-      logSummaryInfo(response.metric);
     }
   });
 
