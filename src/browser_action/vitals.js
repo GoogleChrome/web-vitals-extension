@@ -47,21 +47,6 @@
 
   // Set up extension message port with the service worker
   let port = chrome.runtime.connect();
-  port.onMessage.addListener((response) => {
-    if (response.tabId === undefined) {
-      return;
-    }
-
-    drawOverlay(badgeMetrics, response.tabId);
-
-    if (enableLogging) {
-      const key = response.tabId.toString();
-      chrome.storage.local.get(key, result => {
-        const tabLoadedInBackground = result[key];
-        logSummaryInfo(metric, tabLoadedInBackground);
-      });
-    }
-  });
 
   function initializeMetrics() {
     let metricsState = localStorage.getItem('web-vitals-extension-metrics');
@@ -214,9 +199,8 @@
 
   /**
      *
-     * Broadcasts metrics updates using chrome.runtime(), triggering
-     * updates to the badge. Will also update the overlay if this option
-     * is enabled.
+     * Broadcasts metrics updates using postMessage, triggering
+     * updates to the badge, overlay and logs as appropriate
      * @param {Object} metric
      */
   function broadcastMetricsUpdates(metric) {
@@ -234,8 +218,29 @@
     port.postMessage({
       passesAllThresholds: passes,
       metrics: badgeMetrics,
+      metric: metric,
     });
   }
+
+  // Listed to the message response containing the tab id
+  // to update the overlay and log
+  port.onMessage.addListener((response) => {
+    if (response.tabId === undefined) {
+      return;
+    }
+    drawOverlay(badgeMetrics, response.tabId);
+
+    if (response.metric === undefined) {
+      return;
+    }
+    if (enableLogging) {
+      const key = response.tabId.toString();
+      chrome.storage.local.get(key, result => {
+        const tabLoadedInBackground = result[key];
+        logSummaryInfo(response.metric, tabLoadedInBackground);
+      });
+    }
+  });
 
   async function logSummaryInfo(metric, tabLoadedInBackground) {
     const formattedValue = metric.name === 'CLS' ? metric.value.toFixed(2) : `${metric.value.toFixed(0)} ms`;

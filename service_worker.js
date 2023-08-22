@@ -326,8 +326,8 @@ chrome.runtime.onConnect.addListener((port) => {
         const key = hashCode(port.sender.tab.url);
         chrome.storage.local.set({[key]: request.metrics});
       }
-      // send TabId to content script
-      port.postMessage({tabId: port.sender.tab.id});
+      // send TabId to content script, and pass back the updated metric
+      port.postMessage({tabId: port.sender.tab.id, metric: request.metric});
     }
   });
 });
