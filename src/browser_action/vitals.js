@@ -48,6 +48,10 @@
   // Set up extension message port with the service worker
   let port = chrome.runtime.connect();
   port.onMessage.addListener((response) => {
+    if (response.tabId === undefined) {
+      return;
+    }
+
     drawOverlay(badgeMetrics, response.tabId);
 
     if (enableLogging) {
