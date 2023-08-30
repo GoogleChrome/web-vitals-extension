@@ -209,10 +209,14 @@
     const passes = scoreBadgeMetrics(badgeMetrics);
 
     // Broadcast metrics updates for badging
-    port.postMessage({
-      passesAllThresholds: passes,
-      metrics: badgeMetrics,
-    });
+    try {
+      port.postMessage({
+        passesAllThresholds: passes,
+        metrics: badgeMetrics,
+      });
+    } catch (_) {
+      // Do nothing on error, which can happen on tab switches
+    }
 
     drawOverlay(badgeMetrics);
 
