@@ -378,7 +378,7 @@
             metric.attribution.resourceLoadDelay,
           duration: metric.attribution.resourceLoadTime,
         });
-        performance.measure(`${LOG_PREFIX} LCP.elmentRenderDelay`, {
+        performance.measure(`${LOG_PREFIX} LCP.elementRenderDelay`, {
           duration: metric.attribution.elementRenderDelay,
           end: metric.value
         });
