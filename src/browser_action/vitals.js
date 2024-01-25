@@ -20,6 +20,7 @@
   let enableLogging = localStorage.getItem('web-vitals-extension-debug')=='TRUE';
   let enableUserTiming = localStorage.getItem('web-vitals-extension-user-timing')=='TRUE';
   let longAnimationFrames = [];
+  let tabLoadedInBackground;
 
   // Core Web Vitals thresholds
   const LCP_THRESHOLD = webVitals.LCPThresholds[0];
@@ -45,6 +46,9 @@
 
   // Registry for badge metrics
   const badgeMetrics = initializeMetrics();
+
+  // Set up extension message port with the service worker
+  let port = chrome.runtime.connect();
 
   function initializeMetrics() {
     let metricsState = localStorage.getItem('web-vitals-extension-metrics');
@@ -133,16 +137,9 @@
      * @param {Object} metrics
      * @param {Number} tabId
      */
-  function drawOverlay(metrics, tabId) {
-    let tabLoadedInBackground = false;
-    const key = tabId.toString();
+  function drawOverlay(metrics) {
 
     localStorage.setItem('web-vitals-extension-metrics', JSON.stringify(metrics));
-
-    // Check if tab was loaded in background
-    chrome.storage.local.get(key, (result) => {
-      tabLoadedInBackground = result[key];
-    });
 
     // Check for preferences set in options
     chrome.storage.sync.get({
@@ -175,7 +172,7 @@
           document.body.appendChild(overlayClose);
         }
 
-        overlayElement.innerHTML = buildOverlayTemplate(metrics, tabLoadedInBackground);
+        overlayElement.innerHTML = buildOverlayTemplate(metrics);
       }
 
       if (debug) {
@@ -197,9 +194,8 @@
 
   /**
      *
-     * Broadcasts metrics updates using chrome.runtime(), triggering
-     * updates to the badge. Will also update the overlay if this option
-     * is enabled.
+     * Broadcasts metrics updates using postMessage, triggering
+     * updates to the badge, overlay and logs as appropriate
      * @param {Object} metric
      */
   function broadcastMetricsUpdates(metric) {
@@ -213,24 +209,40 @@
     badgeMetrics.timestamp = new Date().toISOString();
     const passes = scoreBadgeMetrics(badgeMetrics);
 
-    // Broadcast metrics updates for badging and logging
-    chrome.runtime.sendMessage({
-      passesAllThresholds: passes,
-      metrics: badgeMetrics,
-    }, response => {
-      drawOverlay(badgeMetrics, response.tabId);
+    // Broadcast metrics updates for badging
+    try {
+      port.postMessage({
+        passesAllThresholds: passes,
+        metrics: badgeMetrics,
+      });
+    } catch (_) {
+      // Do nothing on error, which can happen on tab switches
+    }
 
-      if (enableLogging) {
-        const key = response.tabId.toString();
-        chrome.storage.local.get(key, result => {
-          const tabLoadedInBackground = result[key];
-          logSummaryInfo(metric, tabLoadedInBackground);
-        });
-      }
-    });
+    drawOverlay(badgeMetrics);
+
+    if (enableLogging) {
+      logSummaryInfo(metric);
+    }
   }
 
-  async function logSummaryInfo(metric, tabLoadedInBackground) {
+  // Listed to the message response containing the tab id
+  // to set the tabLoadedInBackground.
+  port.onMessage.addListener((response) => {
+    if (response.tabId === undefined) {
+      return;
+    }
+
+    // Only set the tabLoadedInBackground if not already set
+    if (tabLoadedInBackground === undefined) {
+      const key = response.tabId.toString();
+      chrome.storage.local.get(key, result => {
+        tabLoadedInBackground = result[key];
+      });
+    }
+  });
+
+  async function logSummaryInfo(metric) {
     const formattedValue = metric.name === 'CLS' ? metric.value.toFixed(2) : `${metric.value.toFixed(0)} ms`;
     console.groupCollapsed(
       `${LOG_PREFIX} ${metric.name} %c${formattedValue} (${metric.rating}) ${metric.attribution?.longAnimationFrames?.length ? '🔴' : ''}`,
@@ -374,7 +386,7 @@
             metric.attribution.resourceLoadDelay,
           duration: metric.attribution.resourceLoadTime,
         });
-        performance.measure(`${LOG_PREFIX} LCP.elmentRenderDelay`, {
+        performance.measure(`${LOG_PREFIX} LCP.elementRenderDelay`, {
           duration: metric.attribution.elementRenderDelay,
           end: metric.value
         });
@@ -506,10 +518,9 @@
   /**
  * Build a template of metrics
  * @param {Object} metrics The metrics
- * @param {Boolean} tabLoadedInBackground
  * @return {String} a populated template of metrics
  */
-  function buildOverlayTemplate(metrics, tabLoadedInBackground) {
+  function buildOverlayTemplate(metrics) {
     return `
     <div id="lh-overlay-container" class="lh-unset lh-root lh-vars dark" style="display: block;">
     <div class="lh-overlay">
