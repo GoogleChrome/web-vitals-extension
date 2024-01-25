@@ -1035,10 +1035,10 @@
   "resolved" "https://registry.npmjs.org/v8-compile-cache/-/v8-compile-cache-2.1.0.tgz"
   "version" "2.1.0"
 
-"web-vitals@^3.5.1":
-  "integrity" "sha512-xQ9lvIpfLxUj0eSmT79ZjRoU5wIRfIr7pNukL7ZE4EcWZSmfZQqOlhuAGfkVa3EFmzPHZhWhXfm2i5ys+THVPg=="
-  "resolved" "https://registry.npmjs.org/web-vitals/-/web-vitals-3.5.1.tgz"
-  "version" "3.5.1"
+"web-vitals@^3.5.2":
+  "integrity" "sha512-c0rhqNcHXRkY/ogGDJQxZ9Im9D19hDihbzSQJrsioex+KnFgmMzBiy57Z1EjkhX/+OjyBpclDCzz2ITtjokFmg=="
+  "resolved" "https://registry.npmjs.org/web-vitals/-/web-vitals-3.5.2.tgz"
+  "version" "3.5.2"
 
 "which@^1.2.9":
   "integrity" "sha512-HxJdYWq1MTIQbJ3nw0cqssHoTNU267KlrDuGZ1WYlxDStUtKUhOaJmh112/TZmHxxUfuJqPXSOm7tDyas0OSIQ=="

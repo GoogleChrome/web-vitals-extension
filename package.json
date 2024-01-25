@@ -21,6 +21,6 @@
     "eslint-config-google": "^0.14.0"
   },
   "dependencies": {
-    "web-vitals": "^3.5.1"
+    "web-vitals": "^3.5.2"
   }
 }
