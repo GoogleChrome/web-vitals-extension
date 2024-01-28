@@ -209,8 +209,7 @@ export class FID extends Metric {
       name: 'First Input Delay',
       local,
       background,
-      thresholds,
-      coreWebVital: true
+      thresholds
     });
   }
 
@@ -249,7 +248,7 @@ export class INP extends Metric {
       local,
       background,
       thresholds,
-      pendingCoreWebVital: true
+      coreWebVital: true
     });
   }
 

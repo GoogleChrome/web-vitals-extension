@@ -4,20 +4,21 @@
 
 <img src="media/cwv-extension-drilldown.png">
 
-This extension measures the three [Core Web Vitals](https://web.dev/vitals) metrics in a way that matches how they're measured by Chrome and reported to other Google tools (e.g. [Chrome User Experience Report](https://developers.google.com/web/tools/chrome-user-experience-report), [Page Speed Insights](https://developers.google.com/speed/pagespeed/insights/), [Search Console](https://search.google.com/search-console/about)).
+This extension measures the three [Core Web Vitals](https://web.dev/articles/vitals) metrics in a way that matches how they're measured by Chrome and reported to other Google tools (e.g. [Chrome User Experience Report](https://developers.google.com/web/tools/chrome-user-experience-report), [Page Speed Insights](https://developers.google.com/speed/pagespeed/insights/), [Search Console](https://search.google.com/search-console/about)).
 
-It supports all of the [Core Web Vitals](https://web.dev/vitals/#core-web-vitals) and leverages the [web-vitals](https://github.com/GoogleChrome/web-vitals) library under the hood to capture:
+It supports all of the [Core Web Vitals](https://web.dev/articles/vitals/#core-web-vitals) and leverages the [web-vitals](https://github.com/GoogleChrome/web-vitals) library under the hood to capture:
 
-* [Largest Contentful Paint](https://web.dev/lcp/)
-* [Cumulative Layout Shift](https://web.dev/cls/)
-* [First Input Delay](https://web.dev/fid/)
+* [Largest Contentful Paint](https://web.dev/articles/lcp/)
+* [Cumulative Layout Shift](https://web.dev/articles/cls/)
+* [Interaction to Next Paint](https://web.dev/articles/inp/)
 
-It also supports the pending INP metric:
-* [Interaction to Next Paint](https://web.dev/inp/)
+It also supports the diagnostic metrics:
+* [Time to First Byte](https://web.dev/articles/ttfb/)
+* [First Contentful Paint](https://web.dev/articles/fcp/)
 
-Finally, it also supports the diagnostic metrics:
-* [Time to First Byte](https://web.dev/ttfb/)
-* [First Contentful Paint](https://web.dev/fcp/)
+And finally, it temporarily supports the following deprecated metrics:
+
+* [First Input Delay](https://web.dev/articles/fid/)
 
 <h3 id="install">Installation Instructions</h3>
 
@@ -59,7 +60,7 @@ If one or more metrics are failing, the badge will animate the values of these m
 
 Clicking the Ambient badge icon will allow you to drill in to the individual metric values. In this mode, the extension will also say if a metric requires a user action.
 
-For example, Interaction to Next Paint requires a real interaction (e.g click/tap) with the page and will be in a `Waiting for input...` state until this is the case. We recommend consulting the web.dev documentation for [LCP](https://web.dev/lcp/), [CLS](https://web.dev/cls/), [FID](https://web.dev/fid/), and [INP](https://web.dev/inp/) to get an understanding of when metric values settle.
+For example, Interaction to Next Paint requires a real interaction (e.g click/tap) with the page and will be in a `Waiting for input...` state until this is the case. We recommend consulting the web.dev documentation for [LCP](https://web.dev/articles/lcp/), [CLS](https://web.dev/articles/cls/), [FID](https://web.dev/articles/fid/), and [INP](https://web.dev/articles/inp/) to get an understanding of when metric values settle.
 
 As of version 1.0.0, the popup combines your local Core Web Vitals experiences with real-user data from the field via the [Chrome UX Report](https://developers.google.com/web/tools/chrome-user-experience-report) (CrUX) [API](https://developers.google.com/web/tools/chrome-user-experience-report/api/reference). This integration gives you contextual insights to help you understand how similar your individual experiences are to other desktop users on the same page. We've also added a new option to "Compare local experiences to phone field data" instead, if needed. Note that CrUX data may not be available for some pages, in which case we try to load field data for the origin as a whole.
 
@@ -92,8 +93,8 @@ Diagnostic info for each metric is logged as a console group prepended by the ex
 The kinds of diagnostic info varies per metric. For example, the LCP info includes:
 
 * A reference to the LCP element
-* A table of [LCP sub-part metrics](https://web.dev/optimize-lcp/#:~:text=each%20of%20these-,LCP%20sub%2Dparts,-in%20more%20detail)
-* An optional warning if the tab was [loaded in the background](https://web.dev/lcp/#:~:text=your%20analytics%20service.-,Caution,-Since%20users%20can)
+* A table of [LCP sub-part metrics](https://web.dev/articles/optimize-lcp/#:~:text=each%20of%20these-,LCP%20sub%2Dparts,-in%20more%20detail)
+* An optional warning if the tab was [loaded in the background](https://web.dev/articles/lcp/#:~:text=your%20analytics%20service.-,Caution,-Since%20users%20can)
 * The full attribution object from [web-vitals](https://github.com/GoogleChrome/web-vitals#attribution)
 
 
@@ -131,11 +132,11 @@ This extension reports metrics for your desktop or laptop machine. In many cases
 
 We are making available a set of guides for optimizing each of the Core Web Vitals metrics if you find your page is not passing a particular threshold:
 
-* [Optimize CLS](https://web.dev/optimize-cls/)
-* [Optimize LCP](https://web.dev/optimize-lcp/)
-* [Optimize FID](https://web.dev/optimize-fid/)
-* [Optimize INP](https://web.dev/optimize-inp/)
-* [Optimize TTFB](https://web.dev/optimize-ttfb/)
+* [Optimize CLS](https://web.dev/articles/optimize-cls/)
+* [Optimize LCP](https://web.dev/articles/optimize-lcp/)
+* [Optimize FID](https://web.dev/articles/optimize-fid/)
+* [Optimize INP](https://web.dev/articles/optimize-inp/)
+* [Optimize TTFB](https://web.dev/articles/optimize-ttfb/)
 
 Lighthouse also includes additional actionability audits for these metrics.
 
