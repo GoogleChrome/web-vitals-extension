@@ -302,7 +302,15 @@
         metric.attribution &&
         metric.attribution.eventEntry) {
       const eventEntry = metric.attribution.eventEntry;
-      console.log('Interaction target:', eventEntry.target);
+
+      let eventTarget = eventEntry.target;
+      // Sometimes the eventEntry has no target, so we need to hunt it out manually.
+      // As of web-vitals@3.5.2 `attribution.eventTarget` does the same thing,
+      // but we want a reference to the element itself (for logging), not a selector.
+      if (!eventTarget) {
+        eventTarget = metric.entries.find(entry => entry.target)?.target;
+      }
+      console.log('Interaction target:', eventTarget);
 
       for (let entry of metric.entries) {
         console.log(`Interaction event type: %c${entry.name}`, 'font-family: monospace');
