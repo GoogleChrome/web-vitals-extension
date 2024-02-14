@@ -524,18 +524,6 @@
             <div class="lh-metric__value">${(metrics.cls.value || 0).toFixed(3)}</div>
           </div>
         </div>
-        <div class="lh-metric lh-metric--${metrics.fid.pass ? 'pass':'fail'} lh-metric--${metrics.fid.value === null ? 'waiting' : 'ready'}">
-          <div class="lh-metric__innerwrap">
-            <span class="lh-metric__title">
-              First Input Delay
-              <span class="lh-metric-state">${metrics.fid.value === null ? '(waiting for input)' : ''}</span>
-            </span>
-            <div class="lh-metric__value">${
-              metrics.fid.value === null ? '' :
-              `${metrics.fid.value.toFixed(2)}&nbsp;ms`
-            }</div>
-          </div>
-        </div>
         <div class="lh-metric lh-metric--${metrics.inp.pass ? 'pass':'fail'} lh-metric--${metrics.inp.value === null ? 'waiting' : 'ready'}">
           <div class="lh-metric__innerwrap">
             <span class="lh-metric__title">
@@ -545,6 +533,18 @@
             <div class="lh-metric__value">${
               metrics.inp.value === null ? '' :
               `${metrics.inp.value.toFixed(2)}&nbsp;ms`
+            }</div>
+          </div>
+        </div>
+        <div class="lh-metric lh-metric--${metrics.fid.pass ? 'pass':'fail'} lh-metric--${metrics.fid.value === null ? 'waiting' : 'ready'}">
+          <div class="lh-metric__innerwrap">
+            <span class="lh-metric__title">
+              First Input Delay
+              <span class="lh-metric-state">${metrics.fid.value === null ? '(waiting for input)' : ''}</span>
+            </span>
+            <div class="lh-metric__value">${
+              metrics.fid.value === null ? '' :
+              `${metrics.fid.value.toFixed(2)}&nbsp;ms`
             }</div>
           </div>
         </div>
