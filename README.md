@@ -4,7 +4,7 @@
 
 <img src="media/cwv-extension-drilldown.png">
 
-This extension measures the three [Core Web Vitals](https://web.dev/articles/vitals) metrics in a way that matches how they're measured by Chrome and reported to other Google tools (e.g. [Chrome User Experience Report](https://developers.google.com/web/tools/chrome-user-experience-report), [Page Speed Insights](https://developers.google.com/speed/pagespeed/insights/), [Search Console](https://search.google.com/search-console/about)).
+This extension measures the three [Core Web Vitals](https://web.dev/articles/vitals) metrics in a way that matches how they're measured by Chrome and reported to other Google tools (e.g. [Chrome User Experience Report](https://developer.chrome.com/docs/crux), [Page Speed Insights](https://developers.google.com/speed/pagespeed/insights/), [Search Console](https://search.google.com/search-console/about)).
 
 It supports all of the [Core Web Vitals](https://web.dev/articles/vitals/#core-web-vitals) and leverages the [web-vitals](https://github.com/GoogleChrome/web-vitals) library under the hood to capture:
 
@@ -62,7 +62,7 @@ Clicking the Ambient badge icon will allow you to drill in to the individual met
 
 For example, Interaction to Next Paint requires a real interaction (e.g click/tap) with the page and will be in a `Waiting for input...` state until this is the case. We recommend consulting the web.dev documentation for [LCP](https://web.dev/articles/lcp), [CLS](https://web.dev/articles/cls), [FID](https://web.dev/articles/fid), and [INP](https://web.dev/articles/inp) to get an understanding of when metric values settle.
 
-As of version 1.0.0, the popup combines your local Core Web Vitals experiences with real-user data from the field via the [Chrome UX Report](https://developer.chrome.com/docs/crux/) (CrUX) [API](https://developer.chrome.com/docs/crux/api). This integration gives you contextual insights to help you understand how similar your individual experiences are to other desktop users on the same page. We've also added a new option to "Compare local experiences to phone field data" instead, if needed. Note that CrUX data may not be available for some pages, in which case we try to load field data for the origin as a whole.
+As of version 1.0.0, the popup combines your local Core Web Vitals experiences with real-user data from the field via the [Chrome UX Report](https://developer.chrome.com/docs/crux) (CrUX) [API](https://developer.chrome.com/docs/crux/api). This integration gives you contextual insights to help you understand how similar your individual experiences are to other desktop users on the same page. We've also added a new option to "Compare local experiences to phone field data" instead, if needed. Note that CrUX data may not be available for some pages, in which case we try to load field data for the origin as a whole.
 
 <img src="media/cwv-extension-screenshot.png" width="75%">
 
@@ -93,8 +93,8 @@ Diagnostic info for each metric is logged as a console group prepended by the ex
 The kinds of diagnostic info varies per metric. For example, the LCP info includes:
 
 * A reference to the LCP element
-* A table of [LCP sub-part metrics](https://web.dev/articles/optimize-lcp#:~:text=each%20of%20these-,LCP%20sub%2Dparts,-in%20more%20detail)
-* An optional warning if the tab was [loaded in the background](https://web.dev/articles/lcp#:~:text=your%20analytics%20service.-,Caution,-Since%20users%20can)
+* A table of [LCP sub-part metrics](https://web.dev/articles/optimize-lcp#lcp_breakdown)
+* An optional warning if the tab was [loaded in the background](https://web.dev/articles/lcp#lcp-background)
 * The full attribution object from [web-vitals](https://github.com/GoogleChrome/web-vitals#attribution)
 
 
