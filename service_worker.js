@@ -172,7 +172,7 @@ function badgeMetric(metric, value, tabid) {
     if (metric === 'lcp' && value <= LCP_THRESHOLD) {
       return;
     }
-    if (metric === 'fid' && value <= FID_THRESHOLD) {
+    if (metric === 'inp' && value <= INP_THRESHOLD) {
       return;
     }
 
@@ -205,9 +205,9 @@ function badgeMetric(metric, value, tabid) {
           tabId: currentTab,
         });
         break;
-      case 'fid':
+      case 'inp':
         chrome.action.setIcon({
-          path: '../../icons/slow128w-fid.png',
+          path: '../../icons/slow128w-inp.png',
           tabId: currentTab,
         });
         chrome.action.setBadgeBackgroundColor({
@@ -215,7 +215,7 @@ function badgeMetric(metric, value, tabid) {
           tabId: currentTab,
         });
         chrome.action.setBadgeText({
-          text: value.toFixed(2),
+          text: value.toFixed(0),
           tabId: currentTab,
         });
         break;
@@ -299,7 +299,7 @@ async function animateBadges(request, tabId) {
 
     await wait(delay);
     if (animationsByTabId.get(tabId) !== animationId) return;
-    badgeMetric('fid', request.metrics.fid.value, tabId);
+    badgeMetric('inp', request.metrics.inp.value, tabId);
 
     await wait(delay);
     if (animationsByTabId.get(tabId) !== animationId) return;

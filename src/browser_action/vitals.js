@@ -111,13 +111,13 @@
       overallScore = 'POOR';
       metrics.cls.pass = false;
     }
-    if (metrics.fid.value > FID_THRESHOLD) {
-      overallScore = 'POOR';
-      metrics.fid.pass = false;
-    }
     if (metrics.inp.value > INP_THRESHOLD) {
-      // INP does not affect overall score
+      overallScore = 'POOR';
       metrics.inp.pass = false;
+    }
+    if (metrics.fid.value > FID_THRESHOLD) {
+      // FID does not affect overall score
+      metrics.fid.pass = false;
     }
     if (metrics.fcp.value > FCP_THRESHOLD) {
       // FCP does not affect overall score
