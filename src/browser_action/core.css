@@ -143,47 +143,6 @@
   white-space: nowrap;
 }
 
-.web-vitals-chrome-extension-popup .core-web-vital-icon,
-.web-vitals-chrome-extension-popup .pending-core-web-vital-icon,
-.web-vitals-chrome-extension-popup .experimental-icon {
-  display: none;
-  vertical-align: middle;
-  margin-inline-start: 0.5rem;
-  fill: #06f;
-}
-
-.web-vitals-chrome-extension-popup .pending-core-web-vital-icon {
-  fill: gray;
-}
-
-.web-vitals-chrome-extension-popup #legend .core-web-vital-icon,
-.web-vitals-chrome-extension-popup #legend .pending-core-web-vital-icon,
-.web-vitals-chrome-extension-popup #legend .experimental-icon {
-  display: inline-block;
-  margin-inline-start: 0;
-  margin-inline-end: 0.5rem;
-}
-
-.web-vitals-chrome-extension-popup .core-web-vital-metric .core-web-vital-icon {
-  display: inline-block;
-}
-
-.web-vitals-chrome-extension-popup .pending-core-web-vital-metric .pending-core-web-vital-icon {
-  display: inline-block;
-}
-
-.web-vitals-chrome-extension-popup .experimental-metric .experimental-icon {
-  display: inline-block;
-}
-
-
-.web-vitals-chrome-extension-popup #legend {
-  display: flex;
-  justify-content: space-between;
-  border: 1px solid var(--color-dark-grey);
-  padding: 0.5rem;
-}
-
 .web-vitals-chrome-extension-popup .metric-performance {
   position: relative;
 }
