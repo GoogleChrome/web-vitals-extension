@@ -157,9 +157,6 @@ class Popup {
     local.style.marginLeft = metric.getRelativePosition(metric.local);
     localValue.innerText = metric.formatValue(metric.local);
     metricElement.classList.toggle(assessment, !!assessment);
-    metricElement.classList.toggle('experimental-metric', metric.experimental);
-    metricElement.classList.toggle('core-web-vital-metric', metric.coreWebVital);
-    metricElement.classList.toggle('pending-core-web-vital-metric', metric.pendingCoreWebVital);
     infoElement.title = info;
     infoElement.classList.toggle('hidden', info == '');
 
