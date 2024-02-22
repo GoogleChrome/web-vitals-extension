@@ -1,6 +1,6 @@
 export class Metric {
 
-  constructor({id, name, local, background, thresholds, experimental, coreWebVital, pendingCoreWebVital}) {
+  constructor({id, name, local, background, thresholds}) {
     this.id = id;
     this.abbr = id.toUpperCase();
     this.name = name;
@@ -10,9 +10,6 @@ export class Metric {
     this.digitsOfPrecision = 3;
     // This will be replaced with field data, if available.
     this.distribution = [1/3, 1/3, 1/3];
-    this.experimental = experimental || false;
-    this.coreWebVital = coreWebVital || false;
-    this.pendingCoreWebVital = pendingCoreWebVital || false;
   }
 
   formatValue(value) {
@@ -169,8 +166,7 @@ export class LCP extends Metric {
       name: 'Largest Contentful Paint',
       local,
       background,
-      thresholds,
-      coreWebVital: true
+      thresholds
     });
   }
 
@@ -209,8 +205,7 @@ export class FID extends Metric {
       name: 'First Input Delay',
       local,
       background,
-      thresholds,
-      coreWebVital: true
+      thresholds
     });
   }
 
@@ -248,8 +243,7 @@ export class INP extends Metric {
       name: 'Interaction to Next Paint',
       local,
       background,
-      thresholds,
-      pendingCoreWebVital: true
+      thresholds
     });
   }
 
@@ -290,8 +284,7 @@ export class CLS extends Metric {
       name: 'Cumulative Layout Shift',
       local,
       background,
-      thresholds,
-      coreWebVital: true
+      thresholds
     });
   }
 
@@ -359,8 +352,7 @@ export class TTFB extends Metric {
       name: 'Time to First Byte',
       local,
       background,
-      thresholds,
-      experimental: true
+      thresholds
     });
   }
 
