@@ -49,13 +49,13 @@
   // Set up extension message port with the service worker
   let port = chrome.runtime.connect();
 
-  // // Re-establish the port connection on bfcache restore
-  // window.addEventListener('pageshow', (event) => {
-  //   if (event.persisted) {
-  //     // The page is restored from BFCache, set up a new connection.
-  //     port = chrome.runtime.connect();
-  //   }
-  // });
+  // Re-establish the port connection on bfcache restore
+  window.addEventListener('pageshow', (event) => {
+    if (event.persisted) {
+      // The page is restored from BFCache, set up a new connection.
+      port = chrome.runtime.connect();
+    }
+  });
 
   function initializeMetrics() {
     let metricsState = localStorage.getItem('web-vitals-extension-metrics');
