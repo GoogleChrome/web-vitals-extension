@@ -49,6 +49,14 @@
   // Set up extension message port with the service worker
   let port = chrome.runtime.connect();
 
+  // // Re-establish the port connection on bfcache restore
+  // window.addEventListener('pageshow', (event) => {
+  //   if (event.persisted) {
+  //     // The page is restored from BFCache, set up a new connection.
+  //     port = chrome.runtime.connect();
+  //   }
+  // });
+
   function initializeMetrics() {
     let metricsState = localStorage.getItem('web-vitals-extension-metrics');
     if (metricsState) {
@@ -302,7 +310,7 @@
         metric.attribution.eventEntry) {
       const subPartString = `${metric.name} sub-part`;
       const eventEntry = metric.attribution.eventEntry;
-      
+
       let eventTarget = eventEntry.target;
       // Sometimes the eventEntry has no target, so we need to hunt it out manually.
       // As of web-vitals@3.5.2 `attribution.eventTarget` does the same thing,
