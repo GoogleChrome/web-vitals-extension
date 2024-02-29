@@ -14,12 +14,11 @@
 (async () => {
   const src = chrome.runtime.getURL('src/browser_action/web-vitals.js');
   const webVitals = await import(src);
-  const { onEachInteraction } = await import(chrome.runtime.getURL('src/browser_action/on-each-interaction.js'));
+  const { onEachInteraction, initLoAF, addLoafAttribution } = await import(chrome.runtime.getURL('src/browser_action/on-each-interaction.js'));
   let overlayClosedForSession = false;
   let latestCLS = {};
   let enableLogging = localStorage.getItem('web-vitals-extension-debug')=='TRUE';
   let enableUserTiming = localStorage.getItem('web-vitals-extension-user-timing')=='TRUE';
-  let longAnimationFrames = [];
   let tabLoadedInBackground;
 
   // Core Web Vitals thresholds
@@ -335,6 +334,43 @@
       }
 
       if (metric.attribution.longAnimationFrames?.length) {
+        const events = metric.entries;
+        let maxPresentationTime = 0;
+        let totalProcessingTime = 0;
+        let prevEnd = 0;
+        for (let { startTime, processingStart, processingEnd, duration } of events) {
+          maxPresentationTime = Math.max(maxPresentationTime, processingEnd, startTime + duration);
+          totalProcessingTime += processingEnd - Math.max(processingStart, prevEnd);
+          prevEnd = processingEnd;
+        }
+      
+        const processingStart = events[0].processingStart;
+        const processingEnd = events.at(-1).processingEnd;
+        const percent = totalProcessingTime / (processingEnd - processingStart) * 100;
+      
+        const renderStart = Math.max(loaf.renderStart, processingEnd);
+        const renderEnd = loaf.startTime + loaf.duration;
+
+        // Both event presentation times and loaf renderEnd are rounded, so sometimes one laps the other slightly...
+        const interactionEndTime = Math.max(maxPresentationTime, renderEnd);
+
+        console.table([{
+          'Interaction phase': 'Input delay',
+          'Time (ms)': processingStart - events[0].startTime
+        }, {
+          'Interaction phase': `Processing [${percent.toFixed(1)}%]`,
+          'Time (ms)': processingEnd - processingStart
+        }, {
+          'Interaction phase': 'Rendering delay',
+          'Time (ms)': renderStart - processingEnd
+        }, {
+          'Interaction phase': 'Rendering',
+          'Time (ms)': renderEnd - renderStart
+        }, {
+          'Interaction phase': 'Presentation delay',
+          'Time (ms)': interactionEndTime - renderEnd
+        }]);
+
         console.log('Long animation frames:', metric.attribution.longAnimationFrames);
       }
     }
@@ -475,15 +511,7 @@
     if (self._hasInstalledPerfMetrics) return;
     self._hasInstalledPerfMetrics = true;
 
-    // Monitor LoAFs
-    if (PerformanceObserver.supportedEntryTypes.includes('long-animation-frame')) {
-      new PerformanceObserver(entries => {
-        longAnimationFrames = longAnimationFrames.concat(entries.getEntries());
-      }).observe({
-        type: 'long-animation-frame',
-        buffered: true
-      });
-    }
+    initLoAF();
 
     webVitals.onCLS((metric) => {
       // As CLS values can fire frequently in the case
@@ -507,20 +535,9 @@
 
     if (enableLogging) {
       onEachInteraction((metric) => {
-        metric = addLoafAttribution(metric);
-        logSummaryInfo(metric, false);
+        logSummaryInfo(metric);
       });
     }
-  }
-
-  function addLoafAttribution(metric) {
-    const entry = metric.attribution.eventEntry;
-    const loafs = longAnimationFrames.filter((loaf) => {
-      return entry.startTime < (loaf.startTime + loaf.duration) && loaf.startTime < (entry.startTime + entry.duration);
-    });
-
-    metric.attribution.longAnimationFrames = loafs;
-    return metric;
   }
 
   /**
