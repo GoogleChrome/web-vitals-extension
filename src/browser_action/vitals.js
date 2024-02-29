@@ -41,7 +41,7 @@
   const DEBOUNCE_DELAY = 500;
 
   // Identifiable prefix for console logging
-  const LOG_PREFIX = '[Web Vitals Extension]';
+  const LOG_PREFIX = '[Web Vitals]';
 
   // Registry for badge metrics
   const badgeMetrics = initializeMetrics();
@@ -244,7 +244,7 @@
   async function logSummaryInfo(metric) {
     const formattedValue = metric.name === 'CLS' ? metric.value.toFixed(2) : `${metric.value.toFixed(0)} ms`;
     console.groupCollapsed(
-      `${LOG_PREFIX} ${metric.name} %c${formattedValue} (${metric.rating}) ${metric.attribution?.longAnimationFrames?.length ? '🔴' : ''}`,
+      `${LOG_PREFIX} ${metric.name} %c${formattedValue} (${metric.rating}) ${metric.attribution?.longAnimationFrames ? '🔴' : ''}`,
       `color: ${RATING_COLORS[metric.rating] || 'inherit'}`
     );
 
@@ -257,16 +257,16 @@
       }
       console.log('LCP element:', metric.attribution.lcpEntry.element);
       console.table([{
-        'LCP sub-part': 'Time to First Byte',
+        'LCP phase': 'Time to First Byte',
         'Time (ms)': Math.round(metric.attribution.timeToFirstByte, 0),
       }, {
-        'LCP sub-part': 'Resource load delay',
+        'LCP phase': 'Resource load delay',
         'Time (ms)': Math.round(metric.attribution.resourceLoadDelay, 0),
       }, {
-        'LCP sub-part': 'Resource load time',
+        'LCP phase': 'Resource load time',
         'Time (ms)': Math.round(metric.attribution.resourceLoadTime, 0),
       }, {
-        'LCP sub-part': 'Element render delay',
+        'LCP phase': 'Element render delay',
         'Time (ms)': Math.round(metric.attribution.elementRenderDelay, 0),
       }]);
     }
@@ -280,10 +280,10 @@
       }
       console.log('FCP loadState:', metric.attribution.loadState);
       console.table([{
-        'FCP sub-part': 'Time to First Byte',
+        'FCP phase': 'Time to First Byte',
         'Time (ms)': Math.round(metric.attribution.timeToFirstByte, 0),
       }, {
-        'FCP sub-part': 'FCP render delay',
+        'FCP phase': 'FCP render delay',
         'Time (ms)': Math.round(metric.attribution.firstByteToFCP, 0),
       }]);
     }
@@ -311,8 +311,42 @@
       }
       console.log('Interaction target:', eventTarget);
 
+      if (metric.attribution?.longAnimationFrames) {
+        const {
+          inputDelay,
+          processingDuration,
+          processingPercentage,
+          renderingDelay,
+          renderingDuration,
+          presentationDelay
+        } = metric.attribution;
+
+        const percentageText = (processingPercentage ?? ` [${Math.round(processingPercentage)}%]`) || '';
+
+        console.group('Long animation frame');
+        console.table([{
+          'Interaction phase': 'Input delay',
+          'Time (ms)': Math.round(inputDelay)
+        }, {
+          'Interaction phase': `Processing${percentageText}`,
+          'Time (ms)': Math.round(processingDuration)
+        }, {
+          'Interaction phase': 'Rendering delay',
+          'Time (ms)': Math.round(renderingDelay)
+        }, {
+          'Interaction phase': 'Rendering',
+          'Time (ms)': Math.round(renderingDuration)
+        }, {
+          'Interaction phase': 'Presentation delay',
+          'Time (ms)': Math.round(presentationDelay)
+        }]);
+
+        console.log(metric.attribution.longAnimationFrames);
+        console.groupEnd();
+      }
+
       for (let entry of metric.entries) {
-        console.log(`Interaction event type: %c${entry.name}`, 'font-family: monospace');
+        console.groupCollapsed(`Interaction event type: %c${entry.name}`, 'font-family: monospace');
 
         // RenderTime is an estimate, because duration is rounded, and may get rounded down.
         // In rare cases it can be less than processingEnd and that breaks performance.measure().
@@ -320,58 +354,18 @@
         const adjustedPresentationTime = Math.max(entry.processingEnd + 4, entry.startTime + entry.duration);
 
         console.table([{
-          subPartString: 'Input delay',
-          'Time (ms)': Math.round(entry.processingStart - entry.startTime, 0),
+          'Event phase': 'Input delay',
+          'Time (ms)': Math.round(entry.processingStart - entry.startTime),
         },
         {
-          subPartString: 'Processing time',
-          'Time (ms)': Math.round(entry.processingEnd - entry.processingStart, 0),
+          'Event phase': 'Processing time',
+          'Time (ms)': Math.round(entry.processingEnd - entry.processingStart),
         },
         {
-          subPartString: 'Presentation delay',
-          'Time (ms)': Math.round(adjustedPresentationTime - entry.processingEnd, 0),
+          'Event phase': 'Presentation delay',
+          'Time (ms)': Math.round(adjustedPresentationTime - entry.processingEnd),
         }]);
-      }
-
-      if (metric.attribution.longAnimationFrames?.length) {
-        const events = metric.entries;
-        let maxPresentationTime = 0;
-        let totalProcessingTime = 0;
-        let prevEnd = 0;
-        for (let { startTime, processingStart, processingEnd, duration } of events) {
-          maxPresentationTime = Math.max(maxPresentationTime, processingEnd, startTime + duration);
-          totalProcessingTime += processingEnd - Math.max(processingStart, prevEnd);
-          prevEnd = processingEnd;
-        }
-      
-        const processingStart = events[0].processingStart;
-        const processingEnd = events.at(-1).processingEnd;
-        const percent = totalProcessingTime / (processingEnd - processingStart) * 100;
-      
-        const renderStart = Math.max(loaf.renderStart, processingEnd);
-        const renderEnd = loaf.startTime + loaf.duration;
-
-        // Both event presentation times and loaf renderEnd are rounded, so sometimes one laps the other slightly...
-        const interactionEndTime = Math.max(maxPresentationTime, renderEnd);
-
-        console.table([{
-          'Interaction phase': 'Input delay',
-          'Time (ms)': processingStart - events[0].startTime
-        }, {
-          'Interaction phase': `Processing [${percent.toFixed(1)}%]`,
-          'Time (ms)': processingEnd - processingStart
-        }, {
-          'Interaction phase': 'Rendering delay',
-          'Time (ms)': renderStart - processingEnd
-        }, {
-          'Interaction phase': 'Rendering',
-          'Time (ms)': renderEnd - renderStart
-        }, {
-          'Interaction phase': 'Presentation delay',
-          'Time (ms)': interactionEndTime - renderEnd
-        }]);
-
-        console.log('Long animation frames:', metric.attribution.longAnimationFrames);
+        console.groupEnd();
       }
     }
 
@@ -436,6 +430,7 @@
         });
         break;
 
+      
       case "INP":
         if (!(metric.attribution && metric.attribution.eventEntry)) {
           break;
@@ -449,11 +444,7 @@
         const presentationTime = inpEntry.startTime + inpEntry.duration;
         const adjustedPresentationTime = Math.max(inpEntry.processingEnd + 4, presentationTime);
 
-        performance.measure(`${LOG_PREFIX} INP.duration (${inpEntry.name})`, {
-          start: inpEntry.startTime,
-          end: presentationTime,
-        });
-        performance.measure(`${LOG_PREFIX} INP.inputDelay (${inpEntry.name})`, {
+        performance.measure(`${LOG_PREFIX} INP.inputDelay`, {
           start: inpEntry.startTime,
           end: inpEntry.processingStart,
         });
@@ -461,10 +452,48 @@
           start: inpEntry.processingStart,
           end: inpEntry.processingEnd,
         });
-        performance.measure(`${LOG_PREFIX} INP.presentationDelay (${inpEntry.name})`, {
-          start: inpEntry.processingEnd,
-          end: adjustedPresentationTime,
-        });
+
+        // If there is LoAF data, use it to report the more specific rendering phases.
+        // Otherwise fall back to the simpler presentation delay from event timing.
+        if (metric.attribution?.longAnimationFrames) {
+          const {
+            renderingDelay,
+            renderingDuration
+          } = metric.attribution;
+
+          performance.measure(`${LOG_PREFIX} INP.renderingDelay`, {
+            start: inpEntry.processingEnd,
+            duration: renderingDelay
+          });
+          performance.measure(`${LOG_PREFIX} INP.renderingTime`, {
+            start: inpEntry.processingEnd + renderingDelay,
+            duration: renderingDuration
+          });
+          performance.measure(`${LOG_PREFIX} INP.presentationDelay`, {
+            start: inpEntry.processingEnd + renderingDelay + renderingDuration,
+            end: adjustedPresentationTime,
+          });
+        } else {
+          performance.measure(`${LOG_PREFIX} INP.presentationDelay`, {
+            start: inpEntry.processingEnd,
+            end: adjustedPresentationTime,
+          });
+        }
+        break;
+      
+      case "Interaction":
+        if (!metric.entries) {
+          break;
+        }
+
+        // Log the processing times for each event in the interaction.
+        for (let entry of metric.entries) {
+          performance.measure(`${LOG_PREFIX} Interaction.processingTime (${entry.name})`, {
+            start: entry.processingStart,
+            end: entry.processingEnd
+          });
+        }
+
         break;
 
       case "FID":
@@ -477,6 +506,7 @@
           start: fidEntry.startTime,
           end: fidEntry.processingStart,
         });
+        break;
     }
   }
 
@@ -536,6 +566,7 @@
     if (enableLogging) {
       onEachInteraction((metric) => {
         logSummaryInfo(metric);
+        addUserTimings(metric);
       });
     }
   }
