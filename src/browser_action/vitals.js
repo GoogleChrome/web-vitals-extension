@@ -341,7 +341,6 @@
         }]);
         console.groupEnd();
       }
-      console.groupEnd();
     }
 
     else if (metric.name == 'FID') {
