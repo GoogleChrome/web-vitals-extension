@@ -14,7 +14,7 @@
 (async () => {
   const src = chrome.runtime.getURL('src/browser_action/web-vitals.js');
   const webVitals = await import(src);
-  const { onEachInteraction, initLoAF, addLoafAttribution } = await import(chrome.runtime.getURL('src/browser_action/on-each-interaction.js'));
+  const { onEachInteraction } = await import(chrome.runtime.getURL('src/browser_action/on-each-interaction.js'));
   let overlayClosedForSession = false;
   let latestCLS = {};
   let enableLogging = localStorage.getItem('web-vitals-extension-debug')=='TRUE';
@@ -244,7 +244,7 @@
   async function logSummaryInfo(metric) {
     const formattedValue = metric.name === 'CLS' ? metric.value.toFixed(2) : `${metric.value.toFixed(0)} ms`;
     console.groupCollapsed(
-      `${LOG_PREFIX} ${metric.name} %c${formattedValue} (${metric.rating}) ${metric.attribution?.longAnimationFrames ? '🔴' : ''}`,
+      `${LOG_PREFIX} ${metric.name} %c${formattedValue} (${metric.rating}) ${metric.attribution?.longAnimationFrameEntry ? '🔴' : ''}`,
       `color: ${RATING_COLORS[metric.rating] || 'inherit'}`
     );
 
@@ -298,56 +298,30 @@
     }
 
     else if ((metric.name == 'INP'|| metric.name == 'Interaction') &&
-        metric.attribution &&
-        metric.attribution.eventEntry) {
-      const eventEntry = metric.attribution.eventEntry;
+        metric.attribution) {
+      const interactionTarget = metric.entries.find(entry => entry.target)?.target;
+      console.log('Interaction target:', interactionTarget);
+      console.log(`Interaction type: %c${metric.attribution.interactionType}`, 'font-family: monospace');
 
-      let eventTarget = eventEntry.target;
-      // Sometimes the eventEntry has no target, so we need to hunt it out manually.
-      // As of web-vitals@3.5.2 `attribution.eventTarget` does the same thing,
-      // but we want a reference to the element itself (for logging), not a selector.
-      if (!eventTarget) {
-        eventTarget = metric.entries.find(entry => entry.target)?.target;
-      }
-      console.log('Interaction target:', eventTarget);
+      const {
+        inputDelay,
+        processingTime,
+        presentationDelay
+      } = metric.attribution;
 
-      if (metric.attribution?.longAnimationFrames) {
-        const {
-          inputDelay,
-          processingDuration,
-          processingPercentage,
-          renderingDelay,
-          renderingDuration,
-          presentationDelay
-        } = metric.attribution;
-
-        const percentageText = (processingPercentage ?? ` [${Math.round(processingPercentage)}%]`) || '';
-
-        console.group('Long animation frame');
-        console.table([{
-          'Interaction phase': 'Input delay',
-          'Time (ms)': Math.round(inputDelay)
-        }, {
-          'Interaction phase': `Processing${percentageText}`,
-          'Time (ms)': Math.round(processingDuration)
-        }, {
-          'Interaction phase': 'Rendering delay',
-          'Time (ms)': Math.round(renderingDelay)
-        }, {
-          'Interaction phase': 'Rendering',
-          'Time (ms)': Math.round(renderingDuration)
-        }, {
-          'Interaction phase': 'Presentation delay',
-          'Time (ms)': Math.round(presentationDelay)
-        }]);
-
-        console.log(metric.attribution.longAnimationFrames);
-        console.groupEnd();
-      }
+      console.table([{
+        'Interaction phase': 'Input delay',
+        'Time (ms)': Math.round(inputDelay)
+      }, {
+        'Interaction phase': `Processing time`,
+        'Time (ms)': Math.round(processingTime)
+      }, {
+        'Interaction phase': 'Presentation delay',
+        'Time (ms)': Math.round(presentationDelay)
+      }]);
 
       for (let entry of metric.entries) {
-        console.groupCollapsed(`Interaction event type: %c${entry.name}`, 'font-family: monospace');
-
+        console.groupCollapsed(`Event name: %c${entry.name}`, 'font-family: monospace');
         // RenderTime is an estimate, because duration is rounded, and may get rounded down.
         // In rare cases it can be less than processingEnd and that breaks performance.measure().
         // Lets make sure its at least 4ms in those cases so you can just barely see it.
@@ -367,6 +341,7 @@
         }]);
         console.groupEnd();
       }
+      console.groupEnd();
     }
 
     else if (metric.name == 'FID') {
@@ -452,33 +427,10 @@
           start: inpEntry.processingStart,
           end: inpEntry.processingEnd,
         });
-
-        // If there is LoAF data, use it to report the more specific rendering phases.
-        // Otherwise fall back to the simpler presentation delay from event timing.
-        if (metric.attribution?.longAnimationFrames) {
-          const {
-            renderingDelay,
-            renderingDuration
-          } = metric.attribution;
-
-          performance.measure(`${LOG_PREFIX} INP.renderingDelay`, {
-            start: inpEntry.processingEnd,
-            duration: renderingDelay
-          });
-          performance.measure(`${LOG_PREFIX} INP.renderingTime`, {
-            start: inpEntry.processingEnd + renderingDelay,
-            duration: renderingDuration
-          });
-          performance.measure(`${LOG_PREFIX} INP.presentationDelay`, {
-            start: inpEntry.processingEnd + renderingDelay + renderingDuration,
-            end: adjustedPresentationTime,
-          });
-        } else {
-          performance.measure(`${LOG_PREFIX} INP.presentationDelay`, {
-            start: inpEntry.processingEnd,
-            end: adjustedPresentationTime,
-          });
-        }
+        performance.measure(`${LOG_PREFIX} INP.presentationDelay`, {
+          start: inpEntry.processingEnd,
+          end: adjustedPresentationTime,
+        });
         break;
       
       case "Interaction":
@@ -541,8 +493,6 @@
     if (self._hasInstalledPerfMetrics) return;
     self._hasInstalledPerfMetrics = true;
 
-    initLoAF();
-
     webVitals.onCLS((metric) => {
       // As CLS values can fire frequently in the case
       // of animations or highly-dynamic content, we
@@ -553,11 +503,9 @@
 
     webVitals.onLCP(broadcastMetricsUpdates, { reportAllChanges: true });
     webVitals.onFID((metric) => {
-      metric = addLoafAttribution(metric);
       broadcastMetricsUpdates(metric);
     }, { reportAllChanges: true });
     webVitals.onINP((metric) => {
-      metric = addLoafAttribution(metric);
       broadcastMetricsUpdates(metric)
     }, { reportAllChanges: true });
     webVitals.onFCP(broadcastMetricsUpdates, { reportAllChanges: true });
