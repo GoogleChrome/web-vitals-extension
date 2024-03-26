@@ -305,10 +305,58 @@
       };
     }
 
-    else if ((metric.name == 'INP'|| metric.name == 'Interaction') &&
+    else if (metric.name == 'INP' &&
+        metric.attribution) {
+      const subPartString = `${metric.name} sub-part`;
+      const interactionEntry = metric.attribution.interactionEntry;
+
+      let eventTarget = metric.entries[0].target;
+      // Sometimes the interactionEntry has no target, so we need to hunt it out manually.
+      // As of web-vitals@3.5.2 `attribution.eventTarget` does the same thing,
+      // but we want a reference to the element itself (for logging), not a selector.
+      if (!eventTarget) {
+        eventTarget = metric.entries.find(entry => entry.target)?.target;
+      }
+      console.log('Interaction target:', eventTarget);
+
+      console.table([{
+        'INP sub-part': 'Input delay',
+        'Time (ms)': Math.round(metric.attribution.inputDelay, 0),
+      },
+      {
+        'INP sub-part': 'Processing duration',
+        'Time (ms)': Math.round(metric.attribution.processingDuration, 0),
+      },
+      {
+        'INP sub-part': 'Presentation delay',
+        'Time (ms)': Math.round(metric.attribution.presentationDelay, 0),
+      }]);
+
+      if (metric.attribution.longAnimationFrameEntries) {
+
+        const allScripts = metric.attribution.longAnimationFrameEntries.map(a => a.scripts).flat();
+        const sortedScripts = allScripts.sort((a,b) => a.duration - b.duration);
+
+        scriptData = sortedScripts.map ((a) => (
+              {
+                'Script duration': Math.round(a.duration, 0),
+                'Script invokerType': a.invokerType,
+                'Script char position': a.sourceCharPosition,
+                'Script function': a.sourceFunctionName,
+                'Script source': a.sourceURL,
+              }
+        ))
+
+        if (scriptData.length > 0) {
+          console.log("Long scripts:");
+          console.table(scriptData);
+        }
+      }
+    }
+
+    else if (metric.name == 'Interaction' &&
         metric.attribution &&
         metric.attribution.eventEntry) {
-      const subPartString = `${metric.name} sub-part`;
       const eventEntry = metric.attribution.eventEntry;
 
       let eventTarget = eventEntry.target;
@@ -329,15 +377,15 @@
         const adjustedPresentationTime = Math.max(entry.processingEnd + 4, entry.startTime + entry.duration);
 
         console.table([{
-          subPartString: 'Input delay',
+          'Interaction sub-part': 'Input delay',
           'Time (ms)': Math.round(entry.processingStart - entry.startTime, 0),
         },
         {
-          subPartString: 'Processing time',
+          'Interaction sub-part': 'Processing time',
           'Time (ms)': Math.round(entry.processingEnd - entry.processingStart, 0),
         },
         {
-          subPartString: 'Presentation delay',
+          'Interaction sub-part': 'Presentation delay',
           'Time (ms)': Math.round(adjustedPresentationTime - entry.processingEnd, 0),
         }]);
       }
@@ -405,42 +453,33 @@
         break;
 
       case "INP":
-        if (!(metric.attribution && metric.attribution.eventEntry)) {
+        if (!(metric.attribution)) {
           break;
         }
 
-        const inpEntry = metric.attribution.eventEntry;
+        const attribution = metric.attribution;
+        const earliestStart = Math.min(...metric.entries.map(a => a.startTime).flat());
 
-        // RenderTime is an estimate, because duration is rounded, and may get rounded keydown
-        // In rare cases it can be less than processingEnd and that breaks performance.measure().
-        // Lets make sure its at least 4ms in those cases so you can just barely see it.
-        const presentationTime = inpEntry.startTime + inpEntry.duration;
-        const adjustedPresentationTime = Math.max(inpEntry.processingEnd + 4, presentationTime);
-
-        performance.measure(`${LOG_PREFIX} INP.duration (${inpEntry.name})`, {
-          start: inpEntry.startTime,
-          end: presentationTime,
+        performance.measure(`${LOG_PREFIX} INP.inputDelay (${metric.attribution.interactionType})`, {
+          start: earliestStart,
+          end: earliestStart + attribution.inputDelay,
         });
-        performance.measure(`${LOG_PREFIX} INP.inputDelay (${inpEntry.name})`, {
-          start: inpEntry.startTime,
-          end: inpEntry.processingStart,
+        performance.measure(`${LOG_PREFIX} INP.processingTime (${metric.attribution.interactionType})`, {
+          start: earliestStart + attribution.inputDelay,
+          end: earliestStart + attribution.inputDelay + attribution. processingDuration,
         });
-        performance.measure(`${LOG_PREFIX} INP.processingTime (${inpEntry.name})`, {
-          start: inpEntry.processingStart,
-          end: inpEntry.processingEnd,
-        });
-        performance.measure(`${LOG_PREFIX} INP.presentationDelay (${inpEntry.name})`, {
-          start: inpEntry.processingEnd,
-          end: adjustedPresentationTime,
+        performance.measure(`${LOG_PREFIX} INP.presentationDelay (${metric.attribution.interactionType})`, {
+          start: earliestStart + attribution.inputDelay + attribution.processingDuration,
+          end: attribution.nextPaintTime,
         });
         break;
 
       case "FID":
-        if (!(metric.attribution && metric.attribution.eventEntry)) {
+        if (!(metric.attribution && metric.attribution.interactionEntry)) {
           break;
         }
 
-        const fidEntry = metric.attribution.eventEntry;
+        const fidEntry = metric.attribution.interactionEntry;
         performance.measure(`${LOG_PREFIX} FID (${fidEntry.name})`, {
           start: fidEntry.startTime,
           end: fidEntry.processingStart,
