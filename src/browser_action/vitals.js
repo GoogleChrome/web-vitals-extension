@@ -459,18 +459,18 @@
         }
 
         const attribution = metric.attribution;
-        const earliestStart = Math.min(...metric.entries.map(a => a.startTime).flat());
+        const firstStart = metric.entries[0].startTime;
 
         performance.measure(`${LOG_PREFIX} INP.inputDelay (${metric.attribution.interactionType})`, {
-          start: earliestStart,
-          end: earliestStart + attribution.inputDelay,
+          start: firstStart,
+          end: firstStart + attribution.inputDelay,
         });
         performance.measure(`${LOG_PREFIX} INP.processingTime (${metric.attribution.interactionType})`, {
-          start: earliestStart + attribution.inputDelay,
-          end: earliestStart + attribution.inputDelay + attribution. processingDuration,
+          start: firstStart + attribution.inputDelay,
+          end: firstStart + attribution.inputDelay + attribution. processingDuration,
         });
         performance.measure(`${LOG_PREFIX} INP.presentationDelay (${metric.attribution.interactionType})`, {
-          start: earliestStart + attribution.inputDelay + attribution.processingDuration,
+          start: firstStart + attribution.inputDelay + attribution.processingDuration,
           end: attribution.nextPaintTime,
         });
         break;
