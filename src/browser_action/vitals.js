@@ -459,19 +459,22 @@
         }
 
         const attribution = metric.attribution;
-        const firstStart = metric.entries[0].startTime;
+        const interactionTime = attribution.interactionTime;
+        const inputDelay = attribution.inputDelay;
+        const processingDuration = attribution.processingDuration;
+        const presentationDelay = attribution.presentationDelay;
 
         performance.measure(`${LOG_PREFIX} INP.inputDelay (${metric.attribution.interactionType})`, {
-          start: firstStart,
-          end: firstStart + attribution.inputDelay,
+          start: interactionTime,
+          end: interactionTime + inputDelay,
         });
         performance.measure(`${LOG_PREFIX} INP.processingTime (${metric.attribution.interactionType})`, {
-          start: firstStart + attribution.inputDelay,
-          end: firstStart + attribution.inputDelay + attribution. processingDuration,
+          start: interactionTime + inputDelay,
+          end: interactionTime + inputDelay + processingDuration,
         });
         performance.measure(`${LOG_PREFIX} INP.presentationDelay (${metric.attribution.interactionType})`, {
-          start: firstStart + attribution.inputDelay + attribution.processingDuration,
-          end: attribution.nextPaintTime,
+          start: interactionTime + inputDelay + processingDuration,
+          end: interactionTime + inputDelay + processingDuration + presentationDelay,
         });
         break;
 
