@@ -318,6 +318,7 @@
         eventTarget = metric.entries.find(entry => entry.target)?.target;
       }
       console.log('Interaction target:', eventTarget);
+      console.log(`Interaction event type: %c${metric.attribution.interactionType}`, 'font-family: monospace');
 
       console.table([{
         'INP sub-part': 'Input delay',
