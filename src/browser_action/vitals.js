@@ -338,13 +338,13 @@
         const allScripts = metric.attribution.longAnimationFrameEntries.map(a => a.scripts).flat();
         const sortedScripts = allScripts.sort((a,b) => a.duration - b.duration);
 
-        scriptData = sortedScripts.map ((a) => (
+        scriptData = sortedScripts.map((a) => (
               {
                 'Script duration': Math.round(a.duration, 0),
-                'Script invokerType': a.invokerType,
-                'Script char position': a.sourceCharPosition,
+                'Script type': a.invokerType,
                 'Script function': a.sourceFunctionName,
                 'Script source': a.sourceURL,
+                'Script char position': a.sourceCharPosition,
               }
         ))
 
