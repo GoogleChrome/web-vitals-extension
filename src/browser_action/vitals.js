@@ -403,17 +403,20 @@
         metric.attribution.navigationEntry) {
       console.log('TTFB navigation type:', metric.navigationType);
       console.table([{
-        'TTFB sub-part': 'Waiting time',
-        'Time (ms)': Math.round(metric.attribution.waitingTime, 0),
+        'TTFB sub-part': 'Redirect duration',
+        'Time (ms)': Math.round(metric.attribution.redirectDuration, 0),
       }, {
-        'TTFB sub-part': 'DNS time',
-        'Time (ms)': Math.round(metric.attribution.dnsTime, 0),
+        'TTFB sub-part': 'Cache duration',
+        'Time (ms)': Math.round(metric.attribution.cacheDuration, 0),
       }, {
-        'TTFB sub-part': 'Connection time',
-        'Time (ms)': Math.round(metric.attribution.connectionTime, 0),
+        'TTFB sub-part': 'DNS duration',
+        'Time (ms)': Math.round(metric.attribution.dnsDuration, 0),
       }, {
-        'TTFB sub-part': 'Request time',
-        'Time (ms)': Math.round(metric.attribution.requestTime, 0),
+        'TTFB sub-part': 'Connection duration',
+        'Time (ms)': Math.round(metric.attribution.connectionDuration, 0),
+      }, {
+        'TTFB sub-part': 'Request duration',
+        'Time (ms)': Math.round(metric.attribution.requestDuration, 0),
       }]);
     }
 
