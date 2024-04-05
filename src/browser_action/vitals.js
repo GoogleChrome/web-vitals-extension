@@ -305,7 +305,7 @@
       };
     }
 
-    else if (metric.name == 'INP' &&
+    else if ((metric.name == 'INP' ||  metric.name == 'Interaction') &&
         metric.attribution) {
       const subPartString = `${metric.name} sub-part`;
       const interactionEntry = metric.attribution.interactionEntry;
@@ -321,15 +321,15 @@
       console.log(`Interaction event type: %c${metric.attribution.interactionType}`, 'font-family: monospace');
 
       console.table([{
-        'INP sub-part': 'Input delay',
+        'Interaction sub-part': 'Input delay',
         'Time (ms)': Math.round(metric.attribution.inputDelay, 0),
       },
       {
-        'INP sub-part': 'Processing duration',
+        'Interaction sub-part': 'Processing duration',
         'Time (ms)': Math.round(metric.attribution.processingDuration, 0),
       },
       {
-        'INP sub-part': 'Presentation delay',
+        'Interaction sub-part': 'Presentation delay',
         'Time (ms)': Math.round(metric.attribution.presentationDelay, 0),
       }]);
 
@@ -352,43 +352,6 @@
           console.log("Long scripts:");
           console.table(scriptData);
         }
-      }
-    }
-
-    else if (metric.name == 'Interaction' &&
-        metric.attribution &&
-        metric.attribution.eventEntry) {
-      const eventEntry = metric.attribution.eventEntry;
-
-      let eventTarget = eventEntry.target;
-      // Sometimes the eventEntry has no target, so we need to hunt it out manually.
-      // As of web-vitals@3.5.2 `attribution.eventTarget` does the same thing,
-      // but we want a reference to the element itself (for logging), not a selector.
-      if (!eventTarget) {
-        eventTarget = metric.entries.find(entry => entry.target)?.target;
-      }
-      console.log('Interaction target:', eventTarget);
-
-      for (let entry of metric.entries) {
-        console.log(`Interaction event type: %c${entry.name}`, 'font-family: monospace');
-
-        // RenderTime is an estimate, because duration is rounded, and may get rounded down.
-        // In rare cases it can be less than processingEnd and that breaks performance.measure().
-        // Lets make sure its at least 4ms in those cases so you can just barely see it.
-        const adjustedPresentationTime = Math.max(entry.processingEnd + 4, entry.startTime + entry.duration);
-
-        console.table([{
-          'Interaction sub-part': 'Input delay',
-          'Time (ms)': Math.round(entry.processingStart - entry.startTime, 0),
-        },
-        {
-          'Interaction sub-part': 'Processing time',
-          'Time (ms)': Math.round(entry.processingEnd - entry.processingStart, 0),
-        },
-        {
-          'Interaction sub-part': 'Presentation delay',
-          'Time (ms)': Math.round(adjustedPresentationTime - entry.processingEnd, 0),
-        }]);
       }
     }
 
