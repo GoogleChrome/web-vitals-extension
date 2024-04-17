@@ -271,8 +271,8 @@
         'LCP sub-part': 'Resource load delay',
         'Time (ms)': Math.round(metric.attribution.resourceLoadDelay, 0),
       }, {
-        'LCP sub-part': 'Resource load time',
-        'Time (ms)': Math.round(metric.attribution.resourceLoadTime, 0),
+        'LCP sub-part': 'Resource load duration',
+        'Time (ms)': Math.round(metric.attribution.resourceLoadDuration, 0),
       }, {
         'LCP sub-part': 'Element render delay',
         'Time (ms)': Math.round(metric.attribution.elementRenderDelay, 0),
@@ -336,14 +336,14 @@
       if (metric.attribution.longAnimationFrameEntries) {
 
         const allScripts = metric.attribution.longAnimationFrameEntries.map(a => a.scripts).flat();
-        const sortedScripts = allScripts.sort((a,b) => a.duration - b.duration);
+        const sortedScripts = allScripts.sort((a,b) => b.duration - a.duration);
 
         scriptData = sortedScripts.map((a) => (
               {
                 'Script duration': Math.round(a.duration, 0),
                 'Script type': a.invokerType,
                 'Script function': a.sourceFunctionName,
-                'Script source': a.sourceURL,
+                'Script source': a.sourceURL || a.invoker,
                 'Script char position': a.sourceCharPosition,
               }
         ))
@@ -366,8 +366,8 @@
         metric.attribution.navigationEntry) {
       console.log('TTFB navigation type:', metric.navigationType);
       console.table([{
-        'TTFB sub-part': 'Redirect duration',
-        'Time (ms)': Math.round(metric.attribution.redirectDuration, 0),
+        'TTFB sub-part': 'Waiting duration',
+        'Time (ms)': Math.round(metric.attribution.waitingDuration, 0),
       }, {
         'TTFB sub-part': 'Cache duration',
         'Time (ms)': Math.round(metric.attribution.cacheDuration, 0),
