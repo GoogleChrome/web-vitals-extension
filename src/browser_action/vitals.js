@@ -406,12 +406,12 @@
           start: startTime + metric.attribution.timeToFirstByte,
           duration: metric.attribution.resourceLoadDelay,
         });
-        performance.measure(`${LOG_PREFIX} LCP.resourceLoadTime`, {
+        performance.measure(`${LOG_PREFIX} LCP.resourceLoadDuration`, {
           start:
             startTime +
             metric.attribution.timeToFirstByte +
             metric.attribution.resourceLoadDelay,
-          duration: metric.attribution.resourceLoadTime,
+          duration: metric.attribution.resourceLoadDuration,
         });
         performance.measure(`${LOG_PREFIX} LCP.elementRenderDelay`, {
           duration: metric.attribution.elementRenderDelay,
