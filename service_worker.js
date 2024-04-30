@@ -11,13 +11,15 @@
  limitations under the License.
 */
 
+import {CLSThresholds, FCPThresholds, FIDThresholds, INPThresholds, LCPThresholds, TTFBThresholds} from './src/browser_action/web-vitals.js'
+
 // Core Web Vitals thresholds
-const LCP_THRESHOLD = 2500;
-const FID_THRESHOLD = 100;
-const INP_THRESHOLD = 200;
-const CLS_THRESHOLD = 0.1;
-const FCP_THRESHOLD = 1800;
-const TTFB_THRESHOLD = 800;
+const LCP_THRESHOLD = LCPThresholds[0];
+const FID_THRESHOLD = FIDThresholds[0];
+const INP_THRESHOLD = INPThresholds[0];
+const CLS_THRESHOLD = CLSThresholds[0];
+const FCP_THRESHOLD = FCPThresholds[0];
+const TTFB_THRESHOLD = TTFBThresholds[0];
 const ONE_DAY_MS = 24 * 60 * 60 * 1000;
 
 // Get the optionsNoBadgeAnimation value
