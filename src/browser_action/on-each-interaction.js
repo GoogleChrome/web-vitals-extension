@@ -129,9 +129,9 @@ export function onEachInteraction(callback) {
       entries: longestInteractionEntries,
       attribution: {
         inputDelay: firstInteractionEntry.processingStart - firstInteractionEntry.startTime,
-        interactionTarget: firstInteractionEntryWithTarget.target,
+        interactionTarget: firstInteractionEntryWithTarget?.target,
         interactionTime: firstInteractionEntry.startTime,
-        interactionType: firstInteractionEntryWithTarget.name.startsWith('key') ? 'keyboard' : 'pointer',
+        interactionType: firstInteractionEntryWithTarget?.name?.startsWith('key') ? 'keyboard' : 'pointer',
         longAnimationFrameEntries: longAnimationFrameEntries,
         nextPaintTime: nextPaintTime,
         presentationDelay: nextPaintTime - lastInteractionEntry.processingEnd,
