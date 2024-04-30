@@ -83,13 +83,13 @@ export class Metric {
     return;
   }
 
-  toLocaleFixed({value, unit}) {
+  toLocaleFixed({value, unit, precision }) {
     return value.toLocaleString(undefined, {
       style: unit && 'unit',
       unit,
-      unitDisplay: 'narrow',
-      minimumFractionDigits: this.digitsOfPrecision,
-      maximumFractionDigits: this.digitsOfPrecision
+      unitDisplay: 'short',
+      minimumFractionDigits: precision ?? this.digitsOfPrecision,
+      maximumFractionDigits: precision ?? this.digitsOfPrecision,
     });
   }
 
@@ -218,7 +218,8 @@ export class FID extends Metric {
 
     return this.toLocaleFixed({
       value,
-      unit: 'millisecond'
+      unit: 'millisecond',
+      precision: 0
     });
   }
 
@@ -256,7 +257,8 @@ export class INP extends Metric {
 
     return this.toLocaleFixed({
       value,
-      unit: 'millisecond'
+      unit: 'millisecond',
+      precision: 0
     });
   }
 
@@ -291,7 +293,10 @@ export class CLS extends Metric {
   }
 
   formatValue(value) {
-    return this.toLocaleFixed({value});
+    return this.toLocaleFixed({
+      value: value,
+      precision: 2
+    });
   }
 
 }
