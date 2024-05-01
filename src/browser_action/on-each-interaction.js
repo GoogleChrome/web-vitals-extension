@@ -68,54 +68,53 @@ export function onEachInteraction(callback) {
     const largestRenderTime = longestEntry.startTime + longestEntry.duration;
 
     const longestFrameEntries = [];
-    const group = {
-      startTime: null,
-      processingStart: null,
-      processingEnd: null
-    }
+    let groupStartTime;
+    let groupProcessingStart;
+    let groupProcessingEnd;
 
     // Go though the list of all events (not just those with interactionIds)
-    // do get details of what was in the longest frame and the earliest and latest event timestamps
+    // to get details of what was in the longest frame and the earliest and latest event timestamps
     for (const entry of allEvents) {
         const renderTime = entry.startTime + entry.duration;
         // If a previous render time is within 8ms of the largest render time,
         // assume they were part of the same frame so include them
         if (Math.abs(renderTime - largestRenderTime) <= 8) {
           longestFrameEntries.push(entry);
-          group.startTime = group.startTime ? Math.min(entry.startTime, group.startTime) : entry.startTime;
-          group.processingStart = group.processingStart ?
+          groupStartTime = groupStartTime ? Math.min(entry.startTime, groupStartTime) : entry.startTime;
+          groupProcessingStart = groupProcessingStart ?
             Math.min(
               entry.processingStart,
-              group.processingStart,
+              groupProcessingStart,
             ) :
             entry.processingStart;
-          group.processingEnd = group.processingEnd ? Math.max(entry.processingEnd, group.processingEnd) : entry.processingEnd;
+          groupProcessingEnd = groupProcessingEnd ? Math.max(entry.processingEnd, groupProcessingEnd) : entry.processingEnd;
         }
     }
 
-    // For the breakdowns we need to know the first and last interaction events (i.e. those wiht interactionIds) in that longest list
+    // For the breakdowns we need to know the first and last interaction events (i.e. those with interactionIds) in that longest list
     const longestFrameInteractionEntries = longestFrameEntries.filter((entry) => entry.interactionId);
-    // Entries should be in order so can use that to find first and last
+    // Entries should be in order so can use that to find first
     const firstInteractionEntry = longestFrameInteractionEntries[0];
-    const lastInteractionEntry = longestFrameInteractionEntries.slice(-1)[0];
+    const firstEventEntry = longestFrameEntries[0];
+    const lastEventEntry = longestFrameEntries.slice(-1);
 
-    // Filter further to get the entries entry (the longest interactionId events wiht the longest durations)
+    // Filter further to get the entries entry (the longest interactionId events with the longest durations)
     const longestInteractionEntries = longestFrameInteractionEntries.filter((entry) => entry.interactionId  === longestEntry.interactionId && entry.duration === largestDuration);
 
     // Sometimes target is not set so look across all events with that interactionId to get it
     const firstInteractionEntryWithTarget = interactions.find((entry) => longestEntry.interactionId === longestEntry.interactionId && entry.target);
 
-    // Filter down LoAFs to ones that interested any event startTime and any processingEnd
-    // Theb LoAF processing the last script in that frame will then present that frame so
-    // we get rAF and other rendering work too with this intrsection.
-    const longAnimationFrameEntries = getIntersectingLoAFs(group.startTime, group.processingEnd)
+    // Filter down LoAFs to ones that intersected any event startTime and any processingEnd
+    // The LoAF processing the last script in that frame will then present that frame so
+    // we get rAF and other rendering work too with this interaction.
+    const longAnimationFrameEntries = getIntersectingLoAFs(groupStartTime, groupProcessingEnd)
 
     // Since entry durations are rounded to the nearest 8ms, we need to clamp
-    // the `nextPaintTime` value to be higher than the `group.processingEnd` or
+    // the `nextPaintTime` value to be higher than the `groupProcessingEnd` or
     // end time of any LoAF entry.
     const nextPaintTimeCandidates = [
-      firstInteractionEntry.startTime + firstInteractionEntry.duration,
-      group.processingEnd,
+      firstEventEntry.startTime + firstEventEntry.duration,
+      groupProcessingEnd,
     ].concat(
       longAnimationFrameEntries.map((loaf) => loaf.startTime + loaf.duration),
     );
@@ -128,22 +127,22 @@ export function onEachInteraction(callback) {
       rating: valueToRating(largestDuration),
       entries: longestInteractionEntries,
       attribution: {
-        inputDelay: firstInteractionEntry.processingStart - firstInteractionEntry.startTime,
+        inputDelay: firstEventEntry.processingStart - firstEventEntry.startTime,
         interactionTarget: firstInteractionEntryWithTarget?.target,
         interactionTime: firstInteractionEntry.startTime,
         interactionType: firstInteractionEntryWithTarget?.name?.startsWith('key') ? 'keyboard' : 'pointer',
         longAnimationFrameEntries: longAnimationFrameEntries,
         nextPaintTime: nextPaintTime,
-        presentationDelay: nextPaintTime - lastInteractionEntry.processingEnd,
+        presentationDelay: nextPaintTime - lastEventEntry.processingEnd,
         processedEventEntries: longestFrameEntries,
-        processingDuration: lastInteractionEntry.processingEnd - firstInteractionEntry.processingStart,
+        processingDuration: lastEventEntry.processingEnd - firstEventEntry.processingStart,
       },
     });
   });
 
   observer.observe({
     type: 'event',
-    durationThreshold: 40,
+    durationThreshold: 0,
     buffered: true,
   });
 }
