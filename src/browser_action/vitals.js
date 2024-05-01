@@ -278,7 +278,7 @@
       }
       console.log('LCP element:', metric.attribution.lcpEntry.element);
       console.table([{
-        'LCP sub-part': 'Time to First Byte',
+        'LCP sub-part': 'Time to first byte',
         'Time (ms)': Math.round(metric.attribution.timeToFirstByte, 0),
       }, {
         'LCP sub-part': 'Resource load delay',
@@ -301,7 +301,7 @@
       }
       console.log('FCP loadState:', metric.attribution.loadState);
       console.table([{
-        'FCP sub-part': 'Time to First Byte',
+        'FCP sub-part': 'Time to first byte',
         'Time (ms)': Math.round(metric.attribution.timeToFirstByte, 0),
       }, {
         'FCP sub-part': 'FCP render delay',
