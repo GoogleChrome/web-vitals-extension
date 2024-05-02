@@ -35,7 +35,8 @@
     }
   ],
   "background": {
-    "service_worker": "service_worker.js"
+    "service_worker": "service_worker.js",
+    "type": "module"
   },
   "content_security_policy": {
     "extension_pages": "default-src 'self'; connect-src https://chromeuxreport.googleapis.com;"

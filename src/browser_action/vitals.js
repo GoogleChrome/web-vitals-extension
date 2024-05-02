@@ -43,6 +43,9 @@
   // Identifiable prefix for console logging
   const LOG_PREFIX = '[Web Vitals Extension]';
 
+  // Default units of precision for HUD
+  const DEFAULT_UNITS_OF_PRECISION = 3;
+
   // Registry for badge metrics
   const badgeMetrics = initializeMetrics();
 
@@ -56,6 +59,16 @@
       port = chrome.runtime.connect();
     }
   });
+
+  function toLocaleFixed({value, unit, precision }) {
+    return value.toLocaleString(undefined, {
+      style: unit && 'unit',
+      unit,
+      unitDisplay: 'short',
+      minimumFractionDigits: precision ?? DEFAULT_UNITS_OF_PRECISION,
+      maximumFractionDigits: precision ?? DEFAULT_UNITS_OF_PRECISION
+    });
+  }
 
   function initializeMetrics() {
     let metricsState = localStorage.getItem('web-vitals-extension-metrics');
@@ -308,7 +321,6 @@
     else if ((metric.name == 'INP'|| metric.name == 'Interaction') &&
         metric.attribution &&
         metric.attribution.eventEntry) {
-      const subPartString = `${metric.name} sub-part`;
       const eventEntry = metric.attribution.eventEntry;
 
       let eventTarget = eventEntry.target;
@@ -329,15 +341,15 @@
         const adjustedPresentationTime = Math.max(entry.processingEnd + 4, entry.startTime + entry.duration);
 
         console.table([{
-          subPartString: 'Input delay',
+          'Interaction sub-part': 'Input delay',
           'Time (ms)': Math.round(entry.processingStart - entry.startTime, 0),
         },
         {
-          subPartString: 'Processing time',
+          'Interaction sub-part': 'Processing time',
           'Time (ms)': Math.round(entry.processingEnd - entry.processingStart, 0),
         },
         {
-          subPartString: 'Presentation delay',
+          'Interaction sub-part': 'Presentation delay',
           'Time (ms)': Math.round(adjustedPresentationTime - entry.processingEnd, 0),
         }]);
       }
@@ -523,13 +535,13 @@
               <span class="lh-metric__title">Largest Contentful Paint</span>
               ${tabLoadedInBackground ? '<span class="lh-metric__subtitle">Value inflated as tab was loaded in background</span>' : ''}
             </div>
-            <div class="lh-metric__value">${((metrics.lcp.value || 0)/1000).toFixed(2)}&nbsp;s</div>
+            <div class="lh-metric__value">${toLocaleFixed({value: (metrics.lcp.value || 0)/1000, unit: 'second'})}</div>
           </div>
         </div>
         <div class="lh-metric lh-metric--${metrics.cls.pass ? 'pass':'fail'}">
           <div class="lh-metric__innerwrap">
             <span class="lh-metric__title">Cumulative Layout Shift</span>
-            <div class="lh-metric__value">${(metrics.cls.value || 0).toFixed(3)}</div>
+            <div class="lh-metric__value">${toLocaleFixed({value: metrics.cls.value || 0, precision: 2})}</div>
           </div>
         </div>
         <div class="lh-metric lh-metric--${metrics.inp.pass ? 'pass':'fail'} lh-metric--${metrics.inp.value === null ? 'waiting' : 'ready'}">
@@ -540,7 +552,7 @@
             </span>
             <div class="lh-metric__value">${
               metrics.inp.value === null ? '' :
-              `${metrics.inp.value.toFixed(2)}&nbsp;ms`
+              `${toLocaleFixed({value: metrics.inp.value, unit: 'millisecond', precision: 0})}`
             }</div>
           </div>
         </div>
@@ -552,7 +564,7 @@
             </span>
             <div class="lh-metric__value">${
               metrics.fid.value === null ? '' :
-              `${metrics.fid.value.toFixed(2)}&nbsp;ms`
+              `${toLocaleFixed({value: metrics.fid.value, unit: 'millisecond', precision: 0})}`
             }</div>
           </div>
         </div>
@@ -562,7 +574,7 @@
               <span class="lh-metric__title">First Contentful Paint</span>
               ${tabLoadedInBackground ? '<span class="lh-metric__subtitle">Value inflated as tab was loaded in background</span>' : ''}
             </div>
-            <div class="lh-metric__value">${((metrics.fcp.value || 0)/1000).toFixed(2)}&nbsp;s</div>
+            <div class="lh-metric__value">${toLocaleFixed({value: (metrics.fcp.value || 0)/1000, unit: 'second'})}</div>
           </div>
         </div>
         <div class="lh-column">
@@ -571,7 +583,7 @@
             <span class="lh-metric__title">
               Time to First Byte
             </span>
-            <div class="lh-metric__value">${((metrics.ttfb.value || 0)/1000).toFixed(2)}&nbsp;s</div>
+            <div class="lh-metric__value">${toLocaleFixed({value: (metrics.ttfb.value || 0)/1000, unit: 'second'})}</div>
           </div>
         </div>
       </div>

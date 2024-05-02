@@ -1,3 +1,5 @@
+import {CLSThresholds, FCPThresholds, FIDThresholds, INPThresholds, LCPThresholds, TTFBThresholds} from './web-vitals.js';
+
 export class Metric {
 
   constructor({id, name, local, background, thresholds}) {
@@ -81,13 +83,13 @@ export class Metric {
     return;
   }
 
-  toLocaleFixed({value, unit}) {
+  toLocaleFixed({value, unit, precision}) {
     return value.toLocaleString(undefined, {
       style: unit && 'unit',
       unit,
-      unitDisplay: 'narrow',
-      minimumFractionDigits: this.digitsOfPrecision,
-      maximumFractionDigits: this.digitsOfPrecision
+      unitDisplay: 'short',
+      minimumFractionDigits: precision ?? this.digitsOfPrecision,
+      maximumFractionDigits: precision ?? this.digitsOfPrecision
     });
   }
 
@@ -154,8 +156,8 @@ export class LCP extends Metric {
 
   constructor({local, background}) {
     const thresholds = {
-      good: 2500,
-      poor: 4000
+      good: LCPThresholds[0],
+      poor: LCPThresholds[1]
     };
 
     // TODO(rviscomi): Consider better defaults.
@@ -196,8 +198,8 @@ export class FID extends Metric {
 
   constructor({local, background}) {
     const thresholds = {
-      good: 100,
-      poor: 300
+      good: FIDThresholds[0],
+      poor: FIDThresholds[1]
     };
 
     super({
@@ -216,7 +218,8 @@ export class FID extends Metric {
 
     return this.toLocaleFixed({
       value,
-      unit: 'millisecond'
+      unit: 'millisecond',
+      precision: 0
     });
   }
 
@@ -234,8 +237,8 @@ export class INP extends Metric {
 
   constructor({local, background}) {
     const thresholds = {
-      good: 200,
-      poor: 500
+      good: INPThresholds[0],
+      poor: INPThresholds[1]
     };
 
     super({
@@ -254,7 +257,8 @@ export class INP extends Metric {
 
     return this.toLocaleFixed({
       value,
-      unit: 'millisecond'
+      unit: 'millisecond',
+      precision: 0
     });
   }
 
@@ -272,8 +276,8 @@ export class CLS extends Metric {
 
   constructor({local, background}) {
     const thresholds = {
-      good: 0.10,
-      poor: 0.25
+      good: CLSThresholds[0],
+      poor: CLSThresholds[1]
     };
 
     // TODO(rviscomi): Consider better defaults.
@@ -289,7 +293,10 @@ export class CLS extends Metric {
   }
 
   formatValue(value) {
-    return this.toLocaleFixed({value});
+    return this.toLocaleFixed({
+      value: value,
+      precision: 2
+    });
   }
 
 }
@@ -298,8 +305,8 @@ export class FCP extends Metric {
 
   constructor({local, background}) {
     const thresholds = {
-      good: 1800,
-      poor: 3000
+      good: FCPThresholds[0],
+      poor: FCPThresholds[1]
     };
 
     // TODO(rviscomi): Consider better defaults.
@@ -340,8 +347,8 @@ export class TTFB extends Metric {
 
   constructor({local, background}) {
     const thresholds = {
-      good: 800,
-      poor: 1800
+      good: TTFBThresholds[0],
+      poor: TTFBThresholds[1]
     };
 
     // TODO(rviscomi): Consider better defaults.
