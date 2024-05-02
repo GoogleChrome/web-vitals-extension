@@ -333,7 +333,8 @@
       console.log('Interaction target:', eventTarget);
       console.log(`Interaction event type: %c${metric.attribution.interactionType}`, 'font-family: monospace');
 
-      if (!isNaN(metric.attribution.inputDelay)) {
+      // Sub parts are only available for INP events and not Interactions
+      if (metric.name == 'INP') {
         console.table([{
           'Interaction sub-part': 'Input delay',
           'Time (ms)': Math.round(metric.attribution.inputDelay, 0),
