@@ -21,19 +21,6 @@
   let enableUserTiming = localStorage.getItem('web-vitals-extension-user-timing')=='TRUE';
   let tabLoadedInBackground;
 
-  // Core Web Vitals thresholds
-  const LCP_GOOD_THRESHOLD = webVitals.LCPThresholds[0];
-  const FID_GOOD_THRESHOLD = webVitals.FIDThresholds[0];
-  const INP_GOOD_THRESHOLD = webVitals.INPThresholds[0];
-  const CLS_GOOD_THRESHOLD = webVitals.CLSThresholds[0];
-  const FCP_GOOD_THRESHOLD = webVitals.FCPThresholds[0];
-  const TTFB_GOOD_THRESHOLD = webVitals.TTFBThresholds[0];
-  const LCP_POOR_THRESHOLD = webVitals.LCPThresholds[1];
-  const FID_POOR_THRESHOLD = webVitals.FIDThresholds[1];
-  const INP_POOR_THRESHOLD = webVitals.INPThresholds[1];
-  const CLS_POOR_THRESHOLD = webVitals.CLSThresholds[1];
-  const FCP_POOR_THRESHOLD = webVitals.FCPThresholds[1];
-  const TTFB_POOR_THRESHOLD = webVitals.TTFBThresholds[1];
   const COLOR_GOOD = '#0CCE6A';
   const COLOR_NEEDS_IMPROVEMENT = '#FFA400';
   const COLOR_POOR = '#FF4E42';
@@ -126,16 +113,10 @@
     * @return {String} overall metrics score
   */
   function scoreBadgeMetrics(metrics) {
-    metrics.lcp.rating = metrics.lcp.value <= LCP_GOOD_THRESHOLD ? 'good' : metrics.lcp.value <= LCP_POOR_THRESHOLD ? 'needs-improvement' : 'poor';
-    metrics.cls.rating = metrics.cls.value <= CLS_GOOD_THRESHOLD ? 'good' : metrics.cls.value <= CLS_POOR_THRESHOLD ? 'needs-improvement' : 'poor';
-    metrics.inp.rating = metrics.inp.value <= INP_GOOD_THRESHOLD ? 'good' : metrics.inp.value <= INP_POOR_THRESHOLD ? 'needs-improvement' : 'poor';
-    metrics.fid.rating = metrics.fid.value <= FID_GOOD_THRESHOLD ? 'good' : metrics.fid.value <= FID_POOR_THRESHOLD ? 'needs-improvement' : 'poor';
-    metrics.fcp.rating = metrics.fcp.value <= FCP_GOOD_THRESHOLD ? 'good' : metrics.fcp.value <= FCP_POOR_THRESHOLD ? 'needs-improvement' : 'poor';
-    metrics.ttfb.rating = metrics.ttfb.value <= TTFB_GOOD_THRESHOLD ? 'good' : metrics.ttfb.value <= TTFB_POOR_THRESHOLD ? 'needs-improvement' : 'poor';
     // Note: overallScore is treated as a string rather than
     // a boolean to give us the flexibility of introducing a
     // 'NEEDS IMPROVEMENT' option here in the future.
-    const overallScore = (metrics.lcp.rating === 'good' && metrics.cls.rating === 'good' && metrics.inp.rating === 'good' ) ? 'GOOD' : 'POOR';
+    const overallScore = (metrics.lcp.rating === 'good' && metrics.cls.rating === 'good' && (metrics.inp.rating === 'good' || metrics.inp.rating === null) ) ? 'GOOD' : 'POOR';
     return overallScore;
   }
 
@@ -214,6 +195,7 @@
       addUserTimings(metric);
     }
     badgeMetrics[metric.name.toLowerCase()].value = metric.value;
+    badgeMetrics[metric.name.toLowerCase()].rating = metric.rating;
     badgeMetrics.timestamp = new Date().toISOString();
     const passes = scoreBadgeMetrics(badgeMetrics);
 
