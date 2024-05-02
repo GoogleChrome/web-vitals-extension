@@ -12,38 +12,6 @@
 */
 
 
-let recentLoAFs = [];
-
-const getIntersectingLoAFs = (start, end) => {
-  const intersectingLoAFs = [];
-
-  for (let i = 0, loaf; (loaf = recentLoAFs[i]); i++) {
-    // If the LoAF ends before the given start time, ignore it.
-    if (loaf.startTime + loaf.duration < start) continue;
-
-    // If the LoAF starts after the given end time, ignore it and all
-    // subsequent pending LoAFs (because they're in time order).
-    if (loaf.startTime > end) break;
-
-    // Still here? If so this LoAF intersects with the interaction.
-    intersectingLoAFs.push(loaf);
-  }
-  return intersectingLoAFs;
-};
-
-const loafObserver = new PerformanceObserver((list) => {
-
-  for (const entry of list.getEntries()) { recentLoAFs.push(entry) };
-  // We report interactions immediately, so don't need to keep many LoAFs around.
-  // Let's keep the last 5.
-  recentLoAFs = recentLoAFs.slice(-5);
-
-});
-loafObserver.observe({
-  type: 'long-animation-frame',
-  buffered: true,
-});
-
 /**
  * We emulate an INP entry with similar logic to web-vitals.js
  * But we have it easier as will emit it immediately and don't need the p98 stuff
@@ -143,6 +111,38 @@ export function onEachInteraction(callback) {
   observer.observe({
     type: 'event',
     durationThreshold: 0,
+    buffered: true,
+  });
+
+  let recentLoAFs = [];
+
+  const getIntersectingLoAFs = (start, end) => {
+    const intersectingLoAFs = [];
+
+    for (let i = 0, loaf; (loaf = recentLoAFs[i]); i++) {
+      // If the LoAF ends before the given start time, ignore it.
+      if (loaf.startTime + loaf.duration < start) continue;
+
+      // If the LoAF starts after the given end time, ignore it and all
+      // subsequent pending LoAFs (because they're in time order).
+      if (loaf.startTime > end) break;
+
+      // Still here? If so this LoAF intersects with the interaction.
+      intersectingLoAFs.push(loaf);
+    }
+    return intersectingLoAFs;
+  };
+
+  const loafObserver = new PerformanceObserver((list) => {
+
+    for (const entry of list.getEntries()) { recentLoAFs.push(entry) };
+    // We report interactions immediately, so don't need to keep many LoAFs around.
+    // Let's keep the last 5.
+    recentLoAFs = recentLoAFs.slice(-5);
+
+  });
+  loafObserver.observe({
+    type: 'long-animation-frame',
     buffered: true,
   });
 }
