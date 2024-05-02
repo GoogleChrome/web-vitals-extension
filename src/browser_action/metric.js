@@ -25,9 +25,9 @@ export class Metric {
     }
 
     let index = 1;
-    if (this.local < this.thresholds.good) {
+    if (this.local <= this.thresholds.good) {
       index = 0;
-    } else if (this.local >= this.thresholds.poor) {
+    } else if (this.local > this.thresholds.poor) {
       index = 2;
     }
 

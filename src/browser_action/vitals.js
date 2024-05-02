@@ -22,12 +22,18 @@
   let tabLoadedInBackground;
 
   // Core Web Vitals thresholds
-  const LCP_THRESHOLD = webVitals.LCPThresholds[0];
-  const FID_THRESHOLD = webVitals.FIDThresholds[0];
-  const INP_THRESHOLD = webVitals.INPThresholds[0];
-  const CLS_THRESHOLD = webVitals.CLSThresholds[0];
-  const FCP_THRESHOLD = webVitals.FCPThresholds[0];
-  const TTFB_THRESHOLD = webVitals.TTFBThresholds[0];
+  const LCP_GOOD_THRESHOLD = webVitals.LCPThresholds[0];
+  const FID_GOOD_THRESHOLD = webVitals.FIDThresholds[0];
+  const INP_GOOD_THRESHOLD = webVitals.INPThresholds[0];
+  const CLS_GOOD_THRESHOLD = webVitals.CLSThresholds[0];
+  const FCP_GOOD_THRESHOLD = webVitals.FCPThresholds[0];
+  const TTFB_GOOD_THRESHOLD = webVitals.TTFBThresholds[0];
+  const LCP_POOR_THRESHOLD = webVitals.LCPThresholds[1];
+  const FID_POOR_THRESHOLD = webVitals.FIDThresholds[1];
+  const INP_POOR_THRESHOLD = webVitals.INPThresholds[1];
+  const CLS_POOR_THRESHOLD = webVitals.CLSThresholds[1];
+  const FCP_POOR_THRESHOLD = webVitals.FCPThresholds[1];
+  const TTFB_POOR_THRESHOLD = webVitals.TTFBThresholds[1];
   const COLOR_GOOD = '#0CCE6A';
   const COLOR_NEEDS_IMPROVEMENT = '#FFA400';
   const COLOR_POOR = '#FF4E42';
@@ -85,27 +91,27 @@
     return {
       lcp: {
         value: null,
-        pass: true,
+        rating: null,
       },
       cls: {
         value: null,
-        pass: true,
+        rating: null,
       },
       fid: {
         value: null,
-        pass: true,
+        rating: null,
       },
       inp: {
         value: null,
-        pass: true,
+        rating: null,
       },
       fcp: {
         value: null,
-        pass: true,
+        rating: null,
       },
       ttfb: {
         value: null,
-        pass: true,
+        rating: null,
       },
       // This is used to distinguish between navigations.
       // TODO: Is there a cleaner way?
@@ -120,34 +126,16 @@
     * @return {String} overall metrics score
   */
   function scoreBadgeMetrics(metrics) {
+    metrics.lcp.rating = metrics.lcp.value <= LCP_GOOD_THRESHOLD ? 'good' : metrics.lcp.value <= LCP_POOR_THRESHOLD ? 'needs-improvement' : 'poor';
+    metrics.cls.rating = metrics.cls.value <= CLS_GOOD_THRESHOLD ? 'good' : metrics.cls.value <= CLS_POOR_THRESHOLD ? 'needs-improvement' : 'poor';
+    metrics.inp.rating = metrics.inp.value <= INP_GOOD_THRESHOLD ? 'good' : metrics.inp.value <= INP_POOR_THRESHOLD ? 'needs-improvement' : 'poor';
+    metrics.fid.rating = metrics.fid.value <= FID_GOOD_THRESHOLD ? 'good' : metrics.fid.value <= FID_POOR_THRESHOLD ? 'needs-improvement' : 'poor';
+    metrics.fcp.rating = metrics.fcp.value <= FCP_GOOD_THRESHOLD ? 'good' : metrics.fcp.value <= FCP_POOR_THRESHOLD ? 'needs-improvement' : 'poor';
+    metrics.ttfb.rating = metrics.ttfb.value <= TTFB_GOOD_THRESHOLD ? 'good' : metrics.ttfb.value <= TTFB_POOR_THRESHOLD ? 'needs-improvement' : 'poor';
     // Note: overallScore is treated as a string rather than
     // a boolean to give us the flexibility of introducing a
     // 'NEEDS IMPROVEMENT' option here in the future.
-    let overallScore = 'GOOD';
-    if (metrics.lcp.value > LCP_THRESHOLD) {
-      overallScore = 'POOR';
-      metrics.lcp.pass = false;
-    }
-    if (metrics.cls.value > CLS_THRESHOLD) {
-      overallScore = 'POOR';
-      metrics.cls.pass = false;
-    }
-    if (metrics.inp.value > INP_THRESHOLD) {
-      overallScore = 'POOR';
-      metrics.inp.pass = false;
-    }
-    if (metrics.fid.value > FID_THRESHOLD) {
-      // FID does not affect overall score
-      metrics.fid.pass = false;
-    }
-    if (metrics.fcp.value > FCP_THRESHOLD) {
-      // FCP does not affect overall score
-      metrics.fcp.pass = false;
-    }
-    if (metrics.ttfb.value > TTFB_THRESHOLD) {
-      // TTFB does not affect overall score
-      metrics.ttfb.pass = false;
-    }
+    const overallScore = (metrics.lcp.rating === 'good' && metrics.cls.rating === 'good' && metrics.inp.rating === 'good' ) ? 'GOOD' : 'POOR';
     return overallScore;
   }
 
@@ -263,7 +251,18 @@
   });
 
   async function logSummaryInfo(metric) {
-    const formattedValue = metric.name === 'CLS' ? metric.value.toFixed(2) : `${metric.value.toFixed(0)} ms`;
+    let formattedValue;
+    switch(metric.name) {
+      case 'CLS':
+        formattedValue = toLocaleFixed({value: metric.value, precision: 2});
+        break;
+      case 'INP':
+      case 'FID':
+        formattedValue = toLocaleFixed({value: metric.value, unit: 'millisecond', precision: 2});
+        break;
+      default:
+        formattedValue = toLocaleFixed({value: metric.value / 1000, unit: 'second', precision: 3});
+    }
     console.groupCollapsed(
       `${LOG_PREFIX} ${metric.name} %c${formattedValue} (${metric.rating})`,
       `color: ${RATING_COLORS[metric.rating] || 'inherit'}`
@@ -529,7 +528,7 @@
     </div>
     <div class="lh-columns">
       <div class="lh-column">
-        <div class="lh-metric lh-metric--${metrics.lcp.pass ? 'pass':'fail'}">
+        <div class="lh-metric lh-metric--${metrics.lcp.rating}">
           <div class="lh-metric__innerwrap">
             <div>
               <span class="lh-metric__title">Largest Contentful Paint</span>
@@ -538,13 +537,13 @@
             <div class="lh-metric__value">${toLocaleFixed({value: (metrics.lcp.value || 0)/1000, unit: 'second'})}</div>
           </div>
         </div>
-        <div class="lh-metric lh-metric--${metrics.cls.pass ? 'pass':'fail'}">
+        <div class="lh-metric lh-metric--${metrics.cls.rating}">
           <div class="lh-metric__innerwrap">
             <span class="lh-metric__title">Cumulative Layout Shift</span>
             <div class="lh-metric__value">${toLocaleFixed({value: metrics.cls.value || 0, precision: 2})}</div>
           </div>
         </div>
-        <div class="lh-metric lh-metric--${metrics.inp.pass ? 'pass':'fail'} lh-metric--${metrics.inp.value === null ? 'waiting' : 'ready'}">
+        <div class="lh-metric lh-metric--${metrics.inp.rating} lh-metric--${metrics.inp.value === null ? 'waiting' : 'ready'}">
           <div class="lh-metric__innerwrap">
             <span class="lh-metric__title">
               Interaction to Next Paint
@@ -556,7 +555,7 @@
             }</div>
           </div>
         </div>
-        <div class="lh-metric lh-metric--${metrics.fid.pass ? 'pass':'fail'} lh-metric--${metrics.fid.value === null ? 'waiting' : 'ready'}">
+        <div class="lh-metric lh-metric--${metrics.fid.rating} lh-metric--${metrics.fid.value === null ? 'waiting' : 'ready'}">
           <div class="lh-metric__innerwrap">
             <span class="lh-metric__title">
               First Input Delay
@@ -568,7 +567,7 @@
             }</div>
           </div>
         </div>
-        <div class="lh-metric lh-metric--${metrics.fcp.pass ? 'pass':'fail'}">
+        <div class="lh-metric lh-metric--${metrics.fcp.rating}">
           <div class="lh-metric__innerwrap">
             <div>
               <span class="lh-metric__title">First Contentful Paint</span>
@@ -578,7 +577,7 @@
           </div>
         </div>
         <div class="lh-column">
-          <div class="lh-metric lh-metric--${metrics.ttfb.pass ? 'pass':'fail'}">
+          <div class="lh-metric lh-metric--${metrics.ttfb.rating}">
             <div class="lh-metric__innerwrap">
             <span class="lh-metric__title">
               Time to First Byte
