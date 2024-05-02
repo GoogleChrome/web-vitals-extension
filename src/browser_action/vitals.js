@@ -116,7 +116,11 @@
     // Note: overallScore is treated as a string rather than
     // a boolean to give us the flexibility of introducing a
     // 'NEEDS IMPROVEMENT' option here in the future.
-    const overallScore = (metrics.lcp.rating === 'good' && metrics.cls.rating === 'good' && (metrics.inp.rating === 'good' || metrics.inp.rating === null) ) ? 'GOOD' : 'POOR';
+    const overallScore = (
+      metrics.lcp.rating === 'good' &&
+      (metrics.cls.rating === 'good' || metrics.cls.rating === null) &&
+      (metrics.inp.rating === 'good' || metrics.inp.rating === null)
+    ) ? 'GOOD' : 'POOR';
     return overallScore;
   }
 
@@ -239,8 +243,9 @@
         formattedValue = toLocaleFixed({value: metric.value, precision: 2});
         break;
       case 'INP':
+      case 'Interaction':
       case 'FID':
-        formattedValue = toLocaleFixed({value: metric.value, unit: 'millisecond', precision: 2});
+        formattedValue = toLocaleFixed({value: metric.value, unit: 'millisecond', precision: 0});
         break;
       default:
         formattedValue = toLocaleFixed({value: metric.value / 1000, unit: 'second', precision: 3});

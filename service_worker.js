@@ -159,10 +159,10 @@ function badgeMetric(metric, value, rating, tabid) {
 
     // If URL is overall failing the thresholds, only show
     // a red badge for metrics actually failing (issues/22)
-    if (metric === 'cls' && rating === 'good') {
+    if (metric === 'lcp' && rating === 'good') {
       return;
     }
-    if (metric === 'lcp' && rating === 'good') {
+    if (metric === 'cls' && rating === 'good') {
       return;
     }
     if (metric === 'inp' && (rating === 'good' || rating === null)) {

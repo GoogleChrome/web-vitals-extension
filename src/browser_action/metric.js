@@ -2,7 +2,7 @@ import {CLSThresholds, FCPThresholds, FIDThresholds, INPThresholds, LCPThreshold
 
 export class Metric {
 
-  constructor({id, name, local, background, thresholds}) {
+  constructor({id, name, local, background, thresholds, rating}) {
     this.id = id;
     this.abbr = id.toUpperCase();
     this.name = name;
@@ -12,6 +12,7 @@ export class Metric {
     this.digitsOfPrecision = 3;
     // This will be replaced with field data, if available.
     this.distribution = [1/3, 1/3, 1/3];
+    this.rating = rating;
   }
 
   formatValue(value) {
@@ -19,29 +20,12 @@ export class Metric {
   }
 
   getAssessmentIndex() {
-    if (!this.thresholds) {
-      console.warn('Unable to assess', this, '(no thresholds)');
-      return undefined;
-    }
-
-    let index = 1;
-    if (this.local <= this.thresholds.good) {
-      index = 0;
-    } else if (this.local > this.thresholds.poor) {
-      index = 2;
-    }
-
-    return index;
-  }
-
-  getAssessment() {
-    const assessments = ['good', 'needs improvement', 'poor'];
-    return assessments[this.getAssessmentIndex()];
-  }
-
-  getAssessmentClass() {
-    const assessments = ['good', 'needs-improvement', 'poor'];
-    return assessments[this.getAssessmentIndex()];
+    const assessments = {
+      'good': 0,
+      'needs-improvement': 1,
+      'poor': 2
+    };
+    return assessments[this.rating];
   }
 
   getRelativePosition(value) {
@@ -154,7 +138,7 @@ export class Metric {
 
 export class LCP extends Metric {
 
-  constructor({local, background}) {
+  constructor({local, background, rating}) {
     const thresholds = {
       good: LCPThresholds[0],
       poor: LCPThresholds[1]
@@ -162,13 +146,15 @@ export class LCP extends Metric {
 
     // TODO(rviscomi): Consider better defaults.
     local = local || 0;
+    rating = rating || 'good';
 
     super({
       id: 'lcp',
       name: 'Largest Contentful Paint',
       local,
       background,
-      thresholds
+      thresholds,
+      rating
     });
   }
 
@@ -178,10 +164,6 @@ export class LCP extends Metric {
       value,
       unit: 'second'
     });
-  }
-
-  getAssessmentIndex() {
-    return super.getAssessmentIndex();
   }
 
   getInfo() {
@@ -196,7 +178,7 @@ export class LCP extends Metric {
 
 export class FID extends Metric {
 
-  constructor({local, background}) {
+  constructor({local, background, rating}) {
     const thresholds = {
       good: FIDThresholds[0],
       poor: FIDThresholds[1]
@@ -207,7 +189,8 @@ export class FID extends Metric {
       name: 'First Input Delay',
       local,
       background,
-      thresholds
+      thresholds,
+      rating
     });
   }
 
@@ -223,19 +206,11 @@ export class FID extends Metric {
     });
   }
 
-  getAssessmentIndex() {
-    if (this.local === null) {
-      return;
-    }
-
-    return super.getAssessmentIndex();
-  }
-
 }
 
 export class INP extends Metric {
 
-  constructor({local, background}) {
+  constructor({local, background, rating}) {
     const thresholds = {
       good: INPThresholds[0],
       poor: INPThresholds[1]
@@ -246,7 +221,8 @@ export class INP extends Metric {
       name: 'Interaction to Next Paint',
       local,
       background,
-      thresholds
+      thresholds,
+      rating
     });
   }
 
@@ -262,19 +238,11 @@ export class INP extends Metric {
     });
   }
 
-  getAssessmentIndex() {
-    if (this.local === null) {
-      return;
-    }
-
-    return super.getAssessmentIndex();
-  }
-
 }
 
 export class CLS extends Metric {
 
-  constructor({local, background}) {
+  constructor({local, background, rating}) {
     const thresholds = {
       good: CLSThresholds[0],
       poor: CLSThresholds[1]
@@ -282,13 +250,15 @@ export class CLS extends Metric {
 
     // TODO(rviscomi): Consider better defaults.
     local = local || 0;
+    rating = rating || 'good';
 
     super({
       id: 'cls',
       name: 'Cumulative Layout Shift',
       local,
       background,
-      thresholds
+      thresholds,
+      rating
     });
   }
 
@@ -303,7 +273,7 @@ export class CLS extends Metric {
 
 export class FCP extends Metric {
 
-  constructor({local, background}) {
+  constructor({local, background, rating}) {
     const thresholds = {
       good: FCPThresholds[0],
       poor: FCPThresholds[1]
@@ -311,13 +281,15 @@ export class FCP extends Metric {
 
     // TODO(rviscomi): Consider better defaults.
     local = local || 0;
+    rating = rating || 'good';
 
     super({
       id: 'fcp',
       name: 'First Contentful Paint',
       local,
       background,
-      thresholds
+      thresholds,
+      rating
     });
   }
 
@@ -327,10 +299,6 @@ export class FCP extends Metric {
       value,
       unit: 'second'
     });
-  }
-
-  getAssessmentIndex() {
-    return super.getAssessmentIndex();
   }
 
   getInfo() {
@@ -345,7 +313,7 @@ export class FCP extends Metric {
 
 export class TTFB extends Metric {
 
-  constructor({local, background}) {
+  constructor({local, background, rating}) {
     const thresholds = {
       good: TTFBThresholds[0],
       poor: TTFBThresholds[1]
@@ -353,13 +321,15 @@ export class TTFB extends Metric {
 
     // TODO(rviscomi): Consider better defaults.
     local = local || 0;
+    rating = rating || 'good';
 
     super({
       id: 'ttfb',
       name: 'Time to First Byte',
       local,
       background,
-      thresholds
+      thresholds,
+      rating
     });
   }
 
@@ -369,10 +339,6 @@ export class TTFB extends Metric {
       value,
       unit: 'second'
     });
-  }
-
-  getAssessmentIndex() {
-    return super.getAssessmentIndex();
   }
 
 }
