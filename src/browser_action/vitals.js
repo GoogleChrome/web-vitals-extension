@@ -333,18 +333,20 @@
       console.log('Interaction target:', eventTarget);
       console.log(`Interaction event type: %c${metric.attribution.interactionType}`, 'font-family: monospace');
 
-      console.table([{
-        'Interaction sub-part': 'Input delay',
-        'Time (ms)': Math.round(metric.attribution.inputDelay, 0),
-      },
-      {
-        'Interaction sub-part': 'Processing duration',
-        'Time (ms)': Math.round(metric.attribution.processingDuration, 0),
-      },
-      {
-        'Interaction sub-part': 'Presentation delay',
-        'Time (ms)': Math.round(metric.attribution.presentationDelay, 0),
-      }]);
+      if (!isNaN(metric.attribution.inputDelay)) {
+        console.table([{
+          'Interaction sub-part': 'Input delay',
+          'Time (ms)': Math.round(metric.attribution.inputDelay, 0),
+        },
+        {
+          'Interaction sub-part': 'Processing duration',
+          'Time (ms)': Math.round(metric.attribution.processingDuration, 0),
+        },
+        {
+          'Interaction sub-part': 'Presentation delay',
+          'Time (ms)': Math.round(metric.attribution.presentationDelay, 0),
+        }]);
+      }
 
       if (metric.attribution.longAnimationFrameEntries) {
 
