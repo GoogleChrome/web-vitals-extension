@@ -62,26 +62,32 @@ class Popup {
   initMetrics() {
     this.metrics.lcp = new LCP({
       local: this._metrics.lcp.value,
+      rating: this._metrics.lcp.rating,
       background: this.background
     });
     this.metrics.cls = new CLS({
       local: this._metrics.cls.value,
+      rating: this._metrics.cls.rating,
       background: this.background
     });
     this.metrics.inp = new INP({
       local: this._metrics.inp.value,
+      rating: this._metrics.inp.rating,
       background: this.background
     });
     this.metrics.fid = new FID({
       local: this._metrics.fid.value,
+      rating: this._metrics.fid.rating,
       background: this.background
     });
     this.metrics.fcp = new FCP({
       local: this._metrics.fcp.value,
+      rating: this._metrics.fcp.rating,
       background: this.background
     });
     this.metrics.ttfb = new TTFB({
       local: this._metrics.ttfb.value,
+      rating: this._metrics.ttfb.rating,
       background: this.background
     });
 
@@ -124,11 +130,11 @@ class Popup {
     const hovercard = document.querySelector(`#${metric.id} .hovercard`);
     const abbr = metric.abbr;
     const local = metric.formatValue(metric.local);
-    const assessment = metric.getAssessment();
+    const assessment = metric.rating;
     let text = `Your local <strong>${abbr}</strong> experience is <strong class="hovercard-local">${local}</strong> and rated <strong class="hovercard-local">${assessment}</strong>.`;
 
     if (fieldData) {
-      const assessmentIndex = metric.getAssessmentIndex();
+      const assessmentIndex = metric.getAssessmentIndex(metric.rating);
       const density = metric.getDensity(assessmentIndex, 0);
       const scope = CrUX.isOriginFallback(fieldData) ? 'origin' : 'page';
       text += ` <strong>${density}</strong> of <span class="nowrap">real-user</span> ${formFactor.toLowerCase()} <strong>${abbr}</strong> experiences on this ${scope} were also rated <strong class="hovercard-local">${assessment}</strong>.`
@@ -150,13 +156,13 @@ class Popup {
     const localValue = fragment.querySelector('.metric-performance-local-value');
     const infoElement = fragment.querySelector('.info');
     const info = metric.getInfo() || '';
-    const assessment = metric.getAssessmentClass();
+    const rating = metric.rating;
 
     metricElement.id = metric.id;
     name.innerText = metric.name;
     local.style.marginLeft = metric.getRelativePosition(metric.local);
     localValue.innerText = metric.formatValue(metric.local);
-    metricElement.classList.toggle(assessment, !!assessment);
+    metricElement.classList.toggle(rating, !!rating);
     infoElement.title = info;
     infoElement.classList.toggle('hidden', info == '');
 

@@ -11,15 +11,6 @@
  limitations under the License.
 */
 
-import {CLSThresholds, FCPThresholds, FIDThresholds, INPThresholds, LCPThresholds, TTFBThresholds} from './src/browser_action/web-vitals.js'
-
-// Core Web Vitals thresholds
-const LCP_THRESHOLD = LCPThresholds[0];
-const FID_THRESHOLD = FIDThresholds[0];
-const INP_THRESHOLD = INPThresholds[0];
-const CLS_THRESHOLD = CLSThresholds[0];
-const FCP_THRESHOLD = FCPThresholds[0];
-const TTFB_THRESHOLD = TTFBThresholds[0];
 const ONE_DAY_MS = 24 * 60 * 60 * 1000;
 
 // Get the optionsNoBadgeAnimation value
@@ -158,7 +149,7 @@ function badgeOverallPerf(badgeCategory, tabid) {
  * @param {Number} value
  * @param {Number} tabid
  */
-function badgeMetric(metric, value, tabid) {
+function badgeMetric(metric, value, rating, tabid) {
   chrome.tabs.query({
     active: true,
     currentWindow: true,
@@ -168,13 +159,13 @@ function badgeMetric(metric, value, tabid) {
 
     // If URL is overall failing the thresholds, only show
     // a red badge for metrics actually failing (issues/22)
-    if (metric === 'cls' && value <= CLS_THRESHOLD) {
+    if (metric === 'lcp' && rating === 'good') {
       return;
     }
-    if (metric === 'lcp' && value <= LCP_THRESHOLD) {
+    if (metric === 'cls' && rating === 'good') {
       return;
     }
-    if (metric === 'inp' && value <= INP_THRESHOLD) {
+    if (metric === 'inp' && (rating === 'good' || rating === null)) {
       return;
     }
 
@@ -297,15 +288,15 @@ async function animateBadges(request, tabId) {
 
     await wait(delay);
     if (animationsByTabId.get(tabId) !== animationId) return;
-    badgeMetric('lcp', request.metrics.lcp.value, tabId);
+    badgeMetric('lcp', request.metrics.lcp.value, request.metrics.lcp.rating, tabId);
 
     await wait(delay);
     if (animationsByTabId.get(tabId) !== animationId) return;
-    badgeMetric('inp', request.metrics.inp.value, tabId);
+    badgeMetric('inp', request.metrics.inp.value, request.metrics.inp.rating, tabId);
 
     await wait(delay);
     if (animationsByTabId.get(tabId) !== animationId) return;
-    badgeMetric('cls', request.metrics.cls.value, tabId);
+    badgeMetric('cls', request.metrics.cls.value, request.metrics.cls.rating, tabId);
 
     // Loop the animation if no new information came in while we animated.
     await wait(delay);

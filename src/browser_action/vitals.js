@@ -21,13 +21,6 @@
   let enableUserTiming = localStorage.getItem('web-vitals-extension-user-timing')=='TRUE';
   let tabLoadedInBackground;
 
-  // Core Web Vitals thresholds
-  const LCP_THRESHOLD = webVitals.LCPThresholds[0];
-  const FID_THRESHOLD = webVitals.FIDThresholds[0];
-  const INP_THRESHOLD = webVitals.INPThresholds[0];
-  const CLS_THRESHOLD = webVitals.CLSThresholds[0];
-  const FCP_THRESHOLD = webVitals.FCPThresholds[0];
-  const TTFB_THRESHOLD = webVitals.TTFBThresholds[0];
   const COLOR_GOOD = '#0CCE6A';
   const COLOR_NEEDS_IMPROVEMENT = '#FFA400';
   const COLOR_POOR = '#FF4E42';
@@ -45,6 +38,9 @@
 
   // Identifiable prefix for console logging
   const LOG_PREFIX = '[Web Vitals Extension]';
+
+  // Default units of precision for HUD
+  const DEFAULT_UNITS_OF_PRECISION = 3;
 
   // Registry for badge metrics
   const badgeMetrics = initializeMetrics();
@@ -85,27 +81,27 @@
     return {
       lcp: {
         value: null,
-        pass: true,
+        rating: null,
       },
       cls: {
         value: null,
-        pass: true,
+        rating: null,
       },
       fid: {
         value: null,
-        pass: true,
+        rating: null,
       },
       inp: {
         value: null,
-        pass: true,
+        rating: null,
       },
       fcp: {
         value: null,
-        pass: true,
+        rating: null,
       },
       ttfb: {
         value: null,
-        pass: true,
+        rating: null,
       },
       // This is used to distinguish between navigations.
       // TODO: Is there a cleaner way?
@@ -123,31 +119,11 @@
     // Note: overallScore is treated as a string rather than
     // a boolean to give us the flexibility of introducing a
     // 'NEEDS IMPROVEMENT' option here in the future.
-    let overallScore = 'GOOD';
-    if (metrics.lcp.value > LCP_THRESHOLD) {
-      overallScore = 'POOR';
-      metrics.lcp.pass = false;
-    }
-    if (metrics.cls.value > CLS_THRESHOLD) {
-      overallScore = 'POOR';
-      metrics.cls.pass = false;
-    }
-    if (metrics.inp.value > INP_THRESHOLD) {
-      overallScore = 'POOR';
-      metrics.inp.pass = false;
-    }
-    if (metrics.fid.value > FID_THRESHOLD) {
-      // FID does not affect overall score
-      metrics.fid.pass = false;
-    }
-    if (metrics.fcp.value > FCP_THRESHOLD) {
-      // FCP does not affect overall score
-      metrics.fcp.pass = false;
-    }
-    if (metrics.ttfb.value > TTFB_THRESHOLD) {
-      // TTFB does not affect overall score
-      metrics.ttfb.pass = false;
-    }
+    const overallScore = (
+      metrics.lcp.rating === 'good' &&
+      (metrics.cls.rating === 'good' || metrics.cls.rating === null) &&
+      (metrics.inp.rating === 'good' || metrics.inp.rating === null)
+    ) ? 'GOOD' : 'POOR';
     return overallScore;
   }
 
@@ -226,6 +202,7 @@
       addUserTimings(metric);
     }
     badgeMetrics[metric.name.toLowerCase()].value = metric.value;
+    badgeMetrics[metric.name.toLowerCase()].rating = metric.rating;
     badgeMetrics.timestamp = new Date().toISOString();
     const passes = scoreBadgeMetrics(badgeMetrics);
 
@@ -263,7 +240,19 @@
   });
 
   async function logSummaryInfo(metric) {
-    const formattedValue = metric.name === 'CLS' ? metric.value.toFixed(2) : `${metric.value.toFixed(0)} ms`;
+    let formattedValue;
+    switch(metric.name) {
+      case 'CLS':
+        formattedValue = toLocaleFixed({value: metric.value, precision: 2});
+        break;
+      case 'INP':
+      case 'Interaction':
+      case 'FID':
+        formattedValue = toLocaleFixed({value: metric.value, unit: 'millisecond', precision: 0});
+        break;
+      default:
+        formattedValue = toLocaleFixed({value: metric.value / 1000, unit: 'second', precision: 3});
+    }
     console.groupCollapsed(
       `${LOG_PREFIX} ${metric.name} %c${formattedValue} (${metric.rating})`,
       `color: ${RATING_COLORS[metric.rating] || 'inherit'}`
@@ -318,11 +307,7 @@
       };
     }
 
-    else if ((metric.name == 'INP' ||  metric.name == 'Interaction') &&
-        metric.attribution) {
-      const subPartString = `${metric.name} sub-part`;
-      const interactionEntry = metric.attribution.interactionEntry;
-
+    else if ((metric.name == 'INP' ||  metric.name == 'Interaction') && metric.attribution) {
       let eventTarget = metric.entries[0].target;
       // Sometimes the interactionEntry has no target, so we need to hunt it out manually.
       // As of web-vitals@3.5.2 `attribution.eventTarget` does the same thing,
@@ -542,7 +527,7 @@
     </div>
     <div class="lh-columns">
       <div class="lh-column">
-        <div class="lh-metric lh-metric--${metrics.lcp.pass ? 'pass':'fail'}">
+        <div class="lh-metric lh-metric--${metrics.lcp.rating}">
           <div class="lh-metric__innerwrap">
             <div>
               <span class="lh-metric__title">Largest Contentful Paint</span>
@@ -551,13 +536,13 @@
             <div class="lh-metric__value">${toLocaleFixed({value: (metrics.lcp.value || 0)/1000, unit: 'second'})}</div>
           </div>
         </div>
-        <div class="lh-metric lh-metric--${metrics.cls.pass ? 'pass':'fail'}">
+        <div class="lh-metric lh-metric--${metrics.cls.rating}">
           <div class="lh-metric__innerwrap">
             <span class="lh-metric__title">Cumulative Layout Shift</span>
             <div class="lh-metric__value">${toLocaleFixed({value: metrics.cls.value || 0, precision: 2})}</div>
           </div>
         </div>
-        <div class="lh-metric lh-metric--${metrics.inp.pass ? 'pass':'fail'} lh-metric--${metrics.inp.value === null ? 'waiting' : 'ready'}">
+        <div class="lh-metric lh-metric--${metrics.inp.rating} lh-metric--${metrics.inp.value === null ? 'waiting' : 'ready'}">
           <div class="lh-metric__innerwrap">
             <span class="lh-metric__title">
               Interaction to Next Paint
@@ -569,7 +554,7 @@
             }</div>
           </div>
         </div>
-        <div class="lh-metric lh-metric--${metrics.fid.pass ? 'pass':'fail'} lh-metric--${metrics.fid.value === null ? 'waiting' : 'ready'}">
+        <div class="lh-metric lh-metric--${metrics.fid.rating} lh-metric--${metrics.fid.value === null ? 'waiting' : 'ready'}">
           <div class="lh-metric__innerwrap">
             <span class="lh-metric__title">
               First Input Delay
@@ -581,7 +566,7 @@
             }</div>
           </div>
         </div>
-        <div class="lh-metric lh-metric--${metrics.fcp.pass ? 'pass':'fail'}">
+        <div class="lh-metric lh-metric--${metrics.fcp.rating}">
           <div class="lh-metric__innerwrap">
             <div>
               <span class="lh-metric__title">First Contentful Paint</span>
@@ -591,7 +576,7 @@
           </div>
         </div>
         <div class="lh-column">
-          <div class="lh-metric lh-metric--${metrics.ttfb.pass ? 'pass':'fail'}">
+          <div class="lh-metric lh-metric--${metrics.ttfb.rating}">
             <div class="lh-metric__innerwrap">
             <span class="lh-metric__title">
               Time to First Byte
