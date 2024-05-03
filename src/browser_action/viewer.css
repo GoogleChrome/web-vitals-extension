@@ -718,6 +718,7 @@
 .web-vitals-chrome-extension .lh-metric--good .lh-metric__value {
   color: var(--color-pass-secondary);
 }
+.web-vitals-chrome-extension .lh-metric--waiting .lh-metric__innerwrap::before,
 .web-vitals-chrome-extension .lh-metric--good .lh-metric__innerwrap::before {
   border-radius: 100%;
   background: var(--color-pass);
