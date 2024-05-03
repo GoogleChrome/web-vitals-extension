@@ -39,9 +39,6 @@
   // Identifiable prefix for console logging
   const LOG_PREFIX = '[Web Vitals Extension]';
 
-  // Default units of precision for HUD
-  const DEFAULT_UNITS_OF_PRECISION = 3;
-
   // Registry for badge metrics
   const badgeMetrics = initializeMetrics();
 

@@ -13,10 +13,6 @@
 
 import {INPThresholds} from './web-vitals.js';
 
-<<<<<<< HEAD
-=======
-
->>>>>>> formatting
 /**
  * @param {Function} callback
  */
