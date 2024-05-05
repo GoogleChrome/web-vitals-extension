@@ -19,7 +19,7 @@ import {INPThresholds} from './web-vitals.js';
 export function onEachInteraction(callback) {
   const valueToRating = (score) => score <= INPThresholds[0] ? 'good' : score <= INPThresholds[1] ? 'needs-improvement' : 'poor';
 
-  const observer = new PerformanceObserver((list) => {
+  const eventObserver = new PerformanceObserver((list) => {
     const entries = list.getEntries();
     const interactions = {};
 
@@ -74,8 +74,7 @@ export function onEachInteraction(callback) {
           interactionTarget: getSelector(firstEntryWithTarget),
           interactionTime: entry.startTime,
           interactionType: entry.name.startsWith('key') ? 'keyboard' : 'pointer',
-          longAnimationFrameEntries: longAnimationFrameEntries,
-          processedEventEntries: entries,
+          longAnimationFrameEntries: longAnimationFrameEntries
         },
         entries: interaction,
         name: 'Interaction',
@@ -85,7 +84,7 @@ export function onEachInteraction(callback) {
     }
   });
 
-  observer.observe({
+  eventObserver.observe({
     type: 'event',
     durationThreshold: 0,
     buffered: true,
@@ -111,11 +110,9 @@ export function onEachInteraction(callback) {
   };
 
   const loafObserver = new PerformanceObserver((list) => {
-
-    for (const entry of list.getEntries()) { recentLoAFs.push(entry) };
     // We report interactions immediately, so don't need to keep many LoAFs around.
     // Let's keep the last 5.
-    recentLoAFs = recentLoAFs.slice(-5);
+    recentLoAFs = recentLoAFs.concat(list.getEntries()).slice(-5);
 
   });
   loafObserver.observe({
