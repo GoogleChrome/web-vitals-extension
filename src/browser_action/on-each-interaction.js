@@ -11,11 +11,14 @@
  limitations under the License.
 */
 
+import {INPThresholds} from './web-vitals.js';
+
+
 /**
  * @param {Function} callback
  */
 export function onEachInteraction(callback) {
-  const valueToRating = (score) => score <= 200 ? 'good' : score <= 500 ? 'needs-improvement' : 'poor';
+  const valueToRating = (score) => score <= INPThresholds[0] ? 'good' : score <= INPThresholds[1] ? 'needs-improvement' : 'poor';
 
   const observer = new PerformanceObserver((list) => {
     const interactions = {};

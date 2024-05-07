@@ -21,13 +21,6 @@
   let enableUserTiming = localStorage.getItem('web-vitals-extension-user-timing')=='TRUE';
   let tabLoadedInBackground;
 
-  // Core Web Vitals thresholds
-  const LCP_THRESHOLD = webVitals.LCPThresholds[0];
-  const FID_THRESHOLD = webVitals.FIDThresholds[0];
-  const INP_THRESHOLD = webVitals.INPThresholds[0];
-  const CLS_THRESHOLD = webVitals.CLSThresholds[0];
-  const FCP_THRESHOLD = webVitals.FCPThresholds[0];
-  const TTFB_THRESHOLD = webVitals.TTFBThresholds[0];
   const COLOR_GOOD = '#0CCE6A';
   const COLOR_NEEDS_IMPROVEMENT = '#FFA400';
   const COLOR_POOR = '#FF4E42';
@@ -43,6 +36,9 @@
   // Identifiable prefix for console logging
   const LOG_PREFIX = '[Web Vitals Extension]';
 
+  // Default units of precision for HUD
+  const DEFAULT_UNITS_OF_PRECISION = 3;
+
   // Registry for badge metrics
   const badgeMetrics = initializeMetrics();
 
@@ -56,6 +52,16 @@
       port = chrome.runtime.connect();
     }
   });
+
+  function toLocaleFixed({value, unit, precision }) {
+    return value.toLocaleString(undefined, {
+      style: unit && 'unit',
+      unit,
+      unitDisplay: 'short',
+      minimumFractionDigits: precision ?? DEFAULT_UNITS_OF_PRECISION,
+      maximumFractionDigits: precision ?? DEFAULT_UNITS_OF_PRECISION
+    });
+  }
 
   function initializeMetrics() {
     let metricsState = localStorage.getItem('web-vitals-extension-metrics');
@@ -72,27 +78,27 @@
     return {
       lcp: {
         value: null,
-        pass: true,
+        rating: null,
       },
       cls: {
         value: null,
-        pass: true,
+        rating: null,
       },
       fid: {
         value: null,
-        pass: true,
+        rating: null,
       },
       inp: {
         value: null,
-        pass: true,
+        rating: null,
       },
       fcp: {
         value: null,
-        pass: true,
+        rating: null,
       },
       ttfb: {
         value: null,
-        pass: true,
+        rating: null,
       },
       // This is used to distinguish between navigations.
       // TODO: Is there a cleaner way?
@@ -110,31 +116,11 @@
     // Note: overallScore is treated as a string rather than
     // a boolean to give us the flexibility of introducing a
     // 'NEEDS IMPROVEMENT' option here in the future.
-    let overallScore = 'GOOD';
-    if (metrics.lcp.value > LCP_THRESHOLD) {
-      overallScore = 'POOR';
-      metrics.lcp.pass = false;
-    }
-    if (metrics.cls.value > CLS_THRESHOLD) {
-      overallScore = 'POOR';
-      metrics.cls.pass = false;
-    }
-    if (metrics.inp.value > INP_THRESHOLD) {
-      overallScore = 'POOR';
-      metrics.inp.pass = false;
-    }
-    if (metrics.fid.value > FID_THRESHOLD) {
-      // FID does not affect overall score
-      metrics.fid.pass = false;
-    }
-    if (metrics.fcp.value > FCP_THRESHOLD) {
-      // FCP does not affect overall score
-      metrics.fcp.pass = false;
-    }
-    if (metrics.ttfb.value > TTFB_THRESHOLD) {
-      // TTFB does not affect overall score
-      metrics.ttfb.pass = false;
-    }
+    const overallScore = (
+      metrics.lcp.rating === 'good' &&
+      (metrics.cls.rating === 'good' || metrics.cls.rating === null) &&
+      (metrics.inp.rating === 'good' || metrics.inp.rating === null)
+    ) ? 'GOOD' : 'POOR';
     return overallScore;
   }
 
@@ -213,6 +199,7 @@
       addUserTimings(metric);
     }
     badgeMetrics[metric.name.toLowerCase()].value = metric.value;
+    badgeMetrics[metric.name.toLowerCase()].rating = metric.rating;
     badgeMetrics.timestamp = new Date().toISOString();
     const passes = scoreBadgeMetrics(badgeMetrics);
 
@@ -250,7 +237,19 @@
   });
 
   async function logSummaryInfo(metric) {
-    const formattedValue = metric.name === 'CLS' ? metric.value.toFixed(2) : `${metric.value.toFixed(0)} ms`;
+    let formattedValue;
+    switch(metric.name) {
+      case 'CLS':
+        formattedValue = toLocaleFixed({value: metric.value, precision: 2});
+        break;
+      case 'INP':
+      case 'Interaction':
+      case 'FID':
+        formattedValue = toLocaleFixed({value: metric.value, unit: 'millisecond', precision: 0});
+        break;
+      default:
+        formattedValue = toLocaleFixed({value: metric.value / 1000, unit: 'second', precision: 3});
+    }
     console.groupCollapsed(
       `${LOG_PREFIX} ${metric.name} %c${formattedValue} (${metric.rating})`,
       `color: ${RATING_COLORS[metric.rating] || 'inherit'}`
@@ -308,7 +307,6 @@
     else if ((metric.name == 'INP'|| metric.name == 'Interaction') &&
         metric.attribution &&
         metric.attribution.eventEntry) {
-      const subPartString = `${metric.name} sub-part`;
       const eventEntry = metric.attribution.eventEntry;
 
       let eventTarget = eventEntry.target;
@@ -329,15 +327,15 @@
         const adjustedPresentationTime = Math.max(entry.processingEnd + 4, entry.startTime + entry.duration);
 
         console.table([{
-          subPartString: 'Input delay',
+          'Interaction sub-part': 'Input delay',
           'Time (ms)': Math.round(entry.processingStart - entry.startTime, 0),
         },
         {
-          subPartString: 'Processing time',
+          'Interaction sub-part': 'Processing time',
           'Time (ms)': Math.round(entry.processingEnd - entry.processingStart, 0),
         },
         {
-          subPartString: 'Presentation delay',
+          'Interaction sub-part': 'Presentation delay',
           'Time (ms)': Math.round(adjustedPresentationTime - entry.processingEnd, 0),
         }]);
       }
@@ -517,22 +515,22 @@
     </div>
     <div class="lh-columns">
       <div class="lh-column">
-        <div class="lh-metric lh-metric--${metrics.lcp.pass ? 'pass':'fail'}">
+        <div class="lh-metric lh-metric--${metrics.lcp.rating}">
           <div class="lh-metric__innerwrap">
             <div>
               <span class="lh-metric__title">Largest Contentful Paint</span>
               ${tabLoadedInBackground ? '<span class="lh-metric__subtitle">Value inflated as tab was loaded in background</span>' : ''}
             </div>
-            <div class="lh-metric__value">${((metrics.lcp.value || 0)/1000).toFixed(2)}&nbsp;s</div>
+            <div class="lh-metric__value">${toLocaleFixed({value: (metrics.lcp.value || 0)/1000, unit: 'second'})}</div>
           </div>
         </div>
-        <div class="lh-metric lh-metric--${metrics.cls.pass ? 'pass':'fail'}">
+        <div class="lh-metric lh-metric--${metrics.cls.rating}">
           <div class="lh-metric__innerwrap">
             <span class="lh-metric__title">Cumulative Layout Shift</span>
-            <div class="lh-metric__value">${(metrics.cls.value || 0).toFixed(3)}</div>
+            <div class="lh-metric__value">${toLocaleFixed({value: metrics.cls.value || 0, precision: 2})}</div>
           </div>
         </div>
-        <div class="lh-metric lh-metric--${metrics.inp.pass ? 'pass':'fail'} lh-metric--${metrics.inp.value === null ? 'waiting' : 'ready'}">
+        <div class="lh-metric lh-metric--${metrics.inp.rating} lh-metric--${metrics.inp.value === null ? 'waiting' : 'ready'}">
           <div class="lh-metric__innerwrap">
             <span class="lh-metric__title">
               Interaction to Next Paint
@@ -540,11 +538,11 @@
             </span>
             <div class="lh-metric__value">${
               metrics.inp.value === null ? '' :
-              `${metrics.inp.value.toFixed(2)}&nbsp;ms`
+              `${toLocaleFixed({value: metrics.inp.value, unit: 'millisecond', precision: 0})}`
             }</div>
           </div>
         </div>
-        <div class="lh-metric lh-metric--${metrics.fid.pass ? 'pass':'fail'} lh-metric--${metrics.fid.value === null ? 'waiting' : 'ready'}">
+        <div class="lh-metric lh-metric--${metrics.fid.rating} lh-metric--${metrics.fid.value === null ? 'waiting' : 'ready'}">
           <div class="lh-metric__innerwrap">
             <span class="lh-metric__title">
               First Input Delay
@@ -552,26 +550,26 @@
             </span>
             <div class="lh-metric__value">${
               metrics.fid.value === null ? '' :
-              `${metrics.fid.value.toFixed(2)}&nbsp;ms`
+              `${toLocaleFixed({value: metrics.fid.value, unit: 'millisecond', precision: 0})}`
             }</div>
           </div>
         </div>
-        <div class="lh-metric lh-metric--${metrics.fcp.pass ? 'pass':'fail'}">
+        <div class="lh-metric lh-metric--${metrics.fcp.rating}">
           <div class="lh-metric__innerwrap">
             <div>
               <span class="lh-metric__title">First Contentful Paint</span>
               ${tabLoadedInBackground ? '<span class="lh-metric__subtitle">Value inflated as tab was loaded in background</span>' : ''}
             </div>
-            <div class="lh-metric__value">${((metrics.fcp.value || 0)/1000).toFixed(2)}&nbsp;s</div>
+            <div class="lh-metric__value">${toLocaleFixed({value: (metrics.fcp.value || 0)/1000, unit: 'second'})}</div>
           </div>
         </div>
         <div class="lh-column">
-          <div class="lh-metric lh-metric--${metrics.ttfb.pass ? 'pass':'fail'}">
+          <div class="lh-metric lh-metric--${metrics.ttfb.rating}">
             <div class="lh-metric__innerwrap">
             <span class="lh-metric__title">
               Time to First Byte
             </span>
-            <div class="lh-metric__value">${((metrics.ttfb.value || 0)/1000).toFixed(2)}&nbsp;s</div>
+            <div class="lh-metric__value">${toLocaleFixed({value: (metrics.ttfb.value || 0)/1000, unit: 'second'})}</div>
           </div>
         </div>
       </div>

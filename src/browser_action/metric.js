@@ -1,6 +1,8 @@
+import {CLSThresholds, FCPThresholds, FIDThresholds, INPThresholds, LCPThresholds, TTFBThresholds} from './web-vitals.js';
+
 export class Metric {
 
-  constructor({id, name, local, background, thresholds}) {
+  constructor({id, name, local, background, thresholds, rating}) {
     this.id = id;
     this.abbr = id.toUpperCase();
     this.name = name;
@@ -10,6 +12,7 @@ export class Metric {
     this.digitsOfPrecision = 3;
     // This will be replaced with field data, if available.
     this.distribution = [1/3, 1/3, 1/3];
+    this.rating = rating;
   }
 
   formatValue(value) {
@@ -17,29 +20,12 @@ export class Metric {
   }
 
   getAssessmentIndex() {
-    if (!this.thresholds) {
-      console.warn('Unable to assess', this, '(no thresholds)');
-      return undefined;
-    }
-
-    let index = 1;
-    if (this.local < this.thresholds.good) {
-      index = 0;
-    } else if (this.local >= this.thresholds.poor) {
-      index = 2;
-    }
-
-    return index;
-  }
-
-  getAssessment() {
-    const assessments = ['good', 'needs improvement', 'poor'];
-    return assessments[this.getAssessmentIndex()];
-  }
-
-  getAssessmentClass() {
-    const assessments = ['good', 'needs-improvement', 'poor'];
-    return assessments[this.getAssessmentIndex()];
+    const assessments = {
+      'good': 0,
+      'needs-improvement': 1,
+      'poor': 2
+    };
+    return assessments[this.rating];
   }
 
   getRelativePosition(value) {
@@ -81,13 +67,13 @@ export class Metric {
     return;
   }
 
-  toLocaleFixed({value, unit}) {
+  toLocaleFixed({value, unit, precision}) {
     return value.toLocaleString(undefined, {
       style: unit && 'unit',
       unit,
-      unitDisplay: 'narrow',
-      minimumFractionDigits: this.digitsOfPrecision,
-      maximumFractionDigits: this.digitsOfPrecision
+      unitDisplay: 'short',
+      minimumFractionDigits: precision ?? this.digitsOfPrecision,
+      maximumFractionDigits: precision ?? this.digitsOfPrecision
     });
   }
 
@@ -152,21 +138,23 @@ export class Metric {
 
 export class LCP extends Metric {
 
-  constructor({local, background}) {
+  constructor({local, background, rating}) {
     const thresholds = {
-      good: 2500,
-      poor: 4000
+      good: LCPThresholds[0],
+      poor: LCPThresholds[1]
     };
 
     // TODO(rviscomi): Consider better defaults.
     local = local || 0;
+    rating = rating || 'good';
 
     super({
       id: 'lcp',
       name: 'Largest Contentful Paint',
       local,
       background,
-      thresholds
+      thresholds,
+      rating
     });
   }
 
@@ -176,10 +164,6 @@ export class LCP extends Metric {
       value,
       unit: 'second'
     });
-  }
-
-  getAssessmentIndex() {
-    return super.getAssessmentIndex();
   }
 
   getInfo() {
@@ -194,10 +178,10 @@ export class LCP extends Metric {
 
 export class FID extends Metric {
 
-  constructor({local, background}) {
+  constructor({local, background, rating}) {
     const thresholds = {
-      good: 100,
-      poor: 300
+      good: FIDThresholds[0],
+      poor: FIDThresholds[1]
     };
 
     super({
@@ -205,7 +189,8 @@ export class FID extends Metric {
       name: 'First Input Delay',
       local,
       background,
-      thresholds
+      thresholds,
+      rating
     });
   }
 
@@ -216,26 +201,19 @@ export class FID extends Metric {
 
     return this.toLocaleFixed({
       value,
-      unit: 'millisecond'
+      unit: 'millisecond',
+      precision: 0
     });
-  }
-
-  getAssessmentIndex() {
-    if (this.local === null) {
-      return;
-    }
-
-    return super.getAssessmentIndex();
   }
 
 }
 
 export class INP extends Metric {
 
-  constructor({local, background}) {
+  constructor({local, background, rating}) {
     const thresholds = {
-      good: 200,
-      poor: 500
+      good: INPThresholds[0],
+      poor: INPThresholds[1]
     };
 
     super({
@@ -243,7 +221,8 @@ export class INP extends Metric {
       name: 'Interaction to Next Paint',
       local,
       background,
-      thresholds
+      thresholds,
+      rating
     });
   }
 
@@ -254,63 +233,63 @@ export class INP extends Metric {
 
     return this.toLocaleFixed({
       value,
-      unit: 'millisecond'
+      unit: 'millisecond',
+      precision: 0
     });
-  }
-
-  getAssessmentIndex() {
-    if (this.local === null) {
-      return;
-    }
-
-    return super.getAssessmentIndex();
   }
 
 }
 
 export class CLS extends Metric {
 
-  constructor({local, background}) {
+  constructor({local, background, rating}) {
     const thresholds = {
-      good: 0.10,
-      poor: 0.25
+      good: CLSThresholds[0],
+      poor: CLSThresholds[1]
     };
 
     // TODO(rviscomi): Consider better defaults.
     local = local || 0;
+    rating = rating || 'good';
 
     super({
       id: 'cls',
       name: 'Cumulative Layout Shift',
       local,
       background,
-      thresholds
+      thresholds,
+      rating
     });
   }
 
   formatValue(value) {
-    return this.toLocaleFixed({value});
+    return this.toLocaleFixed({
+      value: value,
+      precision: 2
+    });
   }
 
 }
 
 export class FCP extends Metric {
 
-  constructor({local, background}) {
+  constructor({local, background, rating}) {
     const thresholds = {
-      good: 1800,
-      poor: 3000
+      good: FCPThresholds[0],
+      poor: FCPThresholds[1]
     };
 
     // TODO(rviscomi): Consider better defaults.
     local = local || 0;
+    rating = rating || 'good';
 
     super({
       id: 'fcp',
       name: 'First Contentful Paint',
       local,
       background,
-      thresholds
+      thresholds,
+      rating
     });
   }
 
@@ -320,10 +299,6 @@ export class FCP extends Metric {
       value,
       unit: 'second'
     });
-  }
-
-  getAssessmentIndex() {
-    return super.getAssessmentIndex();
   }
 
   getInfo() {
@@ -338,21 +313,23 @@ export class FCP extends Metric {
 
 export class TTFB extends Metric {
 
-  constructor({local, background}) {
+  constructor({local, background, rating}) {
     const thresholds = {
-      good: 800,
-      poor: 1800
+      good: TTFBThresholds[0],
+      poor: TTFBThresholds[1]
     };
 
     // TODO(rviscomi): Consider better defaults.
     local = local || 0;
+    rating = rating || 'good';
 
     super({
       id: 'ttfb',
       name: 'Time to First Byte',
       local,
       background,
-      thresholds
+      thresholds,
+      rating
     });
   }
 
@@ -362,10 +339,6 @@ export class TTFB extends Metric {
       value,
       unit: 'second'
     });
-  }
-
-  getAssessmentIndex() {
-    return super.getAssessmentIndex();
   }
 
 }
