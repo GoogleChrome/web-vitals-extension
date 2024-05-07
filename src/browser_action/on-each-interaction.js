@@ -49,10 +49,12 @@ export function onEachInteraction(callback) {
       return sel;
     };
 
+    // Filter all events to those with interactionids
     for (const entry of entries.filter((entry) => entry.interactionId)) {
       interactions[entry.interactionId] = interactions[entry.interactionId] || [];
       interactions[entry.interactionId].push(entry);
     }
+
     // Will report as a single interaction even if parts are in separate frames.
     // Consider splitting by animation frame.
     for (const interaction of Object.values(interactions)) {

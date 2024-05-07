@@ -307,11 +307,6 @@
       };
     }
 
-<<<<<<< HEAD
-    else if ((metric.name == 'INP' ||  metric.name == 'Interaction') && metric.attribution) {
-      let eventTarget = metric.entries[0].target;
-      // Sometimes the interactionEntry has no target, so we need to hunt it out manually.
-=======
     else if ((metric.name == 'INP'|| metric.name == 'Interaction') &&
         metric.attribution &&
         metric.attribution.eventEntry) {
@@ -319,7 +314,6 @@
 
       let eventTarget = eventEntry.target;
       // Sometimes the eventEntry has no target, so we need to hunt it out manually.
->>>>>>> main
       // As of web-vitals@3.5.2 `attribution.eventTarget` does the same thing,
       // but we want a reference to the element itself (for logging), not a selector.
       if (!eventTarget) {
@@ -332,17 +326,6 @@
       if (metric.name == 'INP') {
         console.table([{
           'Interaction sub-part': 'Input delay',
-<<<<<<< HEAD
-          'Time (ms)': Math.round(metric.attribution.inputDelay, 0),
-        },
-        {
-          'Interaction sub-part': 'Processing duration',
-          'Time (ms)': Math.round(metric.attribution.processingDuration, 0),
-        },
-        {
-          'Interaction sub-part': 'Presentation delay',
-          'Time (ms)': Math.round(metric.attribution.presentationDelay, 0),
-=======
           'Time (ms)': Math.round(entry.processingStart - entry.startTime, 0),
         },
         {
@@ -352,7 +335,6 @@
         {
           'Interaction sub-part': 'Presentation delay',
           'Time (ms)': Math.round(adjustedPresentationTime - entry.processingEnd, 0),
->>>>>>> main
         }]);
       }
 
