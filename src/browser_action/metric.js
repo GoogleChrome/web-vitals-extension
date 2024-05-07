@@ -67,14 +67,20 @@ export class Metric {
     return;
   }
 
-  toLocaleFixed({value, unit, precision}) {
-    return value.toLocaleString(undefined, {
-      style: unit && 'unit',
-      unit,
-      unitDisplay: 'short',
-      minimumFractionDigits: precision ?? this.digitsOfPrecision,
-      maximumFractionDigits: precision ?? this.digitsOfPrecision
-    });
+  formattedValue({value, unit, precision}) {
+    // Ideally we'd use toLocaleString but that has performance implications
+    // (see https://github.com/GoogleChrome/web-vitals-extension/issues/107)
+    // Convert toLocaleString units to short form
+    let formattedUnit = '';
+    switch (unit) {
+      case 'second':
+        formattedUnit = ' s';
+        break;
+      case 'millisecond':
+        formattedUnit = ' ms';
+        break;
+    }
+    return value.toFixed(precision || this.digitsOfPrecision) + formattedUnit;
   }
 
   getDensity(i, decimalPlaces=0) {
@@ -160,7 +166,7 @@ export class LCP extends Metric {
 
   formatValue(value) {
     value /= 1000;
-    return this.toLocaleFixed({
+    return this.formattedValue({
       value,
       unit: 'second'
     });
@@ -199,7 +205,7 @@ export class FID extends Metric {
       return 'Waiting for input…';
     }
 
-    return this.toLocaleFixed({
+    return this.formattedValue({
       value,
       unit: 'millisecond',
       precision: 0
@@ -231,7 +237,7 @@ export class INP extends Metric {
       return 'Waiting for input…';
     }
 
-    return this.toLocaleFixed({
+    return this.formattedValue({
       value,
       unit: 'millisecond',
       precision: 0
@@ -263,7 +269,7 @@ export class CLS extends Metric {
   }
 
   formatValue(value) {
-    return this.toLocaleFixed({
+    return this.formattedValue({
       value: value,
       precision: 2
     });
@@ -295,7 +301,7 @@ export class FCP extends Metric {
 
   formatValue(value) {
     value /= 1000;
-    return this.toLocaleFixed({
+    return this.formattedValue({
       value,
       unit: 'second'
     });
@@ -335,7 +341,7 @@ export class TTFB extends Metric {
 
   formatValue(value) {
     value /= 1000;
-    return this.toLocaleFixed({
+    return this.formattedValue({
       value,
       unit: 'second'
     });
