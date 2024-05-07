@@ -67,10 +67,9 @@ export class Metric {
     return;
   }
 
-  formattedValue({value, unit, precision}) {
+  toLocaleFixed({value, unit, precision}) {
     // Ideally we'd use toLocaleString but that has performance implications
     // (see https://github.com/GoogleChrome/web-vitals-extension/issues/107)
-    // Convert toLocaleString units to short form
     let formattedUnit = '';
     switch (unit) {
       case 'second':
@@ -166,7 +165,7 @@ export class LCP extends Metric {
 
   formatValue(value) {
     value /= 1000;
-    return this.formattedValue({
+    return this.toLocaleFixed({
       value,
       unit: 'second'
     });
@@ -205,7 +204,7 @@ export class FID extends Metric {
       return 'Waiting for input…';
     }
 
-    return this.formattedValue({
+    return this.toLocaleFixed({
       value,
       unit: 'millisecond',
       precision: 0
@@ -237,7 +236,7 @@ export class INP extends Metric {
       return 'Waiting for input…';
     }
 
-    return this.formattedValue({
+    return this.toLocaleFixed({
       value,
       unit: 'millisecond',
       precision: 0
@@ -269,7 +268,7 @@ export class CLS extends Metric {
   }
 
   formatValue(value) {
-    return this.formattedValue({
+    return this.toLocaleFixed({
       value: value,
       precision: 2
     });
@@ -301,7 +300,7 @@ export class FCP extends Metric {
 
   formatValue(value) {
     value /= 1000;
-    return this.formattedValue({
+    return this.toLocaleFixed({
       value,
       unit: 'second'
     });
@@ -341,7 +340,7 @@ export class TTFB extends Metric {
 
   formatValue(value) {
     value /= 1000;
-    return this.formattedValue({
+    return this.toLocaleFixed({
       value,
       unit: 'second'
     });
