@@ -65,7 +65,7 @@
         formattedUnit = ' ms';
         break;
     }
-    return value.toFixed(precision || DEFAULT_UNITS_OF_PRECISION) + formattedUnit;
+    return value.toFixed(precision ?? DEFAULT_UNITS_OF_PRECISION) + formattedUnit;
   }
 
   function initializeMetrics() {

@@ -79,7 +79,7 @@ export class Metric {
         formattedUnit = ' ms';
         break;
     }
-    return value.toFixed(precision || this.digitsOfPrecision) + formattedUnit;
+    return value.toFixed(precision ?? this.digitsOfPrecision) + formattedUnit;
   }
 
   getDensity(i, decimalPlaces=0) {
