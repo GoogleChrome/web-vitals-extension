@@ -53,7 +53,7 @@
     }
   });
 
-  function formatValue({value, unit, precision }) {
+  function toLocaleFixed({value, unit, precision }) {
     // Ideally we'd use toLocaleString but that has performance implications
     // (see https://github.com/GoogleChrome/web-vitals-extension/issues/107)
     let formattedUnit = '';
@@ -245,15 +245,15 @@
     let formattedValue;
     switch(metric.name) {
       case 'CLS':
-        formattedValue = formatValue({value: metric.value, precision: 2});
+        formattedValue = toLocaleFixed({value: metric.value, precision: 2});
         break;
       case 'INP':
       case 'Interaction':
       case 'FID':
-        formattedValue = formatValue({value: metric.value, unit: 'millisecond', precision: 0});
+        formattedValue = toLocaleFixed({value: metric.value, unit: 'millisecond', precision: 0});
         break;
       default:
-        formattedValue = formatValue({value: metric.value / 1000, unit: 'second', precision: 3});
+        formattedValue = toLocaleFixed({value: metric.value / 1000, unit: 'second', precision: 3});
     }
     console.groupCollapsed(
       `${LOG_PREFIX} ${metric.name} %c${formattedValue} (${metric.rating})`,
@@ -526,13 +526,13 @@
               <span class="lh-metric__title">Largest Contentful Paint</span>
               ${tabLoadedInBackground ? '<span class="lh-metric__subtitle">Value inflated as tab was loaded in background</span>' : ''}
             </div>
-            <div class="lh-metric__value">${formatValue({value: (metrics.lcp.value || 0)/1000, unit: 'second'})}</div>
+            <div class="lh-metric__value">${toLocaleFixed({value: (metrics.lcp.value || 0)/1000, unit: 'second'})}</div>
           </div>
         </div>
         <div class="lh-metric lh-metric--${metrics.cls.rating}">
           <div class="lh-metric__innerwrap">
             <span class="lh-metric__title">Cumulative Layout Shift</span>
-            <div class="lh-metric__value">${formatValue({value: metrics.cls.value || 0, precision: 2})}</div>
+            <div class="lh-metric__value">${toLocaleFixed({value: metrics.cls.value || 0, precision: 2})}</div>
           </div>
         </div>
         <div class="lh-metric lh-metric--${metrics.inp.rating} lh-metric--${metrics.inp.value === null ? 'waiting' : 'ready'}">
@@ -543,7 +543,7 @@
             </span>
             <div class="lh-metric__value">${
               metrics.inp.value === null ? '' :
-              `${formatValue({value: metrics.inp.value, unit: 'millisecond', precision: 0})}`
+              `${toLocaleFixed({value: metrics.inp.value, unit: 'millisecond', precision: 0})}`
             }</div>
           </div>
         </div>
@@ -555,7 +555,7 @@
             </span>
             <div class="lh-metric__value">${
               metrics.fid.value === null ? '' :
-              `${formatValue({value: metrics.fid.value, unit: 'millisecond', precision: 0})}`
+              `${toLocaleFixed({value: metrics.fid.value, unit: 'millisecond', precision: 0})}`
             }</div>
           </div>
         </div>
@@ -565,7 +565,7 @@
               <span class="lh-metric__title">First Contentful Paint</span>
               ${tabLoadedInBackground ? '<span class="lh-metric__subtitle">Value inflated as tab was loaded in background</span>' : ''}
             </div>
-            <div class="lh-metric__value">${formatValue({value: (metrics.fcp.value || 0)/1000, unit: 'second'})}</div>
+            <div class="lh-metric__value">${toLocaleFixed({value: (metrics.fcp.value || 0)/1000, unit: 'second'})}</div>
           </div>
         </div>
         <div class="lh-column">
@@ -574,7 +574,7 @@
             <span class="lh-metric__title">
               Time to First Byte
             </span>
-            <div class="lh-metric__value">${formatValue({value: (metrics.ttfb.value || 0)/1000, unit: 'second'})}</div>
+            <div class="lh-metric__value">${toLocaleFixed({value: (metrics.ttfb.value || 0)/1000, unit: 'second'})}</div>
           </div>
         </div>
       </div>
