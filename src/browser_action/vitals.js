@@ -342,12 +342,12 @@
           // Pull out the pieces of interest for console table
           scriptData = sortedScripts.map((a) => (
                 {
-                  'Script duration': Math.round(a.duration, 0),
-                  'Script type': a.invokerType || null,
-                  'Script invoker': a.invoker || null,
-                  'Script function': a.sourceFunctionName || null,
-                  'Script source': a.sourceURL || null,
-                  'Script char position': a.sourceCharPosition || null
+                  'Duration': Math.round(a.duration, 0),
+                  'Type': a.invokerType || null,
+                  'Invoker': a.invoker || null,
+                  'Function': a.sourceFunctionName || null,
+                  'Source (links below)': a.sourceURL || null,
+                  'Char position': a.sourceCharPosition || null
                 }
           ));
           console.log("Long Animation Frame scripts:");
@@ -365,7 +365,7 @@
           }, {});
 
           for (const [key, value] of Object.entries(scriptsBySource)) {
-            console.log(`Source: ${key} (Duration${value.length > 1 ? 's' : ''}: ${value})`);
+            console.log(`Script source link: ${key} (Duration${value.length > 1 ? 's' : ''}: ${value})`);
           }
 
         }
