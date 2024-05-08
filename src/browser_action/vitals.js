@@ -55,7 +55,7 @@
 
   const secondsFormatter = new Intl.NumberFormat(undefined, {
     unit: "second",
-    // style: unit && 'unit',
+    style: 'unit',
     unitDisplay: "short",
     minimumFractionDigits: 3,
     maximumFractionDigits: 3
@@ -63,15 +63,13 @@
 
   const millisecondsFormatter = new Intl.NumberFormat(undefined, {
     unit: "millisecond",
-    // style: unit && 'unit',
+    style: 'unit',
     unitDisplay: "short",
     minimumFractionDigits: 0,
     maximumFractionDigits: 0
   });
 
   const clsFormatter = new Intl.NumberFormat(undefined, {
-    // unit: null,
-    // style: unit && 'unit',
     unitDisplay: "short",
     minimumFractionDigits: 2,
     maximumFractionDigits: 2
