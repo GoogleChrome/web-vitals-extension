@@ -53,20 +53,29 @@
     }
   });
 
-  function toLocaleFixed({value, unit, precision }) {
-    // Ideally we'd use toLocaleString but that has performance implications
-    // (see https://github.com/GoogleChrome/web-vitals-extension/issues/107)
-    let formattedUnit = '';
-    switch (unit) {
-      case 'second':
-        formattedUnit = ' s';
-        break;
-      case 'millisecond':
-        formattedUnit = ' ms';
-        break;
-    }
-    return value.toFixed(precision ?? DEFAULT_UNITS_OF_PRECISION) + formattedUnit;
-  }
+  const secondsFormatter = new Intl.NumberFormat(undefined, {
+    unit: "second",
+    // style: unit && 'unit',
+    unitDisplay: "short",
+    minimumFractionDigits: 3,
+    maximumFractionDigits: 3
+  });
+
+  const millisecondsFormatter = new Intl.NumberFormat(undefined, {
+    unit: "millisecond",
+    // style: unit && 'unit',
+    unitDisplay: "short",
+    minimumFractionDigits: 0,
+    maximumFractionDigits: 0
+  });
+
+  const clsFormatter = new Intl.NumberFormat(undefined, {
+    // unit: null,
+    // style: unit && 'unit',
+    unitDisplay: "short",
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2
+  });
 
   function initializeMetrics() {
     let metricsState = localStorage.getItem('web-vitals-extension-metrics');
@@ -245,15 +254,15 @@
     let formattedValue;
     switch(metric.name) {
       case 'CLS':
-        formattedValue = toLocaleFixed({value: metric.value, precision: 2});
+        formattedValue = clsFormatter.format(metric.value);
         break;
       case 'INP':
       case 'Interaction':
       case 'FID':
-        formattedValue = toLocaleFixed({value: metric.value, unit: 'millisecond', precision: 0});
+        formattedValue = millisecondsFormatter.format(metric.value);
         break;
       default:
-        formattedValue = toLocaleFixed({value: metric.value / 1000, unit: 'second', precision: 3});
+        formattedValue = secondsFormatter.format(metric.value / 1000);
     }
     console.groupCollapsed(
       `${LOG_PREFIX} ${metric.name} %c${formattedValue} (${metric.rating})`,
@@ -526,13 +535,13 @@
               <span class="lh-metric__title">Largest Contentful Paint</span>
               ${tabLoadedInBackground ? '<span class="lh-metric__subtitle">Value inflated as tab was loaded in background</span>' : ''}
             </div>
-            <div class="lh-metric__value">${toLocaleFixed({value: (metrics.lcp.value || 0)/1000, unit: 'second'})}</div>
+            <div class="lh-metric__value">${secondsFormatter.format((metrics.lcp.value || 0)/1000)}</div>
           </div>
         </div>
         <div class="lh-metric lh-metric--${metrics.cls.rating}">
           <div class="lh-metric__innerwrap">
             <span class="lh-metric__title">Cumulative Layout Shift</span>
-            <div class="lh-metric__value">${toLocaleFixed({value: metrics.cls.value || 0, precision: 2})}</div>
+            <div class="lh-metric__value">${clsFormatter.format( metrics.cls.value || 0)}</div>
           </div>
         </div>
         <div class="lh-metric lh-metric--${metrics.inp.rating} lh-metric--${metrics.inp.value === null ? 'waiting' : 'ready'}">
@@ -542,8 +551,7 @@
               <span class="lh-metric-state">${metrics.inp.value === null ? '(waiting for input)' : ''}</span>
             </span>
             <div class="lh-metric__value">${
-              metrics.inp.value === null ? '' :
-              `${toLocaleFixed({value: metrics.inp.value, unit: 'millisecond', precision: 0})}`
+              metrics.inp.value === null ? '' : `${millisecondsFormatter.format(metrics.inp.value)}`
             }</div>
           </div>
         </div>
@@ -554,8 +562,7 @@
               <span class="lh-metric-state">${metrics.fid.value === null ? '(waiting for input)' : ''}</span>
             </span>
             <div class="lh-metric__value">${
-              metrics.fid.value === null ? '' :
-              `${toLocaleFixed({value: metrics.fid.value, unit: 'millisecond', precision: 0})}`
+              metrics.fid.value === null ? '' : `${millisecondsFormatter.format(metrics.fid.value)}`
             }</div>
           </div>
         </div>
@@ -565,7 +572,7 @@
               <span class="lh-metric__title">First Contentful Paint</span>
               ${tabLoadedInBackground ? '<span class="lh-metric__subtitle">Value inflated as tab was loaded in background</span>' : ''}
             </div>
-            <div class="lh-metric__value">${toLocaleFixed({value: (metrics.fcp.value || 0)/1000, unit: 'second'})}</div>
+            <div class="lh-metric__value">${secondsFormatter.format((metrics.fcp.value || 0)/1000)}</div>
           </div>
         </div>
         <div class="lh-column">
@@ -574,7 +581,7 @@
             <span class="lh-metric__title">
               Time to First Byte
             </span>
-            <div class="lh-metric__value">${toLocaleFixed({value: (metrics.ttfb.value || 0)/1000, unit: 'second'})}</div>
+            <div class="lh-metric__value">${secondsFormatter.format((metrics.ttfb.value || 0)/1000)}</div>
           </div>
         </div>
       </div>

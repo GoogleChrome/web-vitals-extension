@@ -1,5 +1,36 @@
 import {CLSThresholds, FCPThresholds, FIDThresholds, INPThresholds, LCPThresholds, TTFBThresholds} from './web-vitals.js';
 
+const assessments = {
+  'good': 0,
+  'needs-improvement': 1,
+  'poor': 2
+};
+
+const secondsFormatter = new Intl.NumberFormat(undefined, {
+  unit: "second",
+  // style: unit && 'unit',
+  unitDisplay: "short",
+  minimumFractionDigits: 3,
+  maximumFractionDigits: 3
+});
+
+const millisecondsFormatter = new Intl.NumberFormat(undefined, {
+  unit: "millisecond",
+  // style: unit && 'unit',
+  unitDisplay: "short",
+  minimumFractionDigits: 0,
+  maximumFractionDigits: 0
+});
+
+const clsFormatter = new Intl.NumberFormat(undefined, {
+  // unit: null,
+  // style: unit && 'unit',
+  unitDisplay: "short",
+  minimumFractionDigits: 2,
+  maximumFractionDigits: 2
+});
+
+
 export class Metric {
 
   constructor({id, name, local, background, thresholds, rating}) {
@@ -9,7 +40,6 @@ export class Metric {
     this.local = local;
     this.background = background;
     this.thresholds = thresholds;
-    this.digitsOfPrecision = 3;
     // This will be replaced with field data, if available.
     this.distribution = [1/3, 1/3, 1/3];
     this.rating = rating;
@@ -20,11 +50,6 @@ export class Metric {
   }
 
   getAssessmentIndex() {
-    const assessments = {
-      'good': 0,
-      'needs-improvement': 1,
-      'poor': 2
-    };
     return assessments[this.rating];
   }
 
@@ -65,21 +90,6 @@ export class Metric {
 
   getInfo() {
     return;
-  }
-
-  toLocaleFixed({value, unit, precision}) {
-    // Ideally we'd use toLocaleString but that has performance implications
-    // (see https://github.com/GoogleChrome/web-vitals-extension/issues/107)
-    let formattedUnit = '';
-    switch (unit) {
-      case 'second':
-        formattedUnit = ' s';
-        break;
-      case 'millisecond':
-        formattedUnit = ' ms';
-        break;
-    }
-    return value.toFixed(precision ?? this.digitsOfPrecision) + formattedUnit;
   }
 
   getDensity(i, decimalPlaces=0) {
@@ -165,10 +175,7 @@ export class LCP extends Metric {
 
   formatValue(value) {
     value /= 1000;
-    return this.toLocaleFixed({
-      value,
-      unit: 'second'
-    });
+    return secondsFormatter.format(value);
   }
 
   getInfo() {
@@ -204,11 +211,7 @@ export class FID extends Metric {
       return 'Waiting for input…';
     }
 
-    return this.toLocaleFixed({
-      value,
-      unit: 'millisecond',
-      precision: 0
-    });
+    return millisecondsFormatter.format(value);
   }
 
 }
@@ -236,11 +239,7 @@ export class INP extends Metric {
       return 'Waiting for input…';
     }
 
-    return this.toLocaleFixed({
-      value,
-      unit: 'millisecond',
-      precision: 0
-    });
+    return millisecondsFormatter.format(value);
   }
 
 }
@@ -268,10 +267,7 @@ export class CLS extends Metric {
   }
 
   formatValue(value) {
-    return this.toLocaleFixed({
-      value: value,
-      precision: 2
-    });
+    return clsFormatter.format(value);
   }
 
 }
@@ -300,10 +296,7 @@ export class FCP extends Metric {
 
   formatValue(value) {
     value /= 1000;
-    return this.toLocaleFixed({
-      value,
-      unit: 'second'
-    });
+    return secondsFormatter.format(value);
   }
 
   getInfo() {
@@ -340,10 +333,7 @@ export class TTFB extends Metric {
 
   formatValue(value) {
     value /= 1000;
-    return this.toLocaleFixed({
-      value,
-      unit: 'second'
-    });
+    return secondsFormatter.format(value);
   }
 
 }
