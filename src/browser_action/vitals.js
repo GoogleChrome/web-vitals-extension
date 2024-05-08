@@ -334,21 +334,40 @@
       if (metric.attribution.longAnimationFrameEntries) {
 
         const allScripts = metric.attribution.longAnimationFrameEntries.map(a => a.scripts).flat();
-        const sortedScripts = allScripts.sort((a,b) => b.duration - a.duration);
 
-        scriptData = sortedScripts.map((a) => (
-              {
-                'Script duration': Math.round(a.duration, 0),
-                'Script type': a.invokerType,
-                'Script function': a.sourceFunctionName,
-                'Script source': a.sourceURL || a.invoker,
-                'Script char position': a.sourceCharPosition,
-              }
-        ))
+        if (allScripts.length > 0) {
 
-        if (scriptData.length > 0) {
-          console.log("Long scripts:");
+          const sortedScripts = allScripts.sort((a,b) => b.duration - a.duration);
+
+          // Pull out the pieces of interest for console table
+          scriptData = sortedScripts.map((a) => (
+                {
+                  'Script duration': Math.round(a.duration, 0),
+                  'Script type': a.invokerType || null,
+                  'Script invoker': a.invoker || null,
+                  'Script function': a.sourceFunctionName || null,
+                  'Script source': a.sourceURL || null,
+                  'Script char position': a.sourceCharPosition || null
+                }
+          ));
+          console.log("Long Animation Frame scripts:");
           console.table(scriptData);
+
+          // Get a list of scripts by sourceURL so we can log to console for
+          // easy linked lookup. We won't include sourceCharPosition as
+          // Devtools doesn't support linking to a character position and only
+          // line numbers.
+          const scriptsBySource = sortedScripts.reduce((acc, {sourceURL, duration}) => {
+            if (sourceURL) { // Exclude empty URLs
+              (acc[sourceURL] = acc[sourceURL] || []).push(duration);
+            }
+            return acc;
+          }, {});
+
+          for (const [key, value] of Object.entries(scriptsBySource)) {
+            console.log(`Source: ${key} (Duration${value.length > 1 ? 's' : ''}: ${value})`);
+          }
+
         }
       }
     }
