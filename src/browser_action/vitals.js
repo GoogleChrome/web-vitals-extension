@@ -314,13 +314,7 @@
     }
 
     else if ((metric.name == 'INP'|| metric.name == 'Interaction') && metric.attribution) {
-      let eventTarget = metric.entries[0].target;
-      // Sometimes the eventEntry has no target, so we need to hunt it out manually.
-      // As of web-vitals@3.5.2 `attribution.eventTarget` does the same thing,
-      // but we want a reference to the element itself (for logging), not a selector.
-      if (!eventTarget) {
-        eventTarget = metric.entries.find(entry => entry.target)?.target;
-      }
+      const eventTarget = metric.attribution.interactionTargetElement;
       console.log('Interaction target:', eventTarget || metric.attribution.interactionTarget);
       console.log(`Interaction event type: %c${metric.attribution.interactionType}`, 'font-family: monospace');
 

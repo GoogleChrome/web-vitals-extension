@@ -74,6 +74,7 @@ export function onEachInteraction(callback) {
       callback({
         attribution: {
           interactionTarget: getSelector(firstEntryWithTarget),
+          interactionTargetElement: firstEntryWithTarget,
           interactionTime: entry.startTime,
           interactionType: entry.name.startsWith('key') ? 'keyboard' : 'pointer',
           longAnimationFrameEntries: longAnimationFrameEntries
