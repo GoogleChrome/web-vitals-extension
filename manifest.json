@@ -16,7 +16,7 @@
   },
   "options_page": "src/options/options.html",
   "host_permissions": ["*://*/*"],
-  "permissions": ["tabs", "storage", "activeTab", "scripting"],
+  "permissions": ["contextMenus", "tabs", "storage", "activeTab", "scripting"],
   "web_accessible_resources": [
     {
       "resources": [

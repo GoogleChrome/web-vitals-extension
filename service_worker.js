@@ -364,3 +364,69 @@ self.addEventListener('activate', _ => {
   clearOldCache();
 });
 
+// function searchUrbanDict (word){
+//   var query = word.selectionText;
+//   chrome.tabs.create({url: "http://www.urbandictionary.com/define.php?term=" + query});
+// };
+
+// chrome.contextMenus.create({
+//   id: "inject-speculation-rules",
+//   title: "Hi Barry",
+//   contexts:["selection"],  // ContextType
+//   onclick: searchUrbanDict // A callback function
+//  });
+
+
+chrome.runtime.onInstalled.addListener(function () {
+  chrome.contextMenus.create({
+    title: 'Inject speculation rules',
+    contexts: ['all'],
+    id: 'speculation-rules'
+  });
+
+  /* Register a listener for the `onClicked` event */
+  chrome.contextMenus.onClicked.addListener(async function(info, tab) {
+    function prerenderInAction() {
+      const link_ = document.createElement('script');
+      link_.type = 'speculationrules';
+      link_.textContent = `
+          {
+              "prerender": [
+                  {
+                      "source": "document",
+                      "where": {
+                          "href_matches": "/*"
+                      },
+                      "eagerness": "moderate"
+                  }
+              ]
+          }
+      `;
+      document.head.appendChild(link_);
+  }
+
+    if (tab) {
+        /* Create the code to be injected */
+        var code = [
+            'var d = document.createElement("div");',
+            'd.setAttribute("style", "'
+                + 'background-color: red; '
+                + 'width: 100px; '
+                + 'height: 100px; '
+                + 'position: fixed; '
+                + 'top: 70px; '
+                + 'left: 30px; '
+                + 'z-index: 9999; '
+                + '");',
+            'document.body.appendChild(d);'
+        ].join("\n");
+      /* Inject the code into the current tab */
+      let results = await chrome.scripting.executeScript({
+        target: { tabId: tab.id },
+        func: prerenderInAction,
+        args: []
+      });
+    }
+
+  });
+});
