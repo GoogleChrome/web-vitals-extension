@@ -1,6 +1,6 @@
 {
   "name": "web-vitals-extension",
-  "version": "1.4.2",
+  "version": "1.4.3",
   "description": "Instant Web Vitals metrics",
   "main": "src/browser_action/vitals.js",
   "repository": "https://github.com/googlechrome/web-vitals-extension",
@@ -21,6 +21,6 @@
     "eslint-config-google": "^0.14.0"
   },
   "dependencies": {
-    "web-vitals": "^3.5.2"
+    "web-vitals": "^4.0.0"
   }
 }
