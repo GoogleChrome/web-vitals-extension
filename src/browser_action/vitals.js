@@ -273,14 +273,14 @@
       }
       console.log('LCP element:', metric.attribution.lcpEntry.element);
       console.table([{
-        'LCP sub-part': 'Time to First Byte',
+        'LCP sub-part': 'Time to first byte',
         'Time (ms)': Math.round(metric.attribution.timeToFirstByte, 0),
       }, {
         'LCP sub-part': 'Resource load delay',
         'Time (ms)': Math.round(metric.attribution.resourceLoadDelay, 0),
       }, {
-        'LCP sub-part': 'Resource load time',
-        'Time (ms)': Math.round(metric.attribution.resourceLoadTime, 0),
+        'LCP sub-part': 'Resource load duration',
+        'Time (ms)': Math.round(metric.attribution.resourceLoadDuration, 0),
       }, {
         'LCP sub-part': 'Element render delay',
         'Time (ms)': Math.round(metric.attribution.elementRenderDelay, 0),
@@ -296,7 +296,7 @@
       }
       console.log('FCP loadState:', metric.attribution.loadState);
       console.table([{
-        'FCP sub-part': 'Time to First Byte',
+        'FCP sub-part': 'Time to first byte',
         'Time (ms)': Math.round(metric.attribution.timeToFirstByte, 0),
       }, {
         'FCP sub-part': 'FCP render delay',
@@ -313,40 +313,65 @@
       };
     }
 
-    else if ((metric.name == 'INP'|| metric.name == 'Interaction') &&
-        metric.attribution &&
-        metric.attribution.eventEntry) {
-      const eventEntry = metric.attribution.eventEntry;
+    else if ((metric.name == 'INP'|| metric.name == 'Interaction') && metric.attribution) {
+      const eventTarget = metric.attribution.interactionTargetElement;
+      console.log('Interaction target:', eventTarget || metric.attribution.interactionTarget);
+      console.log(`Interaction event type: %c${metric.attribution.interactionType}`, 'font-family: monospace');
 
-      let eventTarget = eventEntry.target;
-      // Sometimes the eventEntry has no target, so we need to hunt it out manually.
-      // As of web-vitals@3.5.2 `attribution.eventTarget` does the same thing,
-      // but we want a reference to the element itself (for logging), not a selector.
-      if (!eventTarget) {
-        eventTarget = metric.entries.find(entry => entry.target)?.target;
-      }
-      console.log('Interaction target:', eventTarget);
-
-      for (let entry of metric.entries) {
-        console.log(`Interaction event type: %c${entry.name}`, 'font-family: monospace');
-
-        // RenderTime is an estimate, because duration is rounded, and may get rounded down.
-        // In rare cases it can be less than processingEnd and that breaks performance.measure().
-        // Lets make sure its at least 4ms in those cases so you can just barely see it.
-        const adjustedPresentationTime = Math.max(entry.processingEnd + 4, entry.startTime + entry.duration);
-
+      // Sub parts are only available for INP events and not Interactions
+      if (metric.name == 'INP') {
         console.table([{
           'Interaction sub-part': 'Input delay',
-          'Time (ms)': Math.round(entry.processingStart - entry.startTime, 0),
+          'Time (ms)': Math.round(metric.attribution.inputDelay, 0),
         },
         {
-          'Interaction sub-part': 'Processing time',
-          'Time (ms)': Math.round(entry.processingEnd - entry.processingStart, 0),
+          'Interaction sub-part': 'Processing duration',
+          'Time (ms)': Math.round(metric.attribution.processingDuration, 0),
         },
         {
           'Interaction sub-part': 'Presentation delay',
-          'Time (ms)': Math.round(adjustedPresentationTime - entry.processingEnd, 0),
+          'Time (ms)': Math.round(metric.attribution.presentationDelay, 0),
         }]);
+      }
+
+      if (metric.attribution.longAnimationFrameEntries) {
+
+        const allScripts = metric.attribution.longAnimationFrameEntries.map(a => a.scripts).flat();
+
+        if (allScripts.length > 0) {
+
+          const sortedScripts = allScripts.sort((a,b) => b.duration - a.duration);
+
+          // Pull out the pieces of interest for console table
+          scriptData = sortedScripts.map((a) => (
+                {
+                  'Duration': Math.round(a.duration, 0),
+                  'Type': a.invokerType || null,
+                  'Invoker': a.invoker || null,
+                  'Function': a.sourceFunctionName || null,
+                  'Source (links below)': a.sourceURL || null,
+                  'Char position': a.sourceCharPosition || null
+                }
+          ));
+          console.log("Long Animation Frame scripts:");
+          console.table(scriptData);
+
+          // Get a list of scripts by sourceURL so we can log to console for
+          // easy linked lookup. We won't include sourceCharPosition as
+          // Devtools doesn't support linking to a character position and only
+          // line numbers.
+          const scriptsBySource = sortedScripts.reduce((acc, {sourceURL, duration}) => {
+            if (sourceURL) { // Exclude empty URLs
+              (acc[sourceURL] = acc[sourceURL] || []).push(duration);
+            }
+            return acc;
+          }, {});
+
+          for (const [key, value] of Object.entries(scriptsBySource)) {
+            console.log(`Script source link: ${key} (Duration${value.length > 1 ? 's' : ''}: ${value})`);
+          }
+
+        }
       }
     }
 
@@ -361,17 +386,20 @@
         metric.attribution.navigationEntry) {
       console.log('TTFB navigation type:', metric.navigationType);
       console.table([{
-        'TTFB sub-part': 'Waiting time',
-        'Time (ms)': Math.round(metric.attribution.waitingTime, 0),
+        'TTFB sub-part': 'Waiting duration',
+        'Time (ms)': Math.round(metric.attribution.waitingDuration, 0),
       }, {
-        'TTFB sub-part': 'DNS time',
-        'Time (ms)': Math.round(metric.attribution.dnsTime, 0),
+        'TTFB sub-part': 'Cache duration',
+        'Time (ms)': Math.round(metric.attribution.cacheDuration, 0),
       }, {
-        'TTFB sub-part': 'Connection time',
-        'Time (ms)': Math.round(metric.attribution.connectionTime, 0),
+        'TTFB sub-part': 'DNS duration',
+        'Time (ms)': Math.round(metric.attribution.dnsDuration, 0),
       }, {
-        'TTFB sub-part': 'Request time',
-        'Time (ms)': Math.round(metric.attribution.requestTime, 0),
+        'TTFB sub-part': 'Connection duration',
+        'Time (ms)': Math.round(metric.attribution.connectionDuration, 0),
+      }, {
+        'TTFB sub-part': 'Request duration',
+        'Time (ms)': Math.round(metric.attribution.requestDuration, 0),
       }]);
     }
 
@@ -398,12 +426,12 @@
           start: startTime + metric.attribution.timeToFirstByte,
           duration: metric.attribution.resourceLoadDelay,
         });
-        performance.measure(`${LOG_PREFIX} LCP.resourceLoadTime`, {
+        performance.measure(`${LOG_PREFIX} LCP.resourceLoadDuration`, {
           start:
             startTime +
             metric.attribution.timeToFirstByte +
             metric.attribution.resourceLoadDelay,
-          duration: metric.attribution.resourceLoadTime,
+          duration: metric.attribution.resourceLoadDuration,
         });
         performance.measure(`${LOG_PREFIX} LCP.elementRenderDelay`, {
           duration: metric.attribution.elementRenderDelay,
@@ -412,42 +440,36 @@
         break;
 
       case "INP":
-        if (!(metric.attribution && metric.attribution.eventEntry)) {
+        if (!(metric.attribution)) {
           break;
         }
 
-        const inpEntry = metric.attribution.eventEntry;
+        const attribution = metric.attribution;
+        const interactionTime = attribution.interactionTime;
+        const inputDelay = attribution.inputDelay;
+        const processingDuration = attribution.processingDuration;
+        const presentationDelay = attribution.presentationDelay;
 
-        // RenderTime is an estimate, because duration is rounded, and may get rounded keydown
-        // In rare cases it can be less than processingEnd and that breaks performance.measure().
-        // Lets make sure its at least 4ms in those cases so you can just barely see it.
-        const presentationTime = inpEntry.startTime + inpEntry.duration;
-        const adjustedPresentationTime = Math.max(inpEntry.processingEnd + 4, presentationTime);
-
-        performance.measure(`${LOG_PREFIX} INP.duration (${inpEntry.name})`, {
-          start: inpEntry.startTime,
-          end: presentationTime,
+        performance.measure(`${LOG_PREFIX} INP.inputDelay (${metric.attribution.interactionType})`, {
+          start: interactionTime,
+          end: interactionTime + inputDelay,
         });
-        performance.measure(`${LOG_PREFIX} INP.inputDelay (${inpEntry.name})`, {
-          start: inpEntry.startTime,
-          end: inpEntry.processingStart,
+        performance.measure(`${LOG_PREFIX} INP.processingTime (${metric.attribution.interactionType})`, {
+          start: interactionTime + inputDelay,
+          end: interactionTime + inputDelay + processingDuration,
         });
-        performance.measure(`${LOG_PREFIX} INP.processingTime (${inpEntry.name})`, {
-          start: inpEntry.processingStart,
-          end: inpEntry.processingEnd,
-        });
-        performance.measure(`${LOG_PREFIX} INP.presentationDelay (${inpEntry.name})`, {
-          start: inpEntry.processingEnd,
-          end: adjustedPresentationTime,
+        performance.measure(`${LOG_PREFIX} INP.presentationDelay (${metric.attribution.interactionType})`, {
+          start: interactionTime + inputDelay + processingDuration,
+          end: interactionTime + inputDelay + processingDuration + presentationDelay,
         });
         break;
 
       case "FID":
-        if (!(metric.attribution && metric.attribution.eventEntry)) {
+        if (!(metric.attribution && metric.attribution.interactionEntry)) {
           break;
         }
 
-        const fidEntry = metric.attribution.eventEntry;
+        const fidEntry = metric.attribution.interactionEntry;
         performance.measure(`${LOG_PREFIX} FID (${fidEntry.name})`, {
           start: fidEntry.startTime,
           end: fidEntry.processingStart,
