@@ -3,7 +3,7 @@
   "version": "1.5.1",
   "manifest_version": 3,
   "description": "Measure metrics for a healthy site",
-  "homepage_url": "https://web.dev/vitals/",
+  "homepage_url": "https://web.dev/articles/vitals",
   "icons": {
     "128": "icons/vitals128w.png",
     "256": "icons/vitals256w.png",
