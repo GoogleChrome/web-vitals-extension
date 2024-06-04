@@ -4,7 +4,7 @@
   "description": "Instant Web Vitals metrics",
   "main": "src/browser_action/vitals.js",
   "repository": "https://github.com/GoogleChrome/web-vitals-extension",
-  "homepage": "https://web.dev/articles/vital",
+  "homepage": "https://web.dev/articles/vitals",
   "bugs": {
     "url": "https://github.com/GoogleChrome/web-vitals-extension/issues"
   },
