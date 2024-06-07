@@ -60,16 +60,11 @@ export function onEachInteraction(callback) {
     for (const interaction of Object.values(interactions)) {
       const entry = interaction.reduce((prev, curr) => prev.duration >= curr.duration ? prev : curr);
       const value = entry.duration;
-      const interactionId = entry.interactionId;
 
       // Filter down LoAFs to ones that intersected any event startTime and any processingEnd
       const longAnimationFrameEntries = getIntersectingLoAFs(entry.startTime, entry.startTime + entry.value)
 
-      let firstEntryWithTarget = interaction[0].target;
-      firstEntryWithTarget = null;
-      if (!firstEntryWithTarget) {
-        firstEntryWithTarget = Object.values(interactions).flat().find(entry => entry.interactionId === interactionId && entry.target)?.target;
-      }
+      const firstEntryWithTarget = interaction.find(entry => entry.target)?.target;
 
       callback({
         attribution: {
