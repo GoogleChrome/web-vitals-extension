@@ -19,6 +19,7 @@
   let latestCLS = {};
   let enableLogging = localStorage.getItem('web-vitals-extension-debug')=='TRUE';
   let enableUserTiming = localStorage.getItem('web-vitals-extension-user-timing')=='TRUE';
+  let reportSoftNavs = (await chrome.storage.sync.get('reportSoftNavs')).reportSoftNavs ?? false;
   let tabLoadedInBackground;
 
   const COLOR_GOOD = '#0CCE6A';
@@ -514,15 +515,15 @@
       // debounce the broadcast of the metric.
       latestCLS = metric;
       debouncedCLSBroadcast();
-    }, { reportAllChanges: true });
+    }, { reportAllChanges: true, reportSoftNavs });
 
-    webVitals.onLCP(broadcastMetricsUpdates, { reportAllChanges: true });
-    webVitals.onFID(broadcastMetricsUpdates, { reportAllChanges: true });
+    webVitals.onLCP(broadcastMetricsUpdates, { reportAllChanges: true, reportSoftNavs: reportSoftNavs });
+    webVitals.onFID(broadcastMetricsUpdates, { reportAllChanges: true, reportSoftNavs: reportSoftNavs });
     webVitals.onINP((metric) => {
       broadcastMetricsUpdates(metric)
-    }, { reportAllChanges: true });
-    webVitals.onFCP(broadcastMetricsUpdates, { reportAllChanges: true });
-    webVitals.onTTFB(broadcastMetricsUpdates, { reportAllChanges: true });
+    }, { reportAllChanges: true, reportSoftNavs: true });
+    webVitals.onFCP(broadcastMetricsUpdates, { reportAllChanges: true, reportSoftNavs: reportSoftNavs });
+    webVitals.onTTFB(broadcastMetricsUpdates, { reportAllChanges: true, reportSoftNavs: reportSoftNavs });
 
     if (enableLogging) {
       onEachInteraction((metric) => {
