@@ -3,6 +3,7 @@ const optionsConsoleLoggingNode = document.getElementById('consoleLogging');
 const optionsNoBadgeAnimation = document.getElementById('noBadgeAnimation');
 const optionsUserTimingNode = document.getElementById('userTiming');
 const optionsPreferPhoneFieldNode = document.getElementById('preferPhoneField');
+const optionsSoftNav = document.getElementById('reportSoftNavs');
 const optionsSaveBtn = document.getElementById('save');
 const optionsStatus = document.getElementById('status');
 
@@ -16,6 +17,7 @@ function saveOptions() {
     userTiming: optionsUserTimingNode.checked,
     preferPhoneField: optionsPreferPhoneFieldNode.checked,
     noBadgeAnimation: optionsNoBadgeAnimation.checked,
+    reportSoftNavs: optionsSoftNav.checked,
   }, () => {
     // Update status to let user know options were saved.
     optionsStatus.textContent = 'Options saved.';
@@ -36,12 +38,14 @@ function restoreOptions() {
     userTiming: false,
     preferPhoneField: false,
     noBadgeAnimation: false,
-  }, ({enableOverlay, debug, userTiming, preferPhoneField, noBadgeAnimation}) => {
+    reportSoftNavs: false,
+  }, ({enableOverlay, debug, userTiming, preferPhoneField, noBadgeAnimation, reportSoftNavs}) => {
     optionsOverlayNode.checked = enableOverlay;
     optionsConsoleLoggingNode.checked = debug;
     optionsUserTimingNode.checked = userTiming;
     optionsPreferPhoneFieldNode.checked = preferPhoneField;
     optionsNoBadgeAnimation.checked = noBadgeAnimation;
+    optionsSoftNav.checked = reportSoftNavs;
   });
 }
 document.addEventListener('DOMContentLoaded', restoreOptions);

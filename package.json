@@ -13,7 +13,7 @@
   "private": true,
   "scripts": {
     "lint": "npx eslint src --fix",
-    "build": "npm install; cp node_modules/web-vitals/dist/web-vitals.attribution.js src/browser_action/web-vitals.js"
+    "build": "npm install && cp node_modules/web-vitals/dist/web-vitals.attribution.js src/browser_action/web-vitals.js"
   },
   "devDependencies": {
     "babel-eslint": "^10.1.0",
@@ -21,6 +21,6 @@
     "eslint-config-google": "^0.14.0"
   },
   "dependencies": {
-    "web-vitals": "^4.0.0"
+    "web-vitals": "4.2.3-soft-navs"
   }
 }
