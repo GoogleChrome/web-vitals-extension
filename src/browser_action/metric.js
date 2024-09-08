@@ -1,4 +1,4 @@
-import {CLSThresholds, FCPThresholds, FIDThresholds, INPThresholds, LCPThresholds, TTFBThresholds} from './web-vitals.js';
+import {CLSThresholds, FCPThresholds, INPThresholds, LCPThresholds, TTFBThresholds} from './web-vitals.js';
 
 const assessments = {
   'good': 0,
@@ -137,7 +137,6 @@ export class Metric {
   static mapCruxNameToId(cruxName) {
     const nameMap = {
       'largest_contentful_paint': 'lcp',
-      'first_input_delay': 'fid',
       'interaction_to_next_paint': 'inp',
       'cumulative_layout_shift': 'cls',
       'first_contentful_paint': 'fcp',
@@ -182,34 +181,6 @@ export class LCP extends Metric {
     }
 
     return super.getInfo();
-  }
-
-}
-
-export class FID extends Metric {
-
-  constructor({local, background, rating}) {
-    const thresholds = {
-      good: FIDThresholds[0],
-      poor: FIDThresholds[1]
-    };
-
-    super({
-      id: 'fid',
-      name: 'First Input Delay',
-      local,
-      background,
-      thresholds,
-      rating
-    });
-  }
-
-  formatValue(value) {
-    if (value === null) {
-      return 'Waiting for input…';
-    }
-
-    return millisecondsFormatter.format(value);
   }
 
 }
