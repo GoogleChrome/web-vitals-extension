@@ -259,9 +259,22 @@
       default:
         formattedValue = secondsFormatter.format(metric.value / 1000);
     }
+
+    const isMissing = (value) => {
+      return !(value === 0 || value > 0);
+    }
+
+    const loaf = (metric.name == 'INP' || metric.name == 'Interaction') && metric.value >= 50 ? metric.attribution.longAnimationFrameEntries.length > 0 ? '✅ LoAF' : '❌ No LoAF' : '';
+    const inpSubparts = (metric.name == 'INP' && (
+      isMissing(metric.attribution.inputDelay) || 
+      isMissing(metric.attribution.processingDuration) ||
+      isMissing(metric.attribution.presentationDelay)
+    )) ? '❌ Missing subpart(s)' : '';
     console.groupCollapsed(
-      `${LOG_PREFIX} ${metric.name} %c${formattedValue} (${metric.rating})`,
-      `color: ${RATING_COLORS[metric.rating] || 'inherit'}`
+      `${LOG_PREFIX} ${metric.name} %c${formattedValue} (${metric.rating})%c ${loaf} %c ${inpSubparts}`,
+      `color: ${RATING_COLORS[metric.rating] || 'inherit'}`, 
+      `color: ${loaf == '✅ LoAF' ? COLOR_GOOD : COLOR_POOR}`,
+      `color: ${COLOR_POOR}`
     );
 
     if (metric.name == 'LCP' &&
@@ -340,27 +353,59 @@
 
         if (allScripts.length > 0) {
 
-          const sortedScripts = allScripts.sort((a,b) => b.duration - a.duration);
-
           // Pull out the pieces of interest for console table
-          scriptData = sortedScripts.map((a) => (
-                {
-                  'Duration': Math.round(a.duration, 0),
-                  'Type': a.invokerType || null,
-                  'Invoker': a.invoker || null,
-                  'Function': a.sourceFunctionName || null,
-                  'Source (links below)': a.sourceURL || null,
-                  'Char position': a.sourceCharPosition || null
-                }
-          ));
+          scriptData = allScripts.map((a) => {
+            const {interactionTime, inputDelay=0, processingDuration=0} = metric.attribution;
+            const {startTime} = a;
+            const scriptEndTime = startTime + a.duration;
+            if (scriptEndTime < interactionTime) {
+              return;
+            }
+
+            const blockingDuration = scriptEndTime - Math.max(interactionTime, startTime);
+            let phase = 'processing';
+            if (startTime < (interactionTime + inputDelay)) {
+              phase = 'input delay';
+            } else if (startTime > (interactionTime + inputDelay + processingDuration)) {
+              phase = 'presentation';
+            }
+            return {
+              'Duration': Math.round(blockingDuration, 0),
+              'Phase': phase,
+              'Type': a.invokerType || null,
+              'Invoker': a.invoker || null,
+              'Function': a.sourceFunctionName || null,
+              'Source (links below)': a.sourceURL || null,
+              'Char position': a.sourceCharPosition || null
+            };
+          }).filter(script => !!script);
           console.log("Long Animation Frame scripts:");
           console.table(scriptData);
+
+          const phases = {};
+          scriptData.forEach(script => {
+            const phase = script.Phase;
+            const invoker = script.Type;
+            const duration = script.Duration;
+            phases[phase] ??= {};
+            phases[phase][invoker] ??= 0;
+            phases[phase][invoker] += duration;
+          });
+          console.table(Object.entries(phases).flatMap(([phase, invokers]) => {
+            return Object.entries(invokers).map(([invoker, duration]) => {
+              return {
+                'Phase': phase,
+                'Type': invoker,
+                'Total duration': duration
+              };
+            });
+          }));
 
           // Get a list of scripts by sourceURL so we can log to console for
           // easy linked lookup. We won't include sourceCharPosition as
           // Devtools doesn't support linking to a character position and only
           // line numbers.
-          const scriptsBySource = sortedScripts.reduce((acc, {sourceURL, duration}) => {
+          const scriptsBySource = allScripts.reduce((acc, {sourceURL, duration}) => {
             if (sourceURL) { // Exclude empty URLs
               (acc[sourceURL] = acc[sourceURL] || []).push(duration);
             }
