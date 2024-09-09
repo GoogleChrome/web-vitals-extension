@@ -1035,10 +1035,10 @@ v8-compile-cache@^2.0.3:
   resolved "https://registry.npmjs.org/v8-compile-cache/-/v8-compile-cache-2.1.0.tgz"
   integrity sha512-usZBT3PW+LOjM25wbqIlZwPeJV+3OSz3M1k1Ws8snlW39dZyYL9lOGC5FgPVHfk0jKmjiDV8Z0mIbVQPiwFs7g==
 
-web-vitals@^4.0.0:
-  version "4.0.0"
-  resolved "https://registry.npmjs.org/web-vitals/-/web-vitals-4.0.0.tgz"
-  integrity sha512-8wQd4jkwFRwY5q3yAmHZAJ5MjnKR1vRACK+g2OEC8nUqi0WOxBrXfOxGNlJ+QtxzzSn/TkQO58wkW0coE68n0Q==
+web-vitals@^4.2.3:
+  version "4.2.3"
+  resolved "https://registry.npmjs.org/web-vitals/-/web-vitals-4.2.3.tgz"
+  integrity sha512-/CFAm1mNxSmOj6i0Co+iGFJ58OS4NRGVP+AWS/l509uIK5a1bSoIVaHz/ZumpHTfHSZBpgrJ+wjfpAOrTHok5Q==
 
 which@^1.2.9:
   version "1.3.1"
