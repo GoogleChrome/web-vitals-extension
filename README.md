@@ -16,9 +16,6 @@ It also supports the diagnostic metrics:
 * [Time to First Byte](https://web.dev/articles/ttfb)
 * [First Contentful Paint](https://web.dev/articles/fcp)
 
-> [!CAUTION]
-> [First Input Delay](https://web.dev/articles/fid) is deprecated and no longer supported by Chrome.
-
 <h3 id="install">Installation Instructions</h3>
 
 The Web Vitals Chrome Extenstion can be installed from the [Chrome Web Store](https://chrome.google.com/webstore/detail/web-vitals/ahfhijdlegdabablpippeagghigmibma).
@@ -61,7 +58,7 @@ Clicking the Ambient badge icon will allow you to drill in to the individual met
 
 For example, Interaction to Next Paint requires a real interaction (e.g click/tap) with the page and will be in a `Waiting for input...` state until this is the case. We recommend consulting the web.dev documentation for [LCP](https://web.dev/articles/lcp), [CLS](https://web.dev/articles/cls), and [INP](https://web.dev/articles/inp) to get an understanding of when metric values settle.
 
-As of version 1.0.0, the popup combines your local Core Web Vitals experiences with real-user data from the field via the [Chrome UX Report](https://developer.chrome.com/docs/crux) (CrUX) [API](https://developer.chrome.com/docs/crux/api). This integration gives you contextual insights to help you understand how similar your individual experiences are to other desktop users on the same page. We've also added a new option to "Compare local experiences to phone field data" instead, if needed. Note that CrUX data may not be available for some pages, in which case we try to load field data for the origin as a whole.
+The popup combines your local Core Web Vitals experiences with real-user data from the field via the [Chrome UX Report](https://developer.chrome.com/docs/crux) (CrUX) [API](https://developer.chrome.com/docs/crux/api). This integration gives you contextual insights to help you understand how similar your individual experiences are to other desktop users on the same page. We've also added a new option to "Compare local experiences to phone field data" instead, if needed. Note that CrUX data may not be available for some pages, in which case we try to load field data for the origin as a whole.
 
 <img src="media/cwv-extension-screenshot.png" width="75%">
 
@@ -85,7 +82,7 @@ The console logging feature of the Web Vitals extension provides a diagnostic vi
 * Check `Console logging` and click 'Save'
 * Open the Console panel in DevTools and filter for `Web Vitals`
 
-To filter out unneeded metrics, prepend a minus sign to the metric name. For example, set the filter to `Web Vitals Extension -CLS` to filter out CLS diagnostic info.
+To filter out unneeded metrics, prepend a minus sign to the metric name. For example, set the filter to `Web Vitals Extension -CLS -LCP` to filter out CLS and LCP diagnostic info.
 
 Diagnostic info for each metric is logged as a console group prepended by the extension name, `[Web Vitals Extension]`, meaning that you will need to click this line in order to toggle the group open and closed.
 
