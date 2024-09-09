@@ -93,10 +93,6 @@
         value: null,
         rating: null,
       },
-      fid: {
-        value: null,
-        rating: null,
-      },
       inp: {
         value: null,
         rating: null,
@@ -253,9 +249,6 @@
         break;
       case 'INP':
       case 'Interaction':
-      case 'FID':
-        formattedValue = millisecondsFormatter.format(metric.value);
-        break;
       default:
         formattedValue = secondsFormatter.format(metric.value / 1000);
     }
@@ -375,12 +368,6 @@
       }
     }
 
-    else if (metric.name == 'FID') {
-      const eventEntry = metric.attribution.eventEntry;
-      console.log('Interaction target:', eventEntry.target);
-      console.log(`Interaction type: %c${eventEntry.name}`, 'font-family: monospace');
-    }
-
     else if (metric.name == 'TTFB' &&
         metric.attribution &&
         metric.attribution.navigationEntry) {
@@ -463,17 +450,6 @@
           end: interactionTime + inputDelay + processingDuration + presentationDelay,
         });
         break;
-
-      case "FID":
-        if (!(metric.attribution && metric.attribution.interactionEntry)) {
-          break;
-        }
-
-        const fidEntry = metric.attribution.interactionEntry;
-        performance.measure(`${LOG_PREFIX} FID (${fidEntry.name})`, {
-          start: fidEntry.startTime,
-          end: fidEntry.processingStart,
-        });
     }
   }
 
@@ -517,7 +493,6 @@
     }, { reportAllChanges: true });
 
     webVitals.onLCP(broadcastMetricsUpdates, { reportAllChanges: true });
-    webVitals.onFID(broadcastMetricsUpdates, { reportAllChanges: true });
     webVitals.onINP((metric) => {
       broadcastMetricsUpdates(metric)
     }, { reportAllChanges: true });
@@ -569,17 +544,6 @@
             </span>
             <div class="lh-metric__value">${
               metrics.inp.value === null ? '' : `${millisecondsFormatter.format(metrics.inp.value)}`
-            }</div>
-          </div>
-        </div>
-        <div class="lh-metric lh-metric--${metrics.fid.rating} lh-metric--${metrics.fid.value === null ? 'waiting' : 'ready'}">
-          <div class="lh-metric__innerwrap">
-            <span class="lh-metric__title">
-              First Input Delay
-              <span class="lh-metric-state">${metrics.fid.value === null ? '(waiting for input)' : ''}</span>
-            </span>
-            <div class="lh-metric__value">${
-              metrics.fid.value === null ? '' : `${millisecondsFormatter.format(metrics.fid.value)}`
             }</div>
           </div>
         </div>
