@@ -1,6 +1,6 @@
 {
   "name": "web-vitals-extension",
-  "version": "1.5.2",
+  "version": "1.5.3",
   "description": "Instant Web Vitals metrics",
   "main": "src/browser_action/vitals.js",
   "repository": "https://github.com/GoogleChrome/web-vitals-extension",
