@@ -252,7 +252,7 @@
         formattedValue = millisecondsFormatter.format(metric.value);
         break;
       default:
-        formattedValue = secondsFormatter.format(metric.value);
+        formattedValue = secondsFormatter.format(metric.value / 1000);
     }
     console.groupCollapsed(
       `${LOG_PREFIX} ${metric.name} %c${formattedValue} (${metric.rating})`,
