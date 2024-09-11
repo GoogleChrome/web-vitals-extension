@@ -249,6 +249,8 @@
         break;
       case 'INP':
       case 'Interaction':
+        formattedValue = millisecondsFormatter.format(metric.value);
+        break;
       default:
         formattedValue = secondsFormatter.format(metric.value / 1000);
     }
