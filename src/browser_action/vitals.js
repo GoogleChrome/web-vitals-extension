@@ -249,8 +249,10 @@
         break;
       case 'INP':
       case 'Interaction':
+        formattedValue = millisecondsFormatter.format(metric.value);
+        break;
       default:
-        formattedValue = secondsFormatter.format(metric.value / 1000);
+        formattedValue = secondsFormatter.format(metric.value);
     }
     console.groupCollapsed(
       `${LOG_PREFIX} ${metric.name} %c${formattedValue} (${metric.rating})`,
