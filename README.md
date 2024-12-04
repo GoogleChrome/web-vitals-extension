@@ -1,3 +1,6 @@
+> [!WARNING]
+> The Chrome team has been working hard to bring the best of the Web Vitals extension directly into the DevTools Performance panel. As of Chrome version 132, which became stable on January 7, 2025, we have finally ended support for the extension and encourage all users to switch to DevTools. Be aware that extension updates will stop and features may break without notice. [Learn more](https://developer.chrome.com/blog/web-vitals-extension)
+
 # Web Vitals Chrome Extension 
 *A Chrome extension to measure metrics for a healthy site* 
 [Install now](https://chrome.google.com/webstore/detail/web-vitals/ahfhijdlegdabablpippeagghigmibma)
