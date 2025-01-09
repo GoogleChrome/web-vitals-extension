@@ -256,7 +256,7 @@
     }
 
     // Log the EOL warning at the same time as TTFB, which should only occur once per page load.
-    if (metric.name == 'TTFB') {
+    if (metric.name === 'TTFB') {
       console.warn(`${LOG_PREFIX} As of January 2025, support for the Web Vitals extension has ended. We encourage all users to switch to the DevTools Performance panel instead. Learn more: https://developer.chrome.com/blog/web-vitals-extension`);
     }
 
