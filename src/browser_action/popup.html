@@ -80,6 +80,19 @@
 
     </footer>
 
+    <dialog id="eol-notice" popover>
+      <p>
+        As of January 2025, support for the Web Vitals extension has ended.
+        We encourage all users to switch to the DevTools Performance panel instead.
+        <a href="https://developer.chrome.com/blog/web-vitals-extension" target="_blank">Learn more</a>
+      </p>
+
+      <div>
+        <button class="danger" popovertarget="eol-notice" popovertargetaction="hide">I understand</button>
+        <label><input type="checkbox" id="hide-eol-notice">Don't show again</label>
+      </div>
+    </dialog>
+
     <script type="module" src="popup.js"></script>
   </body>
 </html>

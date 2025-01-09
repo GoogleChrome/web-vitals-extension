@@ -44,6 +44,7 @@ class Popup {
     this.initTimestamp();
     this.initMetrics();
     this.initFieldData();
+    this.showEOLNotice();
   }
 
   initStatus() {
@@ -95,8 +96,22 @@ class Popup {
       console.log('CrUX data', fieldData);
       this.renderFieldData(fieldData, formFactor);
     }).catch(e => {
-      console.warn('Unable to load any CrUX data', e);
+      console.warn('Unable to load any CrUX data. See https://developer.chrome.com/blog/web-vitals-extension', e);
       this.setStatus('Local metrics only (field data unavailable)');
+    });
+  }
+
+  showEOLNotice() {
+    chrome.storage.sync.get({hideEOLNotice: false}, ({hideEOLNotice}) => {
+      if (hideEOLNotice) {
+        return;
+      }
+      const notice = document.getElementById('eol-notice');
+      notice.showPopover();
+      const hideNoticeToggle = document.getElementById('hide-eol-notice');
+      hideNoticeToggle.addEventListener('change', (e) => {
+        chrome.storage.sync.set({hideEOLNotice: e.target.checked});
+      });
     });
   }
 
