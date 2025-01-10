@@ -1,9 +1,8 @@
 > [!WARNING]
-> The Chrome team has been working hard to bring the best of the Web Vitals extension directly into the DevTools Performance panel. As of Chrome version 132, which became stable on January 7, 2025, we have finally ended support for the extension and encourage all users to switch to DevTools. Be aware that extension updates will stop and features may break without notice. [Learn more](https://developer.chrome.com/blog/web-vitals-extension)
+> The Chrome team has been working hard to bring the best of the Web Vitals extension directly into the DevTools Performance panel. As of Chrome version 132, which became stable on January 7, 2025, we have finally ended support for the extension and encourage all users to [switch to DevTools](#devtools). Be aware that extension updates will stop and features may break without notice. [Learn more](https://developer.chrome.com/blog/web-vitals-extension)
 
 # Web Vitals Chrome Extension 
 *A Chrome extension to measure metrics for a healthy site* 
-[Install now](https://chrome.google.com/webstore/detail/web-vitals/ahfhijdlegdabablpippeagghigmibma)
 
 <img src="media/cwv-extension-drilldown.png">
 
@@ -19,20 +18,98 @@ It also supports the diagnostic metrics:
 * [Time to First Byte](https://web.dev/articles/ttfb)
 * [First Contentful Paint](https://web.dev/articles/fcp)
 
-<h3 id="install">Installation Instructions</h3>
+<h3 id="devtools">✅ Migrating to DevTools</h3>
 
-The Web Vitals Chrome Extenstion can be installed from the [Chrome Web Store](https://chrome.google.com/webstore/detail/web-vitals/ahfhijdlegdabablpippeagghigmibma).
+Now that the Web Vitals extension has reached "end of life" stage, the Chrome team has stopped maintaining it. All users are strongly encouraged to start using the comparable functionality built into the DevTools Performance panel instead.
 
-If you are looking for a more bleeding-edge build, you can also install the version of the extension from master.
+The Performance panel is a much more powerful debugging tool than the extension alone. That said, there may be some functional or ergonomic features of the extensions still missing from DevTools. If there's a critical feature of the extension blocking your migration to DevTools, please +1 the relevant feature request in the [hotlist](https://goo.gle/devtools-live-cwv-hotlist) or [file a new issue](https://issues.chromium.org/issues/new?component=1457310&template=1946799&type=feature_request&priority=P2&pli=1&title=Live%20Metrics) to help get it prioritized.
 
-<h4 id="install-master">Install from master</h4>
+![DevTools live metrics view](media/devtools-panel.png)
+
+Refer to the [official DevTools Performance panel documentation](https://developer.chrome.com/docs/devtools/performance/overview) for information about using each feature. As of Chrome 132 in January 2025, here is a quick summary of the extension features supported by DevTools:
+
+#### Live metrics
+
+When you open the Performance panel, the view defaults to showing a live look at your local Core Web Vitals metrics.
+
+![LCP, CLS, and INP live metrics in DevTools](media/devtools-live-metrics.png)
+
+#### Field data
+
+Use the "Field data" configuration flow to show field data from CrUX next to your local metrics. URL and origin-level data is available for both desktop and mobile.
+
+![Field data in DevTools](media/devtools-field-data.png)
+
+#### LCP element attribution
+
+You can find a reference to the element responsible for the LCP metric at the bottom of the LCP section.
+
+![LCP attribution in DevTools](media/devtools-lcp-attribution.png)
+
+#### LCP phases
+
+Hover over the LCP metric values to display a card with more information about your local and field LCP performance, including a breakdown of your local LCP phases: TTFB, load delay, load duration, and render delay.
+
+![LCP phases in DevTools](media/devtools-lcp-phases.png)
+
+#### Interaction log
+
+Every interaction that get counted towards the INP metric will be added to the interaction log at the bottom of the panel.
+
+![Interaction log in DevTools](media/devtools-interaction-log.png)
+
+#### Interaction phases
+
+Phases for each interaction (including the one responsible for INP) are available by expanding the entry in the interaction log. Supports input delay, processing duration, and presentation delay.
+
+![Interaction phases in the interaction log](media/devtools-interaction-phases.png)
+
+#### LoAF attribution
+
+From the expanded interaction log, the "Local duration (ms)" heading will be clickable if there is LoAF attribution data available. Clicking it will log the data to the Console panel.
+
+![Additional LoAF attribution logged to the DevTools console from the interaction log](media/devtools-loaf-attribution.png)
+
+#### Layout shift log
+
+Adjacent to the interaction log is the layout shift log, which groups coincidental layout shifts into clusters and assigns a score to the cluster. The worst cluster corresponding to the page's CLS score is linked from the CLS section.
+
+![Layout shift log in DevTools](media/devtools-layout-shift-log.png)
+
+#### TTFB
+
+TTFB is available as a phase of LCP on the live metrics view as well as the trace view under the "LCP by phase" insight.
+
+![TTFB in DevTools trace view](media/devtools-ttfb.png)
+
+#### FCP
+
+FCP is shown as a marker in the trace view.
+
+![FCP marker in DevTools trace view](media/devtools-fcp.png)
+
+<h3 id="self">⚠️ Self-maintenance instructions</h3>
+
+If you're unable to migrate your workflow to DevTools for any reason, please let us know by following the instructions in the previous section to file an issue. Until your issue gets resolved, you may prefer to continue using the extension using a local copy.
+
+To get started, follow the instructions below to [install the extension from source](#install-master).
+
+To continue using field data powered by the CrUX API, you'll need to provision a new API key tied to a personal Google Cloud project. You can acquire a new key by visiting the [CrUX API docs](https://developer.chrome.com/docs/crux/api#APIKey). It doesn't cost anything to use the API, but rate limiting restrictions will apply.
+
+To stay up to date with the [web-vitals.js library](https://github.com/GoogleChrome/web-vitals), periodically run the following command:
+
+```sh
+npm update web-vitals --save
+```
+
+<h3 id="install-master">Install from main</h3>
 
 **Google Chrome**
-1. Download this repo as a [ZIP file from GitHub](https://github.com/googlechrome/web-vitals-extension/archive/master.zip).
-1. Unzip the file and you should have a folder named `web-vitals-extension-master`.
+1. Download this repo as a [ZIP file from GitHub](https://github.com/googlechrome/web-vitals-extension/archive/main.zip).
+1. Unzip the file and you should have a folder named `web-vitals-extension-main`.
 1. In Chrome go to the extensions page (`chrome://extensions`).
 1. Enable Developer Mode.
-1. Drag the `web-vitals-extension-master` folder anywhere on the page to import it (do not delete the folder afterwards).
+1. Drag the `web-vitals-extension-main` folder anywhere on the page to import it (do not delete the folder afterwards).
 
 ## Usage
 
