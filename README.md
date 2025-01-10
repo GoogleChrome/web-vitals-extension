@@ -24,6 +24,8 @@ Now that the Web Vitals extension has reached "end of life" stage, the Chrome te
 
 The Performance panel is a much more powerful debugging tool than the extension alone. That said, there may be some functional or ergonomic features of the extensions still missing from DevTools. If there's a critical feature of the extension blocking your migration to DevTools, please +1 the relevant feature request in the [hotlist](https://goo.gle/devtools-live-cwv-hotlist) or [file a new issue](https://issues.chromium.org/issues/new?component=1457310&template=1946799&type=feature_request&priority=P2&pli=1&title=Live%20Metrics) to help get it prioritized.
 
+![DevTools live metrics view](media/devtools-panel.png)
+
 Refer to the [official DevTools Performance panel documentation](https://developer.chrome.com/docs/devtools/performance/overview) for information about using each feature. As of Chrome 132 in January 2025, here is a quick summary of the extension features supported by DevTools:
 
 #### Live metrics
